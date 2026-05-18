@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-primary: #042F61;
+  --color-accent: #FFB800;
+  --color-primary-light: #064082;
+  --color-primary-dark: #021e3d;
+  
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 3rem;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-primary antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+.glass-nav {
+  @apply bg-white/10 backdrop-blur-md border-b border-white/10;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Custom animations for the accordion and cards */
+.hover-card {
+  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}
