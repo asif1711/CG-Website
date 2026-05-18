@@ -103,11 +103,79 @@ const LanguageSelector = ({ isScrolled }: { isScrolled: boolean }) => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    // Read initial language from cookie if exists
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+    };
+
+    const currentTrans = getCookie('googtrans');
+    if (currentTrans) {
+      const lang = currentTrans.split('/').pop()?.toUpperCase();
+      if (lang) {
+        const found = LANGUAGES.find(l => l.code === (lang === 'ZH-CN' ? 'ZH' : lang));
+        if (found) setSelectedLang(found.name);
+      }
+    }
+
+    // Add Google Translate script if not already present
+    if (!document.getElementById('google-translate-script')) {
+      const script = document.createElement('script');
+      script.id = 'google-translate-script';
+      script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
+    (window as any).googleTranslateElementInit = () => {
+      new (window as any).google.translate.TranslateElement({
+        pageLanguage: 'en',
+        includedLanguages: 'ar,zh-CN,hi,th,vi',
+        layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false,
+      }, 'google_translate_element');
+    };
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
+  const changeLanguage = (langCode: string) => {
+    let targetCode = langCode.toLowerCase();
+    if (targetCode === 'zh') targetCode = 'zh-CN';
+    
+    // Set cookie for Google Translate
+    const cookieValue = `/en/${targetCode}`;
+    document.cookie = `googtrans=${cookieValue}; path=/`;
+    // Also set for subdomains just in case
+    const domain = window.location.hostname;
+    document.cookie = `googtrans=${cookieValue}; path=/; domain=.${domain}`;
+
+    const googleCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+    if (googleCombo) {
+      googleCombo.value = targetCode === 'en' ? '' : targetCode;
+      googleCombo.dispatchEvent(new Event('change'));
+    } else {
+      // Small timeout to allow widget to load if it hasn't
+      setTimeout(() => {
+        const retryCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+        if (retryCombo) {
+          retryCombo.value = targetCode === 'en' ? '' : targetCode;
+          retryCombo.dispatchEvent(new Event('change'));
+        } else {
+          // If still not found, a reload is the most reliable way to apply the cookie
+          window.location.reload();
+        }
+      }, 500);
+    }
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
+      <div id="google_translate_element" style={{ display: 'none' }}></div>
       <motion.button 
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -139,6 +207,7 @@ const LanguageSelector = ({ isScrolled }: { isScrolled: boolean }) => {
                   onClick={() => {
                     setSelectedLang(lang.name);
                     setIsOpen(false);
+                    changeLanguage(lang.code);
                   }}
                   className={`w-full flex items-center justify-between px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest transition-all ${
                     selectedLang === lang.name 
@@ -168,7 +237,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 h-[120px] flex items-center ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 h-[120px] lg:h-[80px] xl:h-[120px] flex items-center ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
       <div className="w-full px-6 md:px-10 lg:px-12 xl:px-24 flex items-center justify-between">
         {/* Left: Logo */}
         <div className="flex-shrink-0">
@@ -183,9 +252,9 @@ const Navbar = () => {
         </div>
 
         {/* Right Section: Nav + Buttons */}
-        <div className="hidden lg:flex items-center gap-3 xl:gap-8 flex-1 justify-end">
+        <div className="hidden lg:flex items-center gap-6 xl:gap-8 flex-1 justify-end">
           {/* Nav links */}
-          <div className="flex items-center gap-4 xl:gap-8 mr-2 xl:mr-4">
+          <div className="flex items-center gap-6 xl:gap-8 mr-2 xl:mr-4">
             {['About Us', 'Our Services', 'Our People', 'Careers'].map((item) => (
               <a 
                 key={item} 
@@ -198,7 +267,7 @@ const Navbar = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-1.5 xl:gap-3">
+          <div className="flex items-center gap-3 xl:gap-3">
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -331,7 +400,7 @@ const Navbar = () => {
 
 const Hero = () => {
   return (
-    <section className="relative h-screen flex items-end justify-center overflow-hidden pb-24 md:pb-32">
+    <section className="relative h-screen flex items-center lg:items-start xl:items-center overflow-hidden lg:pb-0 xl:pb-0">
       {/* Video Background */}
       <div className="absolute inset-0 z-0 overflow-hidden bg-primary-dark">
         <video 
@@ -348,24 +417,24 @@ const Hero = () => {
         <div className="absolute inset-0 bg-black/45" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-8 w-full pt-12">
+      <div className="relative z-10 max-w-7xl mx-auto px-8 w-full pt-12 lg:pt-[220px] xl:pt-12">
         <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-20 items-end">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.2, 0.65, 0.3, 0.9] }}
           >
-            <h1 className="text-4xl md:text-[47px] text-white leading-[1.2] mb-10 font-semibold tracking-tight text-balance">
+            <h1 className="text-3xl md:text-4xl lg:text-[42px] xl:text-[47px] text-white leading-[1.2] mb-6 lg:mb-10 font-semibold tracking-tight text-balance">
               Empowering the Future of Vocational Education Compliance
             </h1>
-            <p className="text-xl text-white/80 mb-12 max-w-xl leading-relaxed font-medium">
+            <p className="text-lg lg:text-base xl:text-xl text-white/80 mb-8 lg:mb-6 xl:mb-12 max-w-xl leading-relaxed font-medium">
               We deliver end-to-end consultancy solutions for Australia’s VET sector, specialising in RTO and CRICOS registration, compliance, and operational support.
             </p>
-            <div className="flex flex-wrap gap-6 items-center">
+            <div className="flex flex-wrap gap-6 items-center lg:pb-12 xl:pb-0">
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-primary text-white hover:bg-accent hover:text-primary px-10 py-5 rounded-full font-extrabold uppercase tracking-widest text-[13px] flex items-center gap-3 transition-all shadow-2xl group border border-transparent"
+                className="bg-primary text-white hover:bg-accent hover:text-primary px-8 py-4 xl:px-10 xl:py-5 rounded-full font-extrabold uppercase tracking-widest text-[12px] xl:text-[13px] flex items-center gap-3 transition-all shadow-2xl group border border-transparent"
               >
                 Get Started <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </motion.button>
@@ -376,16 +445,16 @@ const Hero = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="hidden lg:flex flex-col items-end gap-16"
+            className="hidden lg:flex flex-col items-end gap-10 xl:gap-16"
           >
-            <div className="bg-white/10 backdrop-blur-2xl p-10 rounded-[2.5rem] border border-white/20 w-80 shadow-2xl">
-              <div className="text-6xl font-black text-accent mb-3 tabular-nums">
+            <div className="bg-white/10 backdrop-blur-2xl p-6 xl:p-10 rounded-[2rem] xl:rounded-[2.5rem] border border-white/20 w-64 xl:w-80 shadow-2xl">
+              <div className="text-4xl xl:text-6xl font-black text-accent mb-2 xl:mb-3 tabular-nums">
                 <CountingNumber value={50} suffix="+" />
               </div>
-              <div className="text-white/60 text-xs font-bold tracking-[0.2em] uppercase">RTOs Supported</div>
+              <div className="text-white/60 text-[10px] xl:text-xs font-bold tracking-[0.2em] uppercase">RTOs Supported</div>
             </div>
             
-            <div className="flex flex-col items-end mr-4">
+            <div className="flex flex-col items-end mr-4 lg:pb-20 xl:pb-0">
               <div className="text-white/40 mb-2 text-[10px] uppercase tracking-[0.3em] font-black flex items-center gap-4">
                 Scroll to Explore 
                 <span className="w-12 h-[1px] bg-white/20 inline-block" />
@@ -455,7 +524,7 @@ const Logos = () => {
   };
 
   return (
-    <section className="border-b border-gray-100 bg-white overflow-hidden h-[120px] flex items-center relative">
+    <section className="border-b border-gray-100 bg-white overflow-hidden h-[120px] lg:h-[110px] xl:h-[120px] flex items-center relative">
       {/* Premium edge fades */}
       <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none" />
@@ -804,7 +873,7 @@ const WorldMapGraphic = () => {
 
 const About = () => {
   return (
-    <section id="about" className="py-24 bg-white overflow-hidden">
+    <section id="about" className="py-24 lg:py-[91px] xl:py-24 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <motion.div 
@@ -906,7 +975,7 @@ const Capabilities = () => {
   ];
 
   return (
-    <section id="investment-criteria" className="py-24 bg-white">
+    <section id="investment-criteria" className="py-24 lg:py-[91px] xl:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-20">
           <div>
@@ -992,7 +1061,7 @@ const Portfolio = () => {
   const prev = () => setIndex((prev) => (prev - 1 + items.length) % items.length);
 
   return (
-    <section id="portfolio" className="pt-16 pb-24 bg-gray-50/50 overflow-hidden relative">
+    <section id="portfolio" className="pt-16 pb-24 lg:pt-[59px] lg:pb-[91px] xl:pt-16 xl:pb-24 bg-gray-50/50 overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-8 mb-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div>
@@ -1112,7 +1181,7 @@ const Principles = () => {
   ];
 
   return (
-    <section className="relative min-h-[90vh] flex items-center py-16 overflow-hidden bg-[#042F61]">
+    <section className="relative min-h-[90vh] flex items-center py-16 lg:py-[59px] xl:py-16 overflow-hidden bg-[#042F61]">
       {/* Animated Premium Background Layers */}
       <div className="absolute inset-0 z-0">
         <motion.div 
@@ -1292,7 +1361,7 @@ const HearFromOurTeam = () => {
   };
 
   return (
-    <section className="pt-8 md:pt-24 pb-12 md:pb-24 bg-gray-50/50 overflow-hidden">
+    <section className="pt-8 md:pt-24 pb-12 md:pb-24 lg:pt-[91px] lg:pb-[91px] xl:pt-24 xl:pb-24 bg-gray-50/50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-6 md:mb-16">
           <motion.div 
@@ -1446,7 +1515,7 @@ const Leadership = () => {
   ];
 
   return (
-    <section className="py-12 md:py-24 bg-white">
+    <section className="py-12 md:py-24 lg:py-[91px] xl:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <h2 className="text-4xl font-bold text-center mb-16 text-primary">Our Leadership Team</h2>
         <div className="grid md:grid-cols-2 gap-12">
@@ -1732,9 +1801,9 @@ const Connect = () => {
 
 const Footer = () => {
   return (
-    <footer className="relative pt-6 md:pt-10 pb-6 md:pb-8 overflow-hidden text-primary/80 bg-white border-t border-gray-100 h-[710px] md:h-auto">
-      <div className="w-full px-8 md:px-16 lg:px-24 relative z-10">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-16 mb-6 md:mb-12 items-stretch">
+    <footer className="relative pt-6 md:pt-10 pb-6 md:pb-8 lg:pt-6 lg:pb-6 overflow-hidden text-primary/80 bg-white border-t border-gray-100 h-[710px] md:h-auto">
+      <div className="w-full px-8 md:px-16 lg:px-16 xl:px-24 relative z-10">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-16 lg:gap-10 xl:gap-16 mb-6 md:mb-12 lg:mb-8 items-stretch">
           {/* Logo & About Section */}
           <div className="w-full md:w-5/12 flex flex-col justify-start">
             <div className="space-y-2 md:space-y-4 mb-4 md:mb-6">
@@ -1757,7 +1826,7 @@ const Footer = () => {
               <div className="h-[1.5px] w-full max-w-[340px] bg-accent/60" />
             </div>
 
-            <p className="text-gray-500 text-[12px] md:text-sm leading-relaxed max-w-xl font-medium text-justify">
+            <p className="text-gray-500 text-[12px] md:text-sm lg:text-[11px] xl:text-sm leading-relaxed max-w-xl font-medium text-justify">
               All content and materials on this website are protected under the Australian Copyright Act 1968, with all rights reserved by Chelson Gordon Consultancy Pty Ltd. No part of this website may be reproduced, stored, transmitted, distributed, or otherwise used in any form without prior written permission. Unauthorised use may result in penalties for copyright infringement.
             </p>
           </div>
@@ -1768,25 +1837,25 @@ const Footer = () => {
               <h4 className="font-bold text-primary mb-1 text-lg tracking-tight">Contact Us</h4>
               <div className="h-0.5 w-24 bg-accent/60" />
             </div>
-            <ul className="space-y-3 md:space-y-6 mt-4 md:mt-8">
+            <ul className="space-y-3 md:space-y-6 lg:space-y-4 xl:space-y-6 mt-4 md:mt-8 lg:mt-6">
               <li className="flex items-center gap-4 group">
                 <div className="p-2 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
-                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/phone-in-talk.svg" alt="Phone" className="w-8 h-8" />
+                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/phone-in-talk.svg" alt="Phone" className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
                 </div>
-                <div className="flex flex-wrap items-center gap-x-6 md:gap-x-10">
-                  <a href="tel:+61499994530" className="hover:text-accent text-primary transition-colors font-bold text-[13px] md:text-sm tracking-tight whitespace-nowrap">+61 499 994 530</a>
-                  <a href="tel:+66621744994" className="hover:text-accent text-primary transition-colors font-bold text-[13px] md:text-sm tracking-tight whitespace-nowrap">+66 62 174 4994</a>
+                <div className="flex flex-wrap lg:flex-nowrap items-center gap-x-6 md:gap-x-10 lg:gap-x-4 xl:gap-x-10">
+                  <a href="tel:+61499994530" className="hover:text-accent text-primary transition-colors font-bold text-[13px] md:text-sm lg:text-[11px] xl:text-sm tracking-tight whitespace-nowrap">+61 499 994 530</a>
+                  <a href="tel:+66621744994" className="hover:text-accent text-primary transition-colors font-bold text-[13px] md:text-sm lg:text-[11px] xl:text-sm tracking-tight whitespace-nowrap">+66 62 174 4994</a>
                 </div>
               </li>
               <li className="flex items-center gap-4 group">
                 <div className="p-2 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
-                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/email.svg" alt="Email" className="w-8 h-8" />
+                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/email.svg" alt="Email" className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <a href="mailto:support.coordinator@chelsongordon.com" className="hover:text-accent text-primary transition-colors font-bold text-[12px] md:text-sm truncate tracking-tight block">support.coordinator@chelsongordon.com</a>
+                  <a href="mailto:support.coordinator@chelsongordon.com" className="hover:text-accent text-primary transition-colors font-bold text-[12px] md:text-sm lg:text-[10px] xl:text-sm tracking-tight block whitespace-nowrap lg:whitespace-normal xl:whitespace-nowrap overflow-hidden text-ellipsis">support.coordinator@chelsongordon.com</a>
                 </div>
               </li>
-              <li className="flex items-center gap-4 pt-2">
+              <li className="flex items-center gap-4 pt-2 lg:pt-0">
                 <div className="flex items-center gap-4">
                   <a 
                     href="https://www.instagram.com/chelsongordonofficial?igsh=MXhwc3o2ZTRieXJyaQ==" 
@@ -1794,7 +1863,7 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     className="p-2 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
                   >
-                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/instagram.svg" alt="Instagram" className="w-8 h-8" />
+                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/instagram.svg" alt="Instagram" className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
                   </a>
                   <a 
                     href="https://www.youtube.com/@ChelsonGordonConsultancy" 
@@ -1802,7 +1871,7 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     className="p-2 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
                   >
-                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/youtube.svg" alt="Youtube" className="w-8 h-8" />
+                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/youtube.svg" alt="Youtube" className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
                   </a>
                   <a 
                     href="https://www.facebook.com/share/15r9QeRt2x/?mibextid=wwXIfr" 
@@ -1810,7 +1879,7 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     className="p-2 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
                   >
-                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/facebook.svg" alt="Facebook" className="w-8 h-8" />
+                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/facebook.svg" alt="Facebook" className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
                   </a>
                 </div>
               </li>
@@ -1818,12 +1887,12 @@ const Footer = () => {
           </div>
 
           {/* Action Column with vertical border */}
-          <div className="w-full md:w-3/12 md:border-l border-gray-100 md:pl-10 flex flex-col items-center justify-start h-full">
+          <div className="w-full md:w-3/12 md:border-l border-gray-100 md:pl-10 lg:pl-6 xl:pl-10 flex flex-col items-center justify-start h-full">
             <motion.button 
               initial="initial"
               whileHover="hover"
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 md:py-5 rounded-xl flex items-center gap-3 font-extrabold text-[12px] md:text-[13px] tracking-widest uppercase shadow-lg border transition-all duration-300 relative overflow-hidden group mt-2 md:mt-0"
+              className="px-8 py-4 md:py-5 lg:px-4 lg:py-4 xl:px-8 xl:py-5 rounded-xl flex items-center gap-3 font-extrabold text-[12px] md:text-[13px] lg:text-[11px] xl:text-[13px] tracking-widest uppercase shadow-lg border transition-all duration-300 relative overflow-hidden group mt-2 md:mt-0 lg:whitespace-nowrap"
             >
               <motion.div 
                 variants={{
@@ -1857,19 +1926,19 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="pt-4 md:pt-4 border-t border-gray-100 flex flex-col items-center gap-3 md:gap-2">
-          <div className="flex flex-wrap justify-center gap-x-6 md:gap-x-24 gap-y-2 md:gap-y-2">
+        <div className="pt-4 md:pt-4 lg:pt-2 border-t border-gray-100 flex flex-col items-center gap-3 md:gap-2">
+          <div className="flex flex-wrap justify-center gap-x-6 md:gap-x-24 lg:gap-x-12 xl:gap-x-24 gap-y-2 md:gap-y-2">
             {['Terms of use', 'Privacy Policy', 'Cancellation & Refund'].map(item => (
               <a 
                 key={item} 
                 href="#" 
-                className="text-gray-500 hover:text-accent transition-colors font-bold text-[12px] md:text-xs tracking-wider uppercase px-1 py-0.5"
+                className="text-gray-500 hover:text-accent transition-colors font-bold text-[12px] md:text-xs lg:text-[10px] xl:text-xs tracking-wider uppercase px-1 py-0.5"
               >
                 {item}
               </a>
             ))}
           </div>
-          <p className="text-gray-400 text-[11px] md:text-[14px] tracking-normal md:tracking-[0.1em] uppercase font-bold text-center px-4" style={{ wordSpacing: '0.1em', fontWeight: 700 }}>
+          <p className="text-gray-400 text-[11px] md:text-[14px] lg:text-[11px] xl:text-[14px] tracking-normal md:tracking-[0.1em] uppercase font-bold text-center px-4" style={{ wordSpacing: '0.1em', fontWeight: 700 }}>
             © 2026 Chelson Gordon Consultancy. <br className="md:hidden" /> All Rights Reserved.
           </p>
         </div>
