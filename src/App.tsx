@@ -91,9 +91,8 @@ import {
   LOGO_URL
 } from './constants';
 
-const LanguageSelector = ({ isScrolled }: { isScrolled: boolean }) => {
+const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isScrolled: boolean; selectedLang: string; onLanguageChange: (code: string, name: string) => void }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLang, setSelectedLang] = useState('English');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -103,75 +102,10 @@ const LanguageSelector = ({ isScrolled }: { isScrolled: boolean }) => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-
-    // Read initial language from cookie if exists
-    const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift();
-    };
-
-    const currentTrans = getCookie('googtrans');
-    if (currentTrans) {
-      const lang = currentTrans.split('/').pop()?.toUpperCase();
-      if (lang) {
-        const found = LANGUAGES.find(l => l.code === (lang === 'ZH-CN' ? 'ZH' : lang));
-        if (found) setSelectedLang(found.name);
-      }
-    }
-
-    // Add Google Translate script if not already present
-    if (!document.getElementById('google-translate-script')) {
-      const script = document.createElement('script');
-      script.id = 'google-translate-script';
-      script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-      script.async = true;
-      document.body.appendChild(script);
-    }
-
-    (window as any).googleTranslateElementInit = () => {
-      new (window as any).google.translate.TranslateElement({
-        pageLanguage: 'en',
-        includedLanguages: 'ar,zh-CN,hi,th,vi',
-        layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
-        autoDisplay: false,
-      }, 'google_translate_element');
-    };
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const changeLanguage = (langCode: string) => {
-    let targetCode = langCode.toLowerCase();
-    if (targetCode === 'zh') targetCode = 'zh-CN';
-    
-    // Set cookie for Google Translate
-    const cookieValue = `/en/${targetCode}`;
-    document.cookie = `googtrans=${cookieValue}; path=/`;
-    // Also set for subdomains just in case
-    const domain = window.location.hostname;
-    document.cookie = `googtrans=${cookieValue}; path=/; domain=.${domain}`;
-
-    const googleCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-    if (googleCombo) {
-      googleCombo.value = targetCode === 'en' ? '' : targetCode;
-      googleCombo.dispatchEvent(new Event('change'));
-    } else {
-      // Small timeout to allow widget to load if it hasn't
-      setTimeout(() => {
-        const retryCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-        if (retryCombo) {
-          retryCombo.value = targetCode === 'en' ? '' : targetCode;
-          retryCombo.dispatchEvent(new Event('change'));
-        } else {
-          // If still not found, a reload is the most reliable way to apply the cookie
-          window.location.reload();
-        }
-      }, 500);
-    }
-  };
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -205,9 +139,8 @@ const LanguageSelector = ({ isScrolled }: { isScrolled: boolean }) => {
                 <button
                   key={lang.code}
                   onClick={() => {
-                    setSelectedLang(lang.name);
+                    onLanguageChange(lang.code, lang.name);
                     setIsOpen(false);
-                    changeLanguage(lang.code);
                   }}
                   className={`w-full flex items-center justify-between px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest transition-all ${
                     selectedLang === lang.name 
@@ -229,16 +162,79 @@ const LanguageSelector = ({ isScrolled }: { isScrolled: boolean }) => {
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedLang, setSelectedLang] = useState('English');
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
+
+    // Initial language detection from cookie
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+    };
+
+    const currentTrans = getCookie('googtrans');
+    if (currentTrans) {
+      const lang = currentTrans.split('/').pop()?.toUpperCase();
+      if (lang) {
+        const found = LANGUAGES.find(l => l.code === (lang === 'ZH-CN' ? 'ZH' : lang));
+        if (found) setSelectedLang(found.name);
+      }
+    }
+
+    // Add Google Translate script if not already present
+    if (!document.getElementById('google-translate-script')) {
+      const script = document.createElement('script');
+      script.id = 'google-translate-script';
+      script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
+    (window as any).googleTranslateElementInit = () => {
+      new (window as any).google.translate.TranslateElement({
+        pageLanguage: 'en',
+        includedLanguages: 'ar,zh-CN,hi,th,vi',
+        layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false,
+      }, 'google_translate_element');
+    };
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const changeLanguage = (langCode: string, langName: string) => {
+    setSelectedLang(langName);
+    let targetCode = langCode.toLowerCase();
+    if (targetCode === 'zh') targetCode = 'zh-CN';
+    
+    const cookieValue = `/en/${targetCode}`;
+    document.cookie = `googtrans=${cookieValue}; path=/`;
+    const domain = window.location.hostname;
+    document.cookie = `googtrans=${cookieValue}; path=/; domain=.${domain}`;
+
+    const googleCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+    if (googleCombo) {
+      googleCombo.value = targetCode === 'en' ? '' : targetCode;
+      googleCombo.dispatchEvent(new Event('change'));
+    } else {
+      setTimeout(() => {
+        const retryCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+        if (retryCombo) {
+          retryCombo.value = targetCode === 'en' ? '' : targetCode;
+          retryCombo.dispatchEvent(new Event('change'));
+        } else {
+          window.location.reload();
+        }
+      }, 500);
+    }
+  };
+
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 h-[120px] lg:h-[80px] xl:h-[120px] flex items-center ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
-      <div className="w-full px-6 md:px-10 lg:px-12 xl:px-24 flex items-center justify-between">
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
+      <div className="max-w-[1440px] mx-auto w-full px-6 md:px-10 lg:px-16 h-[120px] lg:h-[80px] xl:h-[120px] flex items-center justify-between">
         {/* Left: Logo */}
         <div className="flex-shrink-0">
           <a href="/" className="flex items-center gap-3">
@@ -300,7 +296,11 @@ const Navbar = () => {
               CG Resources <ShoppingBag className="w-3.5 h-3.5" />
             </motion.button>
 
-            <LanguageSelector isScrolled={isScrolled} />
+            <LanguageSelector 
+              isScrolled={isScrolled} 
+              selectedLang={selectedLang}
+              onLanguageChange={changeLanguage}
+            />
           </div>
         </div>
 
@@ -382,7 +382,15 @@ const Navbar = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 + idx * 0.05 }}
                         key={lang.code}
-                        className="flex items-center justify-center py-3.5 rounded-xl bg-primary/5 text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-accent transition-all active:scale-95"
+                        onClick={() => {
+                          changeLanguage(lang.code, lang.name);
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`flex items-center justify-center py-3.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 ${
+                          selectedLang === lang.name 
+                            ? 'bg-primary text-white shadow-lg' 
+                            : 'bg-primary/5 text-primary border border-primary/10 hover:bg-accent'
+                        }`}
                       >
                         {lang.name}
                       </motion.button>
@@ -1801,85 +1809,85 @@ const Connect = () => {
 
 const Footer = () => {
   return (
-    <footer className="relative pt-6 md:pt-10 pb-6 md:pb-8 lg:pt-6 lg:pb-6 overflow-hidden text-primary/80 bg-white border-t border-gray-100 h-[710px] md:h-auto">
-      <div className="w-full px-8 md:px-16 lg:px-16 xl:px-24 relative z-10">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-16 lg:gap-10 xl:gap-16 mb-6 md:mb-12 lg:mb-8 items-stretch">
+    <footer className="relative pt-8 pb-6 md:pt-12 md:pb-8 lg:pt-8 lg:pb-6 overflow-hidden text-primary/80 bg-white border-t border-gray-100 h-auto">
+      <div className="max-w-[1440px] mx-auto w-full px-8 md:px-16 lg:px-12 xl:px-24 relative z-10">
+        <div className="flex flex-col md:flex-row gap-8 md:gap-16 lg:gap-12 xl:gap-20 mb-8 md:mb-12 lg:mb-8 items-start">
           {/* Logo & About Section */}
           <div className="w-full md:w-5/12 flex flex-col justify-start">
-            <div className="space-y-2 md:space-y-4 mb-4 md:mb-6">
-              <a href="/" className="flex items-center gap-4 md:gap-5 group cursor-pointer decoration-none">
+            <div className="space-y-2 md:space-y-3 mb-4 md:mb-5 lg:mb-4">
+              <a href="/" className="flex items-center gap-3 md:gap-4 group cursor-pointer decoration-none">
                 <div className="relative">
-                  <div className="absolute inset-0 bg-accent rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
+                  <div className="absolute inset-0 bg-accent rounded-full blur-xl opacity-10 group-hover:opacity-30 transition-opacity" />
                   <img 
                     src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/CG_plain.webp" 
                     alt="Chelson Gordon Logo" 
-                    className="h-10 md:h-14 w-auto relative z-10 transition-transform group-hover:scale-110 duration-500"
+                    className="h-8 md:h-12 w-auto relative z-10 transition-transform group-hover:scale-105 duration-500"
                     style={{ transform: 'scale(1.2)' }}
                     referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="flex flex-col justify-center">
-                  <span className="text-primary font-bold text-[16px] md:text-[22px] tracking-widest leading-tight uppercase" style={{ wordSpacing: '0.3em' }}>Chelson Gordon</span>
-                  <span className="text-accent font-bold text-[14px] md:text-[18px] tracking-[0.1em] uppercase leading-none">Consultancy</span>
+                  <span className="text-primary font-bold text-[14px] md:text-[20px] lg:text-[18px] xl:text-[20px] tracking-widest leading-tight uppercase" style={{ wordSpacing: '0.2em' }}>Chelson Gordon</span>
+                  <span className="text-accent font-bold text-[12px] md:text-[16px] lg:text-[14px] xl:text-[16px] tracking-[0.1em] uppercase leading-none">Consultancy</span>
                 </div>
               </a>
-              <div className="h-[1.5px] w-full max-w-[340px] bg-accent/60" />
+              <div className="h-[1.5px] w-full max-w-[280px] md:max-w-[340px] bg-accent/40" />
             </div>
 
-            <p className="text-gray-500 text-[12px] md:text-sm lg:text-[11px] xl:text-sm leading-relaxed max-w-xl font-medium text-justify">
+            <p className="text-gray-500 text-[11px] md:text-sm lg:text-[10px] xl:text-[13px] leading-relaxed max-w-lg lg:max-w-md xl:max-w-lg font-medium text-justify opacity-90">
               All content and materials on this website are protected under the Australian Copyright Act 1968, with all rights reserved by Chelson Gordon Consultancy Pty Ltd. No part of this website may be reproduced, stored, transmitted, distributed, or otherwise used in any form without prior written permission. Unauthorised use may result in penalties for copyright infringement.
             </p>
           </div>
           
           {/* Contact Details with vertical border */}
-          <div className="w-full md:w-4/12 md:border-l border-gray-100 md:pl-12">
-            <div className="mb-2">
-              <h4 className="font-bold text-primary mb-1 text-lg tracking-tight">Contact Us</h4>
-              <div className="h-0.5 w-24 bg-accent/60" />
+          <div className="w-full md:w-4/12 md:border-l border-gray-100 md:pl-10 lg:pl-8 xl:pl-12">
+            <div className="mb-3 lg:mb-2">
+              <h4 className="font-bold text-primary mb-1 text-base lg:text-lg tracking-tight">Contact Us</h4>
+              <div className="h-0.5 w-16 lg:w-20 bg-accent/60" />
             </div>
-            <ul className="space-y-3 md:space-y-6 lg:space-y-4 xl:space-y-6 mt-4 md:mt-8 lg:mt-6">
-              <li className="flex items-center gap-4 group">
-                <div className="p-2 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
-                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/phone-in-talk.svg" alt="Phone" className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
+            <ul className="space-y-3 md:space-y-5 lg:space-y-3 xl:space-y-5 mt-3 md:mt-6 lg:mt-4">
+              <li className="flex items-center gap-3 group">
+                <div className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
+                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/phone-in-talk.svg" alt="Phone" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
                 </div>
-                <div className="flex flex-wrap lg:flex-nowrap items-center gap-x-6 md:gap-x-10 lg:gap-x-4 xl:gap-x-10">
-                  <a href="tel:+61499994530" className="hover:text-accent text-primary transition-colors font-bold text-[13px] md:text-sm lg:text-[11px] xl:text-sm tracking-tight whitespace-nowrap">+61 499 994 530</a>
-                  <a href="tel:+66621744994" className="hover:text-accent text-primary transition-colors font-bold text-[13px] md:text-sm lg:text-[11px] xl:text-sm tracking-tight whitespace-nowrap">+66 62 174 4994</a>
+                <div className="flex flex-wrap lg:flex-nowrap items-center gap-x-4 md:gap-x-8 lg:gap-x-4 xl:gap-x-8">
+                  <a href="tel:+61499994530" className="hover:text-accent text-primary transition-colors font-bold text-[12px] md:text-sm lg:text-[11px] xl:text-sm tracking-tight whitespace-nowrap">+61 499 994 530</a>
+                  <a href="tel:+66621744994" className="hover:text-accent text-primary transition-colors font-bold text-[12px] md:text-sm lg:text-[11px] xl:text-sm tracking-tight whitespace-nowrap">+66 62 174 4994</a>
                 </div>
               </li>
-              <li className="flex items-center gap-4 group">
-                <div className="p-2 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
-                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/email.svg" alt="Email" className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
+              <li className="flex items-center gap-3 group">
+                <div className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
+                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/email.svg" alt="Email" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <a href="mailto:support.coordinator@chelsongordon.com" className="hover:text-accent text-primary transition-colors font-bold text-[12px] md:text-sm lg:text-[10px] xl:text-sm tracking-tight block whitespace-nowrap lg:whitespace-normal xl:whitespace-nowrap overflow-hidden text-ellipsis">support.coordinator@chelsongordon.com</a>
+                  <a href="mailto:support.coordinator@chelsongordon.com" className="hover:text-accent text-primary transition-colors font-bold text-[11px] md:text-sm lg:text-[10px] xl:text-[13px] tracking-tight block truncate">support.coordinator@chelsongordon.com</a>
                 </div>
               </li>
-              <li className="flex items-center gap-4 pt-2 lg:pt-0">
-                <div className="flex items-center gap-4">
+              <li className="flex items-center gap-4 pt-1 lg:pt-0">
+                <div className="flex items-center gap-3">
                   <a 
                     href="https://www.instagram.com/chelsongordonofficial?igsh=MXhwc3o2ZTRieXJyaQ==" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="p-2 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
+                    className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
                   >
-                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/instagram.svg" alt="Instagram" className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
+                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/instagram.svg" alt="Instagram" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
                   </a>
                   <a 
                     href="https://www.youtube.com/@ChelsonGordonConsultancy" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="p-2 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
+                    className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
                   >
-                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/youtube.svg" alt="Youtube" className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
+                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/youtube.svg" alt="Youtube" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
                   </a>
                   <a 
                     href="https://www.facebook.com/share/15r9QeRt2x/?mibextid=wwXIfr" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="p-2 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
+                    className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
                   >
-                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/facebook.svg" alt="Facebook" className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
+                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/facebook.svg" alt="Facebook" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
                   </a>
                 </div>
               </li>
@@ -1887,12 +1895,12 @@ const Footer = () => {
           </div>
 
           {/* Action Column with vertical border */}
-          <div className="w-full md:w-3/12 md:border-l border-gray-100 md:pl-10 lg:pl-6 xl:pl-10 flex flex-col items-center justify-start h-full">
+          <div className="w-full md:w-3/12 md:border-l border-gray-100 md:pl-10 lg:pl-8 xl:pl-12 flex flex-col items-center justify-center self-stretch">
             <motion.button 
               initial="initial"
               whileHover="hover"
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 md:py-5 lg:px-4 lg:py-4 xl:px-8 xl:py-5 rounded-xl flex items-center gap-3 font-extrabold text-[12px] md:text-[13px] lg:text-[11px] xl:text-[13px] tracking-widest uppercase shadow-lg border transition-all duration-300 relative overflow-hidden group mt-2 md:mt-0 lg:whitespace-nowrap"
+              className="px-8 py-3.5 md:py-4 lg:px-5 lg:py-3.5 xl:px-8 xl:py-4 rounded-xl flex items-center gap-3 font-extrabold text-[11px] md:text-[12px] lg:text-[10px] xl:text-[12px] tracking-widest uppercase shadow-lg border transition-all duration-300 relative overflow-hidden group lg:whitespace-nowrap"
             >
               <motion.div 
                 variants={{
@@ -1926,8 +1934,8 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="pt-4 md:pt-4 lg:pt-2 border-t border-gray-100 flex flex-col items-center gap-3 md:gap-2">
-          <div className="flex flex-wrap justify-center gap-x-6 md:gap-x-24 lg:gap-x-12 xl:gap-x-24 gap-y-2 md:gap-y-2">
+        <div className="pt-3 md:pt-4 lg:pt-3 border-t border-gray-100 flex flex-col items-center gap-2 md:gap-2">
+          <div className="flex flex-wrap justify-center gap-x-6 md:gap-x-24 lg:gap-x-10 xl:gap-x-20 gap-y-1.5 md:gap-y-2">
             {['Terms of use', 'Privacy Policy', 'Cancellation & Refund'].map(item => (
               <a 
                 key={item} 
