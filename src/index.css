@@ -38,22 +38,43 @@
   @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
 }
 
-/* Hide Google Translate UI */
-.goog-te-banner-frame.skiptranslate, 
-.goog-te-banner-frame {
-  display: none !important;
+/* Extremely aggressive Google Translate UI Removal and Reset */
+html {
+  top: 0 !important;
+  font-size: 100% !important;
 }
 
 body {
   top: 0 !important;
+  position: static !important;
 }
 
-.goog-tooltip {
+.skiptranslate,
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner,
+iframe.goog-te-banner-frame,
+iframe[class*="goog-te-banner-frame"],
+iframe[id*="goog"],
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip:hover,
+.goog-te-balloon-frame,
+#google_translate_element,
+.goog-te-spinner-pos {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  pointer-events: none !important;
 }
 
-.goog-tooltip:hover {
-  display: none !important;
+font {
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
 .goog-text-highlight {
@@ -62,8 +83,13 @@ body {
   box-shadow: none !important;
 }
 
-#google_translate_element {
-  display: none !important;
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 12s linear infinite;
 }
 
 @utility no-scrollbar {

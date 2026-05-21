@@ -26,7 +26,8 @@ import {
   Plus,
   Minus,
   Languages,
-  ChevronDown
+  ChevronDown,
+  RefreshCw
 } from 'lucide-react';
 
 // --- Types ---
@@ -81,7 +82,7 @@ const CountingNumber = ({ value, suffix = "", duration = 2 }: { value: number; s
     }
   }, [isInView, value, duration]);
 
-  return <span ref={ref}>{displayValue}{suffix}</span>;
+  return <span ref={ref} className="notranslate">{displayValue}{suffix}</span>;
 };
 
 import { 
@@ -114,14 +115,12 @@ const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isSc
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 px-4 lg:px-5 py-2.5 rounded-xl text-[10px] lg:text-[11px] font-bold uppercase tracking-widest transition-all border shadow-sm ${
-          isScrolled 
-            ? 'bg-primary/5 text-primary border-primary/10 hover:bg-primary/10' 
-            : 'bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md'
-        }`}
+        className="flex items-center gap-2 px-4 lg:px-5 py-2.5 rounded-xl text-[10px] lg:text-[11px] font-bold uppercase tracking-widest transition-all border shadow-sm notranslate bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md"
+        translate="no"
+        style={isScrolled ? { backgroundColor: 'rgba(4, 47, 97, 0.05)', color: '#042F61', borderColor: 'rgba(4, 47, 97, 0.1)' } : {}}
       >
         <Languages className="w-3.5 h-3.5" />
-        <span className="hidden xl:inline">{selectedLang}</span>
+        <span className="hidden xl:inline">Languages</span>
         <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </motion.button>
 
@@ -135,6 +134,17 @@ const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isSc
             className="absolute right-0 mt-3 w-48 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-[100]"
           >
             <div className="py-2">
+              <button
+                onClick={() => {
+                  onLanguageChange('EN', 'English');
+                  setIsOpen(false);
+                }}
+                className="w-full flex items-center gap-2.5 px-5 py-4 border-b border-orange-100 bg-orange-50/50 hover:bg-orange-50 text-[10px] font-extrabold uppercase tracking-widest text-[#042F61] transition-all text-left group notranslate"
+                translate="no"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-orange-500 transition-transform duration-500 group-hover:rotate-180" />
+                <span className="text-orange-950 font-black">Reset to English</span>
+              </button>
               {LANGUAGES.map((lang) => (
                 <button
                   key={lang.code}
@@ -144,7 +154,7 @@ const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isSc
                   }}
                   className={`w-full flex items-center justify-between px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest transition-all ${
                     selectedLang === lang.name 
-                      ? 'bg-primary text-white' 
+                      ? 'bg-primary text-white font-black' 
                       : 'text-primary hover:bg-primary/5'
                   }`}
                 >
@@ -162,25 +172,48 @@ const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isSc
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedLang, setSelectedLang] = useState('English');
+  const [selectedLang, setSelectedLang] = useState(() => {
+    return localStorage.getItem('selected_language_name') || 'English';
+  });
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
 
-    // Initial language detection from cookie
+    // Initial language detection from cookie or localStorage
     const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        let c = cookies[i].trim();
+        if (c.startsWith(name + '=')) {
+          let val = c.substring(name.length + 1);
+          if (val.startsWith('"') && val.endsWith('"')) {
+            val = val.slice(1, -1);
+          }
+          return decodeURIComponent(val);
+        }
+      }
+      return null;
     };
 
     const currentTrans = getCookie('googtrans');
     if (currentTrans) {
-      const lang = currentTrans.split('/').pop()?.toUpperCase();
-      if (lang) {
+      let lang = currentTrans.split('/').pop()?.toUpperCase() || '';
+      lang = lang.replace(/["\s]/g, '');
+      if (lang === 'EN') {
+        setSelectedLang('English');
+        localStorage.setItem('selected_language_name', 'English');
+      } else if (lang) {
         const found = LANGUAGES.find(l => l.code === (lang === 'ZH-CN' ? 'ZH' : lang));
-        if (found) setSelectedLang(found.name);
+        if (found) {
+          setSelectedLang(found.name);
+          localStorage.setItem('selected_language_name', found.name);
+        }
+      }
+    } else {
+      const saved = localStorage.getItem('selected_language_name');
+      if (saved) {
+        setSelectedLang(saved);
       }
     }
 
@@ -207,24 +240,79 @@ const Navbar = () => {
 
   const changeLanguage = (langCode: string, langName: string) => {
     setSelectedLang(langName);
+    localStorage.setItem('selected_language_name', langName);
     let targetCode = langCode.toLowerCase();
     if (targetCode === 'zh') targetCode = 'zh-CN';
     
-    const cookieValue = `/en/${targetCode}`;
-    document.cookie = `googtrans=${cookieValue}; path=/`;
     const domain = window.location.hostname;
-    document.cookie = `googtrans=${cookieValue}; path=/; domain=.${domain}`;
+    const domainParts = domain.split('.');
+
+    if (targetCode === 'en') {
+      // Robust cookie purge across all paths and domains/subdomains
+      const expireStr = "expires=Thu, 01 Jan 1970 00:00:00 UTC";
+      const paths = ["/", "/en/", "/en-US/"];
+      const domains = [
+        "", 
+        domain, 
+        `.${domain}`,
+        domainParts.slice(-2).join('.'),
+        `.${domainParts.slice(-2).join('.')}`
+      ];
+      
+      for (const d of domains) {
+        for (const p of paths) {
+          document.cookie = `googtrans=; path=${p}; ${d ? `domain=${d};` : ''} ${expireStr}`;
+          document.cookie = `googtrans=; ${d ? `domain=${d};` : ''} ${expireStr}`;
+        }
+      }
+
+      // Try calling Google Translate's built-in Restore
+      try {
+        const iframe = document.querySelector('iframe.goog-te-banner-frame') as HTMLIFrameElement;
+        if (iframe && iframe.contentDocument) {
+          const restoreBtn = iframe.contentDocument.getElementById('BannerRestoreBtn') || iframe.contentDocument.querySelector('.goog-te-button button');
+          if (restoreBtn) {
+            (restoreBtn as HTMLElement).click();
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      const cookieValue = `/en/${targetCode}`;
+      
+      // Set the translation cookie across domains & subdomains
+      document.cookie = `googtrans=${cookieValue}; path=/`;
+      document.cookie = `googtrans=${cookieValue}; path=/; domain=.${domain}`;
+      document.cookie = `googtrans=${cookieValue}; path=/; domain=${domain}`;
+      
+      if (domainParts.length > 2) {
+        const parentDomain = domainParts.slice(1).join('.');
+        document.cookie = `googtrans=${cookieValue}; path=/; domain=.${parentDomain}`;
+        document.cookie = `googtrans=${cookieValue}; path=/; domain=${parentDomain}`;
+      }
+    }
 
     const googleCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement;
     if (googleCombo) {
       googleCombo.value = targetCode === 'en' ? '' : targetCode;
       googleCombo.dispatchEvent(new Event('change'));
+      if (targetCode === 'en') {
+        setTimeout(() => {
+          window.location.reload();
+        }, 150);
+      }
     } else {
       setTimeout(() => {
         const retryCombo = document.querySelector('.goog-te-combo') as HTMLSelectElement;
         if (retryCombo) {
           retryCombo.value = targetCode === 'en' ? '' : targetCode;
           retryCombo.dispatchEvent(new Event('change'));
+          if (targetCode === 'en') {
+            setTimeout(() => {
+              window.location.reload();
+            }, 150);
+          }
         } else {
           window.location.reload();
         }
@@ -371,10 +459,28 @@ const Navbar = () => {
                 </div>
 
                 <div className="pt-8 mt-8 border-t border-gray-100">
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-4 notranslate" translate="no">
                     <Languages className="w-4 h-4 text-accent" />
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/40">Select Language</span>
                   </div>
+
+                  {/* Mobile Reset to English Button */}
+                  <motion.button 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.55 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      changeLanguage('EN', 'English');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 mb-3.5 py-3.5 rounded-xl border border-orange-200 bg-orange-50/50 text-orange-950 text-[10px] font-extrabold uppercase tracking-widest transition-all active:scale-95 notranslate"
+                    translate="no"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-orange-500" />
+                    <span>Reset to English</span>
+                  </motion.button>
+
                   <div className="grid grid-cols-2 gap-2">
                     {LANGUAGES.map((lang, idx) => (
                       <motion.button 
@@ -464,7 +570,7 @@ const Hero = () => {
             
             <div className="flex flex-col items-end mr-4 lg:pb-20 xl:pb-0">
               <div className="text-white/40 mb-2 text-[10px] uppercase tracking-[0.3em] font-black flex items-center gap-4">
-                Scroll to Explore 
+                Scroll Down to Explore 
                 <span className="w-12 h-[1px] bg-white/20 inline-block" />
                 <motion.div 
                   animate={{ y: [0, 8, 0] }} 
@@ -574,6 +680,7 @@ const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
 
 const WorldMapGraphic = () => {
   const [activeLoc, setActiveLoc] = useState<string | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   
   const locations = [
     { 
@@ -798,7 +905,18 @@ const WorldMapGraphic = () => {
             <Marker key={`point-${loc.name}`} coordinates={loc.coordinates as [number, number]}>
               <g
                 className="cursor-pointer"
-                onMouseEnter={() => setActiveLoc(loc.name)}
+                onMouseEnter={(e) => {
+                  setActiveLoc(loc.name);
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const parent = document.querySelector('.group\\/map');
+                  if (parent) {
+                    const parentRect = parent.getBoundingClientRect();
+                    setTooltipPos({
+                      x: rect.left - parentRect.left + rect.width / 2,
+                      y: rect.top - parentRect.top,
+                    });
+                  }
+                }}
                 onMouseLeave={() => setActiveLoc(null)}
               >
                 <HighlightDots />
@@ -824,57 +942,59 @@ const WorldMapGraphic = () => {
               </g>
             </Marker>
           ))}
-
-          {/* Interactive Locations - Tooltips (Always on Top) */}
-          {locations.map((loc) => (
-            <Marker key={`tooltip-${loc.name}`} coordinates={loc.coordinates as [number, number]}>
-              <g className="pointer-events-none">
-                <AnimatePresence>
-                  {activeLoc === loc.name && (
-                    <foreignObject
-                      x={loc.name === "Fiji" ? "-200" : "-120"}
-                      y="-180"
-                      width="240"
-                      height="200"
-                      className="overflow-visible"
-                    >
-                      <motion.div
-                        initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                        className="bg-primary text-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-2xl p-6 border border-white/10 relative"
-                      >
-                        <div className="flex flex-col gap-4">
-                          <div className="border-b border-white/10 pb-3">
-                            <h4 className="text-[16px] font-black uppercase tracking-widest text-accent leading-none">{loc.name}</h4>
-                          </div>
-                          <div className="space-y-4">
-                            {loc.stats.map((stat, idx) => (
-                              <div key={idx} className="flex items-center justify-between gap-6">
-                                {!(loc.name === "Singapore" || loc.name === "Philippines") && (
-                                  <span className="text-[18px] text-white font-medium whitespace-nowrap">{stat.label}</span>
-                                )}
-                                <span 
-                                  className="text-[16px] text-white whitespace-nowrap"
-                                  style={{ fontWeight: 650 }}
-                                >
-                                  {stat.value} Staff
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        {/* Arrow */}
-                        <div className={`absolute ${loc.name === "Fiji" ? "left-[85%]" : "left-1/2"} -translate-x-1/2 -bottom-2 w-4 h-4 bg-primary rotate-45`} />
-                      </motion.div>
-                    </foreignObject>
-                  )}
-                </AnimatePresence>
-              </g>
-            </Marker>
-          ))}
         </ComposableMap>
       </div>
+
+      {/* Absolute Tooltip - outside SVG to allow Google Translate to work */}
+      <AnimatePresence>
+        {activeLoc && tooltipPos && (() => {
+          const loc = locations.find(l => l.name === activeLoc);
+          if (!loc) return null;
+          const isFiji = activeLoc === "Fiji";
+          return (
+            <div
+              style={{
+                position: 'absolute',
+                left: `${tooltipPos.x}px`,
+                top: `${tooltipPos.y}px`,
+                transform: isFiji ? 'translate(-85%, -100%) translateY(-15px)' : 'translate(-50%, -100%) translateY(-15px)',
+                zIndex: 40,
+              }}
+              className="pointer-events-none"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                className="bg-primary text-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-2xl p-6 border border-white/10 relative w-[240px]"
+              >
+                <div className="flex flex-col gap-4">
+                  <div className="border-b border-white/10 pb-3">
+                    <h4 className="text-[16px] font-black uppercase tracking-widest text-accent leading-none">{loc.name}</h4>
+                  </div>
+                  <div className="space-y-4">
+                    {loc.stats.map((stat, idx) => (
+                      <div key={idx} className="flex items-center justify-between gap-6">
+                        {!(loc.name === "Singapore" || loc.name === "Philippines") && (
+                          <span className="text-[18px] text-white font-medium whitespace-nowrap">{stat.label}</span>
+                        )}
+                        <span 
+                          className="text-[16px] text-white whitespace-nowrap"
+                          style={{ fontWeight: 650 }}
+                        >
+                          {stat.value} Staff
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Arrow */}
+                <div className={`absolute ${isFiji ? "left-[85%]" : "left-1/2"} -translate-x-1/2 -bottom-2 w-4 h-4 bg-primary rotate-45`} />
+              </motion.div>
+            </div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 };
