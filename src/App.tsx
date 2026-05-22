@@ -759,41 +759,42 @@ const WorldMapGraphic = () => {
   };
 
   return (
-    <div className="relative w-full aspect-[4/3] bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm group/map">
-      {/* Overlays - Set to lower z-index */}
-      <div className="absolute top-8 right-8 flex flex-col gap-4 pointer-events-none z-10">
-        <div className="bg-white/95 backdrop-blur-md px-6 py-3 rounded-full border border-gray-100 shadow-xl flex items-center gap-4">
-          <div className="w-2.5 h-2.5 bg-accent rounded-full animate-pulse" />
-          <span 
-            className="text-[12px] uppercase tracking-[0.2em] text-primary whitespace-nowrap"
-            style={{ fontWeight: 700 }}
+    <div className="relative w-full aspect-[4/3]">
+      <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm group/map relative">
+        {/* Overlays - Set to lower z-index */}
+        <div className="absolute top-8 right-8 flex flex-col gap-4 pointer-events-none z-10">
+          <div className="bg-white/95 backdrop-blur-md px-6 py-3 rounded-full border border-gray-100 shadow-xl flex items-center gap-4">
+            <div className="w-2.5 h-2.5 bg-accent rounded-full animate-pulse" />
+            <span 
+              className="text-[12px] uppercase tracking-[0.2em] text-primary whitespace-nowrap"
+              style={{ fontWeight: 700 }}
+            >
+              Global Presence
+            </span>
+          </div>
+        </div>
+
+        {/* Legend - Left bottom aligned list, transparent - Hidden on mobile */}
+        <div className="absolute bottom-12 left-10 hidden md:flex flex-col gap-4 pointer-events-none z-10">
+          <div className="flex flex-col items-start gap-4 p-0">
+            {['Australia', 'India', 'Thailand', 'Singapore', 'Philippines', 'Fiji'].map((loc) => (
+              <div key={loc} className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                <span className="text-[12px] font-black text-primary uppercase tracking-widest">{loc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-20 w-full h-full">
+          <ComposableMap 
+            projection="geoMercator"
+            projectionConfig={{
+              scale: 320,
+              center: [125, 0]
+            }}
+            className="w-full h-full"
           >
-            Global Presence
-          </span>
-        </div>
-      </div>
-
-      {/* Legend - Left bottom aligned list, transparent - Hidden on mobile */}
-      <div className="absolute bottom-12 left-10 hidden md:flex flex-col gap-4 pointer-events-none z-10">
-        <div className="flex flex-col items-start gap-4 p-0">
-          {['Australia', 'India', 'Thailand', 'Singapore', 'Philippines', 'Fiji'].map((loc) => (
-            <div key={loc} className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-              <span className="text-[12px] font-black text-primary uppercase tracking-widest">{loc}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="relative z-20 w-full h-full">
-        <ComposableMap 
-          projection="geoMercator"
-          projectionConfig={{
-            scale: 320,
-            center: [125, 0]
-          }}
-          className="w-full h-full"
-        >
           <defs>
             {/* Saturated gray dots for general landmasses */}
             <pattern id="landDots" x="0" y="0" width="5.5" height="5.5" patternUnits="userSpaceOnUse">
@@ -944,8 +945,9 @@ const WorldMapGraphic = () => {
           ))}
         </ComposableMap>
       </div>
+    </div>
 
-      {/* Absolute Tooltip - outside SVG to allow Google Translate to work */}
+      {/* Absolute Tooltip - outside overflow-hidden container to allow full floating bounds */}
       <AnimatePresence>
         {activeLoc && tooltipPos && (() => {
           const loc = locations.find(l => l.name === activeLoc);
