@@ -1626,54 +1626,7 @@ const HearFromOurTeam = () => {
   );
 };
 
-const Leadership = () => {
-  const team = [
-    {
-      name: "Vedic Yadav",
-      role: "RTO Registration and <br /> Renewal Support Manager",
-      bio: "In the past year, I have supported numerous RTO owners with successful registration and renewal outcomes.",
-      image: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/vedic.webp"
-    },
-    {
-      name: "Yi Jing Ong",
-      role: "Academic Operation and <br /> Student Support Services Manager",
-      bio: "With extensive experience across the RTO and CRICOS sector, I support clients' colleges through student support, enrolment and administration services.",
-      image: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/yi.webp"
-    }
-  ];
 
-  return (
-    <section className="py-12 md:py-24 lg:py-[91px] xl:py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center mb-16 text-primary">Our Leadership Team</h2>
-        <div className="grid md:grid-cols-2 gap-12">
-          {team.map((member, i) => (
-            <motion.div 
-              key={i}
-              whileInView={{ opacity: 1, scale: 1 }}
-              initial={{ opacity: 0, scale: 0.95 }}
-              viewport={{ once: true }}
-              className="bg-gray-50 rounded-[3rem] pt-10 pb-8 px-10 flex flex-col md:flex-row gap-10 items-start shadow-sm border border-gray-100"
-            >
-              <div className="w-full md:w-1/3 aspect-[4/5] rounded-[2rem] overflow-hidden bg-gray-200">
-                <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
-              </div>
-              <div className="md:w-2/3">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h3 className="text-2xl font-bold text-primary">{member.name}</h3>
-                    <p className="text-gray-400 font-medium" dangerouslySetInnerHTML={{ __html: member.role }}></p>
-                  </div>
-                </div>
-                <p className="text-primary/70 font-semibold italic">{member.bio}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
 
 const ParticleField = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -2087,7 +2040,6 @@ export default function App() {
         <Portfolio />
         <Principles />
         <HearFromOurTeam />
-        <Leadership />
         <Connect />
       </main>
       <Footer />
