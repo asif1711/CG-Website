@@ -29,6 +29,7 @@ import {
   ChevronDown,
   RefreshCw
 } from 'lucide-react';
+import { NeatGradient } from "@firecms/neat";
 
 // --- Types ---
 interface TeamMember {
@@ -56,12 +57,11 @@ interface CapabilityItem {
 }
 
 const LANGUAGES = [
-  { name: 'Arabic', code: 'AR' },
-  { name: 'Chinese', code: 'ZH' },
-  { name: 'English', code: 'EN' },
-  { name: 'Hindi', code: 'HI' },
-  { name: 'Thai', code: 'TH' },
-  { name: 'Vietnamese', code: 'VI' },
+  { name: 'Arabic', code: 'AR', english: 'Arabic', native: 'عربي' },
+  { name: 'Chinese', code: 'ZH', english: 'Chinese', native: '中国人' },
+  { name: 'Hindi', code: 'HI', english: 'Hindi', native: 'हिन्दी' },
+  { name: 'Thai', code: 'TH', english: 'Thai', native: 'ไทย' },
+  { name: 'Vietnamese', code: 'VI', english: 'Vietnamese', native: 'Tiếng Việt' },
 ];
 
 // --- Components ---
@@ -89,7 +89,8 @@ import {
   BRAND_CONFIG,
   HERO_VIDEO_URL,
   STATS,
-  LOGO_URL
+  LOGO_URL,
+  LOGO_WHITE_URL
 } from './constants';
 
 const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isScrolled: boolean; selectedLang: string; onLanguageChange: (code: string, name: string) => void }) => {
@@ -115,7 +116,7 @@ const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isSc
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 lg:px-5 py-2.5 rounded-xl text-[10px] lg:text-[11px] font-bold uppercase tracking-widest transition-all border shadow-sm notranslate bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md"
+        className="flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all border shadow-sm notranslate bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md"
         translate="no"
         style={isScrolled ? { backgroundColor: 'rgba(4, 47, 97, 0.05)', color: '#042F61', borderColor: 'rgba(4, 47, 97, 0.1)' } : {}}
       >
@@ -127,39 +128,55 @@ const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isSc
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 15, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute right-0 mt-3 w-48 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-[100]"
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+            className="absolute right-0 mt-3 w-[270px] bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-[100]"
           >
             <div className="py-2">
-              <button
+              <motion.button
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2 }}
+                whileHover={{ backgroundColor: 'rgba(249, 115, 22, 0.08)', x: 3 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   onLanguageChange('EN', 'English');
                   setIsOpen(false);
                 }}
-                className="w-full flex items-center gap-2.5 px-5 py-4 border-b border-orange-100 bg-orange-50/50 hover:bg-orange-50 text-[10px] font-extrabold uppercase tracking-widest text-[#042F61] transition-all text-left group notranslate"
+                className="w-full flex items-center gap-2.5 px-5 py-4 border-b border-orange-100 bg-orange-50/50 text-[10.5px] font-extrabold uppercase tracking-widest text-[#042F61] transition-all text-left group notranslate"
                 translate="no"
               >
                 <RefreshCw className="w-3.5 h-3.5 text-orange-500 transition-transform duration-500 group-hover:rotate-180" />
                 <span className="text-orange-950 font-black">Reset to English</span>
-              </button>
-              {LANGUAGES.map((lang) => (
-                <button
+              </motion.button>
+              {LANGUAGES.map((lang, idx) => (
+                <motion.button
                   key={lang.code}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05 + idx * 0.04, duration: 0.2 }}
+                  whileHover={{ 
+                    x: 3, 
+                    backgroundColor: selectedLang === lang.name ? 'rgb(4, 47, 97)' : 'rgba(4, 47, 97, 0.04)' 
+                  }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     onLanguageChange(lang.code, lang.name);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest transition-all ${
+                  className={`w-full flex items-center gap-2.5 px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest transition-all notranslate ${
                     selectedLang === lang.name 
-                      ? 'bg-primary text-white font-black' 
-                      : 'text-primary hover:bg-primary/5'
+                      ? 'bg-[#042F61] text-white font-black' 
+                      : 'text-primary'
                   }`}
+                  translate="no"
                 >
-                  {lang.name}
-                </button>
+                  <span className="whitespace-nowrap">{lang.english}</span>
+                  <span className={`w-[1px] h-3.5 flex-shrink-0 ${selectedLang === lang.name ? 'bg-white/30' : 'bg-[#042F61]/20'}`} />
+                  <span className={`whitespace-nowrap text-[12px] font-bold normal-case tracking-normal ${selectedLang === lang.name ? 'text-white' : 'text-[#042F61]'}`}>{lang.native}</span>
+                </motion.button>
               ))}
             </div>
           </motion.div>
@@ -171,6 +188,7 @@ const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isSc
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState(() => {
     return localStorage.getItem('selected_language_name') || 'English';
@@ -322,23 +340,24 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
-      <div className="max-w-[1440px] mx-auto w-full px-6 md:px-10 lg:px-16 h-[120px] lg:h-[80px] xl:h-[120px] flex items-center justify-between">
+      <div className="max-w-full mx-auto w-full px-4 md:px-8 lg:px-10 xl:px-12 2xl:px-[4%] h-[120px] lg:h-[100px] xl:h-[120px] 2xl:h-[140px] flex items-center justify-between gap-4">
         {/* Left: Logo */}
         <div className="flex-shrink-0">
           <a href="/" className="flex items-center gap-3">
              <img 
-               src={LOGO_URL} 
+               src={isScrolled ? LOGO_URL : (logoError ? LOGO_URL : LOGO_WHITE_URL)} 
                alt="Chelson Gordon Logo" 
-               className={`h-[150px] w-auto transition-all transform origin-left ${isScrolled ? 'brightness-100' : 'brightness-0 invert'}`}
+               className={`h-[145px] md:h-[125px] lg:h-[110px] xl:h-[145px] 2xl:h-[170px] w-auto transition-all transform origin-left ${!isScrolled && logoError ? 'brightness-0 invert' : ''}`}
+               onError={() => !isScrolled && setLogoError(true)}
                referrerPolicy="no-referrer"
              />
           </a>
         </div>
 
         {/* Right Section: Nav + Buttons */}
-        <div className="hidden lg:flex items-center gap-6 xl:gap-8 flex-1 justify-end">
+        <div className="hidden lg:flex items-center gap-3 xl:gap-5 2xl:gap-8 justify-end ml-auto min-w-0">
           {/* Nav links */}
-          <div className="flex items-center gap-6 xl:gap-8 mr-2 xl:mr-4">
+          <div className="flex items-center gap-3.5 xl:gap-5 2xl:gap-7 mr-1 xl:mr-2 flex-shrink-0">
             {['About Us', 'Our Services', 'Our People', 'Careers'].map((item) => (
               <a 
                 key={item} 
@@ -351,11 +370,11 @@ const Navbar = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3 xl:gap-3">
+          <div className="flex items-center gap-1.5 xl:gap-2.5 2xl:gap-3 flex-shrink-0">
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`flex items-center gap-2 px-2.5 xl:px-4 py-2.5 rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-md border border-transparent ${
+              className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-md border border-transparent ${
                 isScrolled 
                   ? 'bg-primary text-white hover:bg-accent hover:text-primary' 
                   : 'bg-accent text-primary hover:bg-primary hover:text-white'
@@ -367,7 +386,7 @@ const Navbar = () => {
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`flex items-center gap-2 px-2.5 xl:px-4 py-2.5 rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm border border-transparent ${
+              className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm border border-transparent ${
                 isScrolled 
                   ? 'bg-accent text-primary hover:bg-primary hover:text-white' 
                   : 'bg-primary text-white hover:bg-accent hover:text-primary'
@@ -379,7 +398,7 @@ const Navbar = () => {
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`flex items-center gap-2 px-2.5 xl:px-4 py-2.5 rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap border shadow-sm ${isScrolled ? 'bg-primary/5 text-primary border-primary/10 hover:bg-primary/10' : 'bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md'}`}
+              className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap border shadow-sm ${isScrolled ? 'bg-primary/5 text-primary border-primary/10 hover:bg-primary/10' : 'bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md'}`}
             >
               CG Resources <ShoppingBag className="w-3.5 h-3.5" />
             </motion.button>
@@ -393,7 +412,7 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button className="md:hidden ml-auto relative z-[60]" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+        <button className="lg:hidden ml-auto relative z-[60]" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X className={isScrolled || mobileMenuOpen ? 'text-primary' : 'text-white'} size={32} /> : <Menu className={isScrolled ? 'text-primary' : 'text-white'} size={32} />}
         </button>
       </div>
@@ -406,7 +425,7 @@ const Navbar = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed inset-0 bg-white z-50 md:hidden overflow-y-auto h-screen"
+            className="fixed inset-0 bg-white z-50 lg:hidden overflow-y-auto h-screen"
           >
             <div className="flex flex-col p-6 pt-20 pb-10">
               <div className="flex flex-col gap-5 mb-10">
@@ -492,13 +511,16 @@ const Navbar = () => {
                           changeLanguage(lang.code, lang.name);
                           setMobileMenuOpen(false);
                         }}
-                        className={`flex items-center justify-center py-3.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 ${
+                        className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 notranslate ${
                           selectedLang === lang.name 
                             ? 'bg-primary text-white shadow-lg' 
                             : 'bg-primary/5 text-primary border border-primary/10 hover:bg-accent'
                         }`}
+                        translate="no"
                       >
-                        {lang.name}
+                        <span className="whitespace-nowrap">{lang.english}</span>
+                        <div className={`w-6 h-[1px] ${selectedLang === lang.name ? 'bg-white/30' : 'bg-primary/20'}`} />
+                        <span className={`text-[11px] font-bold normal-case tracking-normal select-none ${selectedLang === lang.name ? 'text-white' : 'text-primary'}`}>{lang.native}</span>
                       </motion.button>
                     ))}
                   </div>
@@ -1062,34 +1084,91 @@ const About = () => {
 
 const AccordionItem = ({ id, number, title, description, isActive, onClick }: any) => {
   return (
-    <div 
-      className={`border-b border-gray-100 py-8 cursor-pointer transition-all ${isActive ? 'bg-gray-50/50 -mx-6 px-6 rounded-lg' : ''}`}
+    <motion.div 
+      initial={false}
+      animate={{
+        backgroundColor: isActive ? 'rgba(249, 250, 251, 0.7)' : 'rgba(255, 255, 255, 0)',
+        paddingLeft: isActive ? '24px' : '0px',
+        paddingRight: isActive ? '24px' : '0px',
+        marginLeft: isActive ? '-24px' : '0px',
+        marginRight: isActive ? '-24px' : '0px',
+        borderRadius: isActive ? '16px' : '0px'
+      }}
+      transition={{ type: 'spring', stiffness: 200, damping: 22 }}
+      whileHover={{
+        backgroundColor: isActive ? 'rgba(249, 250, 251, 0.9)' : 'rgba(249, 250, 251, 0.35)'
+      }}
+      className="border-b border-gray-100 py-8 cursor-pointer select-none"
       onClick={onClick}
     >
       <div className="flex items-center justify-between gap-6">
         <div className="flex items-center gap-8">
-          <span className="text-gray-300 font-bold text-lg">{number}</span>
-          <h3 className={`text-xl font-bold transition-colors ${isActive ? 'text-primary' : 'text-gray-400'}`}>{title}</h3>
+          <motion.span 
+            animate={{ color: isActive ? '#042F61' : '#d1d5db' }}
+            transition={{ duration: 0.2 }}
+            className="font-bold text-lg"
+          >
+            {number}
+          </motion.span>
+          <motion.h3 
+            animate={{ color: isActive ? '#042F61' : '#9ca3af' }}
+            transition={{ duration: 0.2 }}
+            className="text-xl font-bold"
+          >
+            {title}
+          </motion.h3>
         </div>
-        <div className={`p-2 rounded-full transition-all ${isActive ? 'bg-primary text-white rotate-90' : 'bg-gray-100 text-gray-400'}`}>
+        <motion.div 
+          animate={{ 
+            rotate: isActive ? 90 : 0, 
+            backgroundColor: isActive ? '#042F61' : '#f3f4f6', 
+            color: isActive ? '#ffffff' : '#9ca3af',
+            scale: isActive ? 1.05 : 1
+          }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className="p-2.5 rounded-full flex items-center justify-center"
+        >
           <ChevronRight className="w-5 h-5" />
-        </div>
+        </motion.div>
       </div>
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {isActive && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden mt-6 ml-16"
+            key={`${id}-content`}
+            initial={{ height: 0, opacity: 0, y: -10 }}
+            animate={{ 
+              height: 'auto', 
+              opacity: 1, 
+              y: 0,
+              transition: {
+                height: { type: 'spring', stiffness: 150, damping: 20 },
+                opacity: { duration: 0.25 },
+                y: { type: 'spring', stiffness: 200, damping: 18 }
+              }
+            }}
+            exit={{ 
+              height: 0, 
+              opacity: 0, 
+              y: -10,
+              transition: {
+                height: { duration: 0.2 },
+                opacity: { duration: 0.15 },
+                y: { duration: 0.15 }
+              }
+            }}
+            className="overflow-hidden ml-16"
           >
-            <p className="text-gray-600 leading-relaxed max-w-xl">
-              {description}
-            </p>
+            <div className="pt-4 pb-1">
+              <p className="text-gray-600 leading-relaxed max-w-xl">
+                {description}
+              </p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };
 
@@ -1116,9 +1195,23 @@ const Capabilities = () => {
                <p className="text-gray-500 text-lg">
                 We deliver end-to-end practical, compliance-focused solutions across RTO operations with structured planning in multiple countries.
               </p>
-              <button className="bg-primary text-white px-8 py-4 rounded-full font-bold w-fit hover:bg-primary-light transition-all flex items-center gap-2 group">
-                Discover more <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+              <motion.button 
+                whileHover="hover"
+                whileTap={{ scale: 0.98 }}
+                className="bg-primary text-white px-8 py-4 rounded-full font-bold w-fit shadow-lg hover:shadow-xl transition-shadow flex items-center gap-2"
+              >
+                Discover more{' '}
+                <motion.span
+                  variants={{
+                    initial: { x: 0 },
+                    hover: { x: 5 }
+                  }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 12 }}
+                  className="inline-block"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </motion.span>
+              </motion.button>
             </div>
           </div>
 
@@ -1295,6 +1388,7 @@ const Portfolio = () => {
 };
 
 const Principles = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const cards = [
     { 
       title: "Integrated compliance, legal, academic, and operational support for RTOs and CRICOS providers.", 
@@ -1310,32 +1404,146 @@ const Principles = () => {
     }
   ];
 
+  useEffect(() => {
+    let gradientInstance: any = null;
+
+    if (canvasRef.current) {
+      const config = {
+        colors: [
+          {
+            color: '#021E3D',
+            enabled: true,
+          },
+          {
+            color: '#064082',
+            enabled: true,
+          },
+          {
+            color: '#042F61',
+            enabled: true,
+          },
+          {
+            color: '#2B6DFF',
+            enabled: true,
+          },
+          {
+            color: '#c81d25',
+            enabled: false,
+          },
+          {
+            color: '#A8E6CF',
+            enabled: false,
+          },
+        ],
+        speed: 6.5,
+        horizontalPressure: 4,
+        verticalPressure: 3,
+        waveFrequencyX: 0,
+        waveFrequencyY: 0,
+        waveAmplitude: 0,
+        shadows: 2,
+        highlights: 7,
+        colorBrightness: 1,
+        colorSaturation: 8,
+        wireframe: false,
+        colorBlending: 5,
+        backgroundColor: '#042F61',
+        backgroundAlpha: 1,
+        grainScale: 0,
+        grainSparsity: 0,
+        grainIntensity: 0,
+        grainSpeed: 0,
+        resolution: 0.5,
+        yOffset: 0,
+        yOffsetWaveMultiplier: 1.5,
+        yOffsetColorMultiplier: 1.8,
+        yOffsetFlowMultiplier: 2,
+        flowDistortionA: 0.4,
+        flowDistortionB: 3,
+        flowScale: 3.3,
+        flowEase: 0.53,
+        flowEnabled: false,
+        enableProceduralTexture: false,
+        textureVoidLikelihood: 0.06,
+        textureVoidWidthMin: 10,
+        textureVoidWidthMax: 500,
+        textureBandDensity: 0.8,
+        textureColorBlending: 0.06,
+        textureSeed: 333,
+        textureEase: 0.75,
+        proceduralBackgroundColor: '#003FFF',
+        textureShapeTriangles: 20,
+        textureShapeCircles: 15,
+        textureShapeBars: 15,
+        textureShapeSquiggles: 10,
+        domainWarpEnabled: false,
+        domainWarpIntensity: 0,
+        domainWarpScale: 3,
+        vignetteIntensity: 0,
+        vignetteRadius: 0.8,
+        fresnelEnabled: false,
+        fresnelPower: 2,
+        fresnelIntensity: 0.5,
+        fresnelColor: '#FFFFFF',
+        iridescenceEnabled: false,
+        iridescenceIntensity: 0.5,
+        iridescenceSpeed: 1,
+        bloomIntensity: 0,
+        bloomThreshold: 0.7,
+        chromaticAberration: 0,
+      };
+
+      try {
+        gradientInstance = new NeatGradient({
+          ref: canvasRef.current,
+          ...config
+        });
+      } catch (err) {
+        console.error("Failed to initialize NeatGradient Instance:", err);
+      }
+
+      // Proactively search and remove any generated watermark link
+      const removeWatermark = () => {
+        const watermark = document.querySelector('a[href*="neat.firecms"]') || document.getElementById('XiSVi8');
+        if (watermark) {
+          watermark.remove();
+        }
+      };
+
+      removeWatermark();
+      const watermarkInterval = setInterval(removeWatermark, 100);
+
+      const handleScroll = () => {
+        if (gradientInstance) {
+          try {
+            gradientInstance.yOffset = window.scrollY;
+          } catch (e) {
+            // handle silently
+          }
+        }
+      };
+
+      window.addEventListener("scroll", handleScroll);
+
+      return () => {
+        clearInterval(watermarkInterval);
+        window.removeEventListener("scroll", handleScroll);
+        if (gradientInstance && typeof gradientInstance.destroy === "function") {
+          try {
+            gradientInstance.destroy();
+          } catch (e) {
+            // handle silently
+          }
+        }
+      };
+    }
+  }, []);
+
   return (
     <section className="relative min-h-[90vh] flex items-center py-16 lg:py-[59px] xl:py-16 overflow-hidden bg-[#042F61]">
-      {/* Animated Premium Background Layers */}
-      <div className="absolute inset-0 z-0">
-        <motion.div 
-          className="absolute inset-0 opacity-40"
-          animate={{
-            background: [
-              'radial-gradient(circle at 20% 20%, #1e40af 0%, transparent 50%)',
-              'radial-gradient(circle at 80% 80%, #1e40af 0%, transparent 50%)',
-              'radial-gradient(circle at 20% 20%, #1e40af 0%, transparent 50%)',
-            ]
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-        />
-        <motion.div 
-          className="absolute inset-0 opacity-30"
-          animate={{
-            background: [
-              'radial-gradient(circle at 80% 20%, #0369a1 0%, transparent 50%)',
-              'radial-gradient(circle at 20% 80%, #0369a1 0%, transparent 50%)',
-              'radial-gradient(circle at 80% 20%, #0369a1 0%, transparent 50%)',
-            ]
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        />
+      {/* Animated Neat Gradient Canvas Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <canvas id="gradient" ref={canvasRef} style={{ width: '100%', height: '100%' }} className="pointer-events-none opacity-90" />
       </div>
       
       {/* Brand Accent Glows */}
@@ -1498,10 +1706,10 @@ const HearFromOurTeam = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex items-center justify-center gap-2 md:gap-3 text-accent mb-1 md:mb-4 uppercase text-sm md:text-xl font-extrabold tracking-[0.2em] md:tracking-[0.4em]"
-            style={{ wordSpacing: 'var(--word-spacing, 12px)' }}
+            className="inline-flex items-center justify-center gap-2 md:gap-3 text-accent mb-4 md:mb-6 uppercase text-xs md:text-sm font-extrabold tracking-[0.2em] md:tracking-[0.3em] px-6 py-2.5 md:px-8 md:py-3.5 bg-[#042F61]/90 backdrop-blur-md border border-[#042F61]/10 rounded-full shadow-[0_12px_30px_-10px_rgba(4,47,97,0.3)] select-none"
+            style={{ wordSpacing: 'var(--word-spacing, 8px)' }}
           >
-            <span className="w-8 md:w-12 h-[1px] bg-accent" /> Hear From Our Team
+            <span className="w-5 md:w-8 h-[1px] bg-accent/60" /> Hear From Our Team
           </motion.div>
           <h2 className="text-primary tracking-tight text-center w-full text-3xl md:text-[40px] font-bold">Inside Chelson Gordon</h2>
         </div>
@@ -1903,7 +2111,7 @@ const Footer = () => {
                 </div>
                 <div className="flex flex-col justify-center">
                   <span className="text-primary font-bold text-[14px] md:text-[20px] lg:text-[18px] xl:text-[20px] tracking-widest leading-tight uppercase" style={{ wordSpacing: '0.2em' }}>Chelson Gordon</span>
-                  <span className="text-accent font-bold text-[12px] md:text-[16px] lg:text-[14px] xl:text-[16px] tracking-[0.1em] uppercase leading-none">Consultancy</span>
+                  <span className="text-primary font-bold text-[12px] md:text-[16px] lg:text-[14px] xl:text-[16px] tracking-[0.1em] uppercase leading-none">Consultancy</span>
                 </div>
               </a>
               <div className="h-[1.5px] w-full max-w-[280px] md:max-w-[340px] bg-accent/40" />
