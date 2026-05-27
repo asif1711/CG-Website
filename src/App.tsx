@@ -30,6 +30,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { NeatGradient } from "@firecms/neat";
+import OrgChart from "./OrgChart";
 
 // --- Types ---
 interface TeamMember {
@@ -93,6 +94,18 @@ import {
   LOGO_WHITE_URL
 } from './constants';
 
+const getLangDisplay = (selected: string) => {
+  switch (selected) {
+    case 'English': return 'ENG';
+    case 'Arabic': return 'ARA';
+    case 'Chinese': return 'CHI';
+    case 'Hindi': return 'HIN';
+    case 'Thai': return 'THA';
+    case 'Vietnamese': return 'VIE';
+    default: return 'ENG';
+  }
+};
+
 const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isScrolled: boolean; selectedLang: string; onLanguageChange: (code: string, name: string) => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -116,12 +129,12 @@ const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isSc
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all border shadow-sm notranslate bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md"
+        className="flex items-center gap-1.5 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all border shadow-sm notranslate bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md"
         translate="no"
         style={isScrolled ? { backgroundColor: 'rgba(4, 47, 97, 0.05)', color: '#042F61', borderColor: 'rgba(4, 47, 97, 0.1)' } : {}}
       >
         <Languages className="w-3.5 h-3.5" />
-        <span className="hidden xl:inline">Languages</span>
+        <span className="inline">{getLangDisplay(selectedLang)}</span>
         <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </motion.button>
 
@@ -392,7 +405,7 @@ const Navbar = () => {
                   : 'bg-primary text-white hover:bg-accent hover:text-primary'
               }`}
             >
-              Handbook <Download className="w-3.5 h-3.5" />
+              Company Profile <Download className="w-3.5 h-3.5" />
             </motion.button>
 
             <motion.button 
@@ -463,7 +476,7 @@ const Navbar = () => {
                     whileTap={{ scale: 0.95 }}
                     className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl bg-accent text-primary font-bold uppercase tracking-widest text-[10px] shadow-md"
                   >
-                    Handbook <Download className="w-4 h-4" />
+                    Company Profile <Download className="w-4 h-4" />
                   </motion.button>
 
                   <motion.button 
@@ -588,18 +601,6 @@ const Hero = () => {
                 <CountingNumber value={50} suffix="+" />
               </div>
               <div className="text-white/60 text-[10px] xl:text-xs font-bold tracking-[0.2em] uppercase">RTOs Supported</div>
-            </div>
-            
-            <div className="flex flex-col items-end mr-4 lg:pb-20 xl:pb-0">
-              <div className="text-white/40 mb-2 text-[10px] uppercase tracking-[0.3em] font-black flex items-center gap-4">
-                Scroll Down to Explore 
-                <span className="w-12 h-[1px] bg-white/20 inline-block" />
-                <motion.div 
-                  animate={{ y: [0, 8, 0] }} 
-                  transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                  className="w-1.5 h-1.5 rounded-full bg-accent"
-                />
-              </div>
             </div>
           </motion.div>
         </div>
@@ -1025,7 +1026,7 @@ const WorldMapGraphic = () => {
 
 const About = () => {
   return (
-    <section id="about" className="py-24 lg:py-[91px] xl:py-24 bg-white overflow-hidden">
+    <section id="about" className="py-24 lg:py-[91px] xl:py-24 bg-gradient-to-b from-[#042F61]/[0.18] via-[#042F61]/[0.04] to-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <motion.div 
@@ -1083,35 +1084,39 @@ const About = () => {
 
 
 const AccordionItem = ({ id, number, title, description, isActive, onClick }: any) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <motion.div 
       initial={false}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
       animate={{
-        backgroundColor: isActive ? 'rgba(249, 250, 251, 0.7)' : 'rgba(255, 255, 255, 0)',
-        paddingLeft: isActive ? '24px' : '0px',
-        paddingRight: isActive ? '24px' : '0px',
-        marginLeft: isActive ? '-24px' : '0px',
-        marginRight: isActive ? '-24px' : '0px',
-        borderRadius: isActive ? '16px' : '0px'
+        backgroundColor: isActive 
+          ? (isHovered ? 'rgba(241, 245, 249, 1.0)' : 'rgba(241, 245, 249, 0.92)') 
+          : (isHovered ? 'rgba(241, 245, 249, 0.45)' : 'rgba(255, 255, 255, 0)'),
+        paddingLeft: (isActive || isHovered) ? '24px' : '0px',
+        paddingRight: (isActive || isHovered) ? '24px' : '0px',
+        marginLeft: (isActive || isHovered) ? '-24px' : '0px',
+        marginRight: (isActive || isHovered) ? '-24px' : '0px',
+        borderRadius: (isActive || isHovered) ? '30px' : '0px',
+        borderColor: (isActive || isHovered) ? 'rgba(243, 244, 246, 0)' : 'rgba(243, 244, 246, 1)'
       }}
       transition={{ type: 'spring', stiffness: 200, damping: 22 }}
-      whileHover={{
-        backgroundColor: isActive ? 'rgba(249, 250, 251, 0.9)' : 'rgba(249, 250, 251, 0.35)'
-      }}
-      className="border-b border-gray-100 py-8 cursor-pointer select-none"
+      className="border-b py-8 cursor-pointer select-none"
       onClick={onClick}
     >
       <div className="flex items-center justify-between gap-6">
         <div className="flex items-center gap-8">
           <motion.span 
-            animate={{ color: isActive ? '#042F61' : '#d1d5db' }}
+            animate={{ color: isActive ? '#042F61' : '#021E3D' }}
             transition={{ duration: 0.2 }}
             className="font-bold text-lg"
           >
             {number}
           </motion.span>
           <motion.h3 
-            animate={{ color: isActive ? '#042F61' : '#9ca3af' }}
+            animate={{ color: isActive ? '#042F61' : '#021E3D' }}
             transition={{ duration: 0.2 }}
             className="text-xl font-bold"
           >
@@ -1122,7 +1127,7 @@ const AccordionItem = ({ id, number, title, description, isActive, onClick }: an
           animate={{ 
             rotate: isActive ? 90 : 0, 
             backgroundColor: isActive ? '#042F61' : '#f3f4f6', 
-            color: isActive ? '#ffffff' : '#9ca3af',
+            color: isActive ? '#ffffff' : '#021E3D',
             scale: isActive ? 1.05 : 1
           }}
           whileHover={{ scale: 1.1 }}
@@ -1161,7 +1166,7 @@ const AccordionItem = ({ id, number, title, description, isActive, onClick }: an
             className="overflow-hidden ml-16"
           >
             <div className="pt-4 pb-1">
-              <p className="text-gray-600 leading-relaxed max-w-xl">
+              <p className="leading-relaxed max-w-xl text-[#042F61]">
                 {description}
               </p>
             </div>
@@ -1188,11 +1193,11 @@ const Capabilities = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-20">
           <div>
-            <h2 className="text-4xl md:text-5xl leading-[1.1] mb-8 text-primary">
+            <h2 className="text-4xl md:text-5xl leading-[1.1] mb-8 text-[#042F61]">
               Strategic Solutions. Built for VET organisations.
             </h2>
             <div className="flex flex-col gap-8 max-w-sm">
-               <p className="text-gray-500 text-lg">
+               <p className="text-[#021E3D] text-lg opacity-90">
                 We deliver end-to-end practical, compliance-focused solutions across RTO operations with structured planning in multiple countries.
               </p>
               <motion.button 
@@ -1297,8 +1302,8 @@ const Portfolio = () => {
             </h2>
           </div>
           <div className="flex gap-4">
-            <a href="#" className="bg-primary text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-primary-light transition-all flex items-center gap-2 group">
-               Explore All Teams <ExternalLink className="w-4 h-4" />
+            <a href="#org-chart" className="bg-primary text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-primary-light transition-all flex items-center gap-2 group">
+               Explore Our Teams <ExternalLink className="w-4 h-4" />
             </a>
           </div>
         </div>
@@ -1423,7 +1428,7 @@ const Principles = () => {
             enabled: true,
           },
           {
-            color: '#2B6DFF',
+            color: '#5982D9',
             enabled: true,
           },
           {
@@ -1443,8 +1448,8 @@ const Principles = () => {
         waveAmplitude: 0,
         shadows: 2,
         highlights: 7,
-        colorBrightness: 1,
-        colorSaturation: 8,
+        colorBrightness: 0.9,
+        colorSaturation: 4,
         wireframe: false,
         colorBlending: 5,
         backgroundColor: '#042F61',
@@ -1543,7 +1548,7 @@ const Principles = () => {
     <section className="relative min-h-[90vh] flex items-center py-16 lg:py-[59px] xl:py-16 overflow-hidden bg-[#042F61]">
       {/* Animated Neat Gradient Canvas Background */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <canvas id="gradient" ref={canvasRef} style={{ width: '100%', height: '100%' }} className="pointer-events-none opacity-90" />
+        <canvas id="gradient" ref={canvasRef} style={{ width: '100%', height: '100%' }} className="pointer-events-none opacity-70" />
       </div>
       
       {/* Brand Accent Glows */}
@@ -1714,92 +1719,131 @@ const HearFromOurTeam = () => {
           <h2 className="text-primary tracking-tight text-center w-full text-3xl md:text-[40px] font-bold">Inside Chelson Gordon</h2>
         </div>
         
-        <div className="max-w-5xl mx-auto relative group">
-          {/* Main Player */}
-          <div className="relative aspect-video rounded-[1.5rem] md:rounded-[3rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] border border-white/20 bg-gray-900">
-            {!isPlaying ? (
-              <>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 1.1 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 1, ease: "easeInOut" }}
-                    className="absolute inset-0"
-                  >
-                    <img 
-                      src={videos[index].image} 
-                      alt={videos[index].name} 
-                      className="absolute inset-0 w-full h-full object-cover opacity-60"
-                    />
-                  </motion.div>
-                </AnimatePresence>
-                
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <motion.button 
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsPlaying(true)}
-                    className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-full flex items-center justify-center shadow-2xl z-20 cursor-pointer ring-[16px] md:ring-[24px] ring-white/20 backdrop-blur-xl transition-all"
-                  >
-                    <Play className="w-8 h-8 md:w-10 md:h-10 text-primary fill-primary ml-1" />
-                  </motion.button>
-                </div>
-              </>
-            ) : (
-              <iframe
-                src={`https://www.youtube.com/embed/${getYouTubeId(videos[index].videoUrl)}?autoplay=1`}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            )}
-
-            {/* Back Button when playing */}
-            {isPlaying && (
-              <motion.button
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                onClick={() => setIsPlaying(false)}
-                className="absolute top-6 left-8 z-50 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-white/20 transition-all cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" /> Back to Spotlight
-              </motion.button>
-            )}
-
-            <AnimatePresence mode="wait">
-              {!isPlaying && (
-                <motion.div 
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="absolute bottom-3 md:bottom-4 left-3 md:left-8 right-3 md:right-8 h-16 md:h-24 bg-white/10 backdrop-blur-2xl rounded-[1rem] md:rounded-[1.5rem] border border-white/20 px-4 md:px-8 flex items-center justify-between shadow-2xl overflow-hidden z-30"
+        <div className="max-w-4xl mx-auto relative group px-4 md:px-8">
+          {/* Main Player Carousel Stack */}
+          <div className="relative aspect-video w-full bg-transparent">
+            {videos.map((video, i) => {
+              const isActive = i === index;
+              return (
+                <motion.div
+                  key={i}
+                  style={{
+                    zIndex: isActive ? 30 : 10,
+                  }}
+                  animate={{
+                    scale: isActive ? 1 : 0.85,
+                    x: isActive ? "0%" : (i - index < 0 ? "-28.75%" : "28.75%"),
+                    y: isActive ? "0%" : "0%",
+                    opacity: isActive ? 1 : 0.5,
+                    filter: "none",
+                  }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 150,
+                    damping: 22,
+                  }}
+                  className={`absolute inset-0 rounded-[1.5rem] md:rounded-[3rem] overflow-hidden bg-gray-900 border transition-shadow duration-500 ${
+                    isActive 
+                      ? 'shadow-[0_32px_64px_-16px_rgba(4,47,97,0.35)] border-white/20' 
+                      : 'shadow-[0_16px_36px_-12px_rgba(0,0,0,0.4)] border-white/10 cursor-pointer'
+                  }`}
+                  onClick={() => {
+                    if (!isActive) {
+                      setIsPlaying(false);
+                      setIndex(i);
+                    }
+                  }}
                 >
-                  <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                  
-                  <div className="flex flex-col">
-                    <span className="text-white/60 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mb-0 md:mb-1">Member Spotlight</span>
-                    <span className="text-white font-bold text-sm md:text-lg truncate max-w-[120px] md:max-w-none">{videos[index].name}</span>
-                  </div>
+                  {isActive && isPlaying ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${getYouTubeId(video.videoUrl)}?autoplay=1`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  ) : (
+                    <>
+                      <img 
+                        src={video.image} 
+                        alt={video.name} 
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isActive ? 'opacity-60' : 'opacity-40'}`}
+                      />
+                      
+                      {isActive && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <motion.button 
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsPlaying(true);
+                            }}
+                            className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-full flex items-center justify-center shadow-2xl z-20 cursor-pointer ring-[16px] md:ring-[24px] ring-white/20 backdrop-blur-xl transition-all"
+                          >
+                            <Play className="w-8 h-8 md:w-10 md:h-10 text-primary fill-primary ml-1" />
+                          </motion.button>
+                        </div>
+                      )}
 
-                  <div className="flex items-center">
-                     <button 
-                      onClick={() => window.open(videos[index].videoUrl, '_blank')}
-                      className="flex items-center gap-2 md:gap-4 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 px-3 md:px-5 py-1.5 md:py-2.5 rounded-full transition-all cursor-pointer shadow-lg group/visit"
-                     >
-                        <svg viewBox="0 0 24 24" className="w-6 h-6 md:w-8 md:h-8">
-                          <path fill="#FF0000" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" />
-                          <path fill="#FFFFFF" d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                        </svg>
-                        <span className="text-white uppercase tracking-[0.1em] md:tracking-[0.2em] text-[10px] md:text-sm font-bold">Visit</span>
-                        <ArrowRight className="w-3 h-3 md:w-4 md:h-4 text-white group-hover/visit:translate-x-1 transition-transform" />
-                     </button>
-                  </div>
+                      {!isActive && (
+                        <div className="absolute inset-0 bg-black/10 hover:bg-transparent transition-colors duration-300 flex items-center justify-center">
+                          <div className="bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/25 text-white font-bold text-[10px] uppercase tracking-widest">
+                            CLICK TO VIEW
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Back Button when playing */}
+                  {isActive && isPlaying && (
+                    <motion.button
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsPlaying(false);
+                      }}
+                      className="absolute top-6 left-8 z-50 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-white/20 transition-all cursor-pointer"
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Back to Spotlight
+                    </motion.button>
+                  )}
+
+                  {(!isPlaying || !isActive) && (
+                    <div 
+                      className={`absolute bottom-3 md:bottom-4 left-3 md:left-8 right-3 md:right-8 h-12 md:h-24 bg-white/10 backdrop-blur-2xl rounded-[1rem] md:rounded-[1.5rem] border border-white/20 px-4 md:px-8 flex items-center justify-between shadow-2xl overflow-hidden z-30 transition-opacity duration-300 ${
+                        isActive ? 'opacity-100' : 'opacity-80'
+                      }`}
+                    >
+                      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                      
+                      <div className="flex flex-col">
+                        <span className="text-white/60 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mb-0 md:mb-1">Member Spotlight</span>
+                        <span className="text-white font-bold text-xs md:text-lg truncate max-w-[120px] md:max-w-none">{video.name}</span>
+                      </div>
+
+                      <div className="flex items-center">
+                         <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(video.videoUrl, '_blank');
+                          }}
+                          className="flex items-center gap-2 md:gap-4 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 px-2.5 md:px-5 py-1 md:py-2.5 rounded-full transition-all cursor-pointer shadow-lg group/visit"
+                         >
+                            <svg viewBox="0 0 24 24" className="w-4 h-4 md:w-8 md:h-8">
+                              <path fill="#FF0000" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" />
+                              <path fill="#FFFFFF" d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                            </svg>
+                            <span className="text-white uppercase tracking-[0.1em] md:tracking-[0.2em] text-[8px] md:text-sm font-bold">Visit</span>
+                            <ArrowRight className="w-3 h-3 md:w-4 md:h-4 text-white group-hover/visit:translate-x-1 transition-transform" />
+                         </button>
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
-              )}
-            </AnimatePresence>
+              );
+            })}
           </div>
 
           {/* Carousel Controls - Below Video Card */}
@@ -1983,7 +2027,7 @@ const Connect = () => {
       rotateX: 0,
       transition: { 
         duration: 0.8, 
-        ease: [0.34, 1.56, 0.64, 1] // Custom bounce ease for slot machine feel
+        ease: [0.34, 1.56, 0.64, 1] as const // Custom bounce ease for slot machine feel
       }
     }
   };
@@ -2239,18 +2283,55 @@ const Footer = () => {
 };
 
 export default function App() {
+  const [currentHash, setCurrentHash] = useState(window.location.hash);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentHash(window.location.hash);
+      if (window.location.hash === '#org-chart' || window.location.hash === '#our-people') {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const isOrgChart = currentHash === '#org-chart' || currentHash === '#our-people';
+
   return (
     <div className="font-sans">
       <Navbar />
       <main>
-        <Hero />
-        <About />
-        <Logos />
-        <Capabilities />
-        <Portfolio />
-        <Principles />
-        <HearFromOurTeam />
-        <Connect />
+        <AnimatePresence mode="wait">
+          {isOrgChart ? (
+            <motion.div
+              key="org-chart-page"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+            >
+              <OrgChart onBack={() => { window.location.hash = ""; }} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="landing-page"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Hero />
+              <About />
+              <Logos />
+              <Capabilities />
+              <Portfolio />
+              <Principles />
+              <HearFromOurTeam />
+              <Connect />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
       <Footer />
     </div>
