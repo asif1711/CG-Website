@@ -356,7 +356,15 @@ const Navbar = () => {
       <div className="max-w-full mx-auto w-full px-4 md:px-8 lg:px-10 xl:px-12 2xl:px-[4%] h-[120px] lg:h-[100px] xl:h-[120px] 2xl:h-[140px] flex items-center justify-between gap-4">
         {/* Left: Logo */}
         <div className="flex-shrink-0">
-          <a href="/" className="flex items-center gap-3">
+          <a 
+            href="#" 
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              window.history.pushState(null, '', '#');
+            }}
+            className="flex items-center gap-3"
+          >
              <img 
                src={isScrolled ? LOGO_URL : (logoError ? LOGO_URL : LOGO_WHITE_URL)} 
                alt="Chelson Gordon Logo" 
@@ -2142,7 +2150,15 @@ const Footer = () => {
           {/* Logo & About Section */}
           <div className="w-full md:w-5/12 flex flex-col justify-start">
             <div className="space-y-2 md:space-y-3 mb-4 md:mb-5 lg:mb-4">
-              <a href="/" className="flex items-center gap-3 md:gap-4 group cursor-pointer decoration-none">
+              <a 
+                href="#" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.history.pushState(null, '', '#');
+                }}
+                className="flex items-center gap-3 md:gap-4 group cursor-pointer decoration-none"
+              >
                 <div className="relative">
                   <div className="absolute inset-0 bg-accent rounded-full blur-xl opacity-10 group-hover:opacity-30 transition-opacity" />
                   <img 
