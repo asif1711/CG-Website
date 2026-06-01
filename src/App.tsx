@@ -618,7 +618,7 @@ const Logos = () => {
     { name: "REACH", url: "https://reachcollege.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/REACH.svg" },
     { name: "BIC", url: "https://brooklyn.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/BIC.svg" },
     { name: "HJ", url: "https://hjaustralianinstitute.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/HJ.svg" },
-    { name: "PIVOT", url: "http://pivoteducation.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/PIVOT.svg", scale: 0.68 },
+    { name: "PIVOT", url: "http://pivoteducation.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/PIVOT.svg", scale: 1.2 },
     { name: "PROFOUND", url: "https://profound.nsw.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/PROFOUND.svg" },
   ];
 
