@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { NeatGradient } from "@firecms/neat";
 import OrgChart from "./OrgChart";
+import OurTeamsPage from "./OurTeamsPage";
 
 // --- Types ---
 interface TeamMember {
@@ -199,13 +200,15 @@ const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isSc
   );
 };
 
-const Navbar = () => {
+const Navbar = ({ forceSolid }: { forceSolid?: boolean }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState(() => {
     return localStorage.getItem('selected_language_name') || 'English';
   });
+
+  const activeScrolled = isScrolled || forceSolid;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -352,7 +355,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${activeScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
       <div className="max-w-full mx-auto w-full px-4 md:px-8 lg:px-10 xl:px-12 2xl:px-[4%] h-[120px] lg:h-[100px] xl:h-[120px] 2xl:h-[140px] flex items-center justify-between gap-4">
         {/* Left: Logo */}
         <div className="flex-shrink-0">
@@ -360,16 +363,16 @@ const Navbar = () => {
             href="#" 
             onClick={(e) => {
               e.preventDefault();
+              window.location.hash = "";
               window.scrollTo({ top: 0, behavior: 'smooth' });
-              window.history.pushState(null, '', '#');
             }}
             className="flex items-center gap-3"
           >
              <img 
-               src={isScrolled ? LOGO_URL : (logoError ? LOGO_URL : LOGO_WHITE_URL)} 
+               src={activeScrolled ? LOGO_URL : (logoError ? LOGO_URL : LOGO_WHITE_URL)} 
                alt="Chelson Gordon Logo" 
-               className={`h-[145px] md:h-[125px] lg:h-[110px] xl:h-[145px] 2xl:h-[170px] w-auto transition-all transform origin-left ${!isScrolled && logoError ? 'brightness-0 invert' : ''}`}
-               onError={() => !isScrolled && setLogoError(true)}
+               className={`h-[145px] md:h-[125px] lg:h-[110px] xl:h-[145px] 2xl:h-[170px] w-auto transition-all transform origin-left ${!activeScrolled && logoError ? 'brightness-0 invert' : ''}`}
+               onError={() => !activeScrolled && setLogoError(true)}
                referrerPolicy="no-referrer"
              />
           </a>
@@ -383,7 +386,7 @@ const Navbar = () => {
               <a 
                 key={item} 
                 href={`#${item.toLowerCase().replace(' ', '-')}`}
-                className={`text-[10px] xl:text-xs font-bold uppercase tracking-widest transition-all hover:text-accent whitespace-nowrap ${isScrolled ? 'text-primary' : 'text-white'}`}
+                className={`text-[10px] xl:text-xs font-bold uppercase tracking-widest transition-all hover:text-accent whitespace-nowrap ${activeScrolled ? 'text-primary' : 'text-white'}`}
               >
                 {item}
               </a>
@@ -396,7 +399,7 @@ const Navbar = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-md border border-transparent ${
-                isScrolled 
+                activeScrolled 
                   ? 'bg-primary text-white hover:bg-accent hover:text-primary' 
                   : 'bg-accent text-primary hover:bg-primary hover:text-white'
               }`}
@@ -404,28 +407,34 @@ const Navbar = () => {
               Get in Touch <ArrowRight className="w-3.5 h-3.5" />
             </motion.button>
             
-            <motion.button 
+            <motion.a 
+              href="https://storage.googleapis.com/chelsongordon/com.chelsongordon/CG%20-%20Company%20Handbook.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm border border-transparent ${
-                isScrolled 
+                activeScrolled 
                   ? 'bg-accent text-primary hover:bg-primary hover:text-white' 
                   : 'bg-primary text-white hover:bg-accent hover:text-primary'
               }`}
             >
               Company Profile <Download className="w-3.5 h-3.5" />
-            </motion.button>
+            </motion.a>
 
-            <motion.button 
+            <motion.a 
+              href="https://cgresources.com.au/"
+              target="_blank"
+              rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap border shadow-sm ${isScrolled ? 'bg-primary/5 text-primary border-primary/10 hover:bg-primary/10' : 'bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md'}`}
+              className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap border shadow-sm ${activeScrolled ? 'bg-primary/5 text-primary border-primary/10 hover:bg-primary/10' : 'bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md'}`}
             >
               CG Resources <ShoppingBag className="w-3.5 h-3.5" />
-            </motion.button>
+            </motion.a>
 
             <LanguageSelector 
-              isScrolled={isScrolled} 
+              isScrolled={activeScrolled} 
               selectedLang={selectedLang}
               onLanguageChange={changeLanguage}
             />
@@ -434,7 +443,7 @@ const Navbar = () => {
 
         {/* Mobile Menu Toggle */}
         <button className="lg:hidden ml-auto relative z-[60]" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-          {mobileMenuOpen ? <X className={isScrolled || mobileMenuOpen ? 'text-primary' : 'text-white'} size={32} /> : <Menu className={isScrolled ? 'text-primary' : 'text-white'} size={32} />}
+          {mobileMenuOpen ? <X className={activeScrolled || mobileMenuOpen ? 'text-primary' : 'text-white'} size={32} /> : <Menu className={activeScrolled ? 'text-primary' : 'text-white'} size={32} />}
         </button>
       </div>
 
@@ -477,7 +486,10 @@ const Navbar = () => {
                 </motion.button>
                 
                 <div className="grid grid-cols-2 gap-3">
-                  <motion.button 
+                  <motion.a 
+                    href="https://storage.googleapis.com/chelsongordon/com.chelsongordon/CG%20-%20Company%20Handbook.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
@@ -485,9 +497,12 @@ const Navbar = () => {
                     className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl bg-accent text-primary font-bold uppercase tracking-widest text-[10px] shadow-md"
                   >
                     Company Profile <Download className="w-4 h-4" />
-                  </motion.button>
+                  </motion.a>
 
-                  <motion.button 
+                  <motion.a 
+                    href="https://cgresources.com.au/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
@@ -495,7 +510,7 @@ const Navbar = () => {
                     className="flex items-center justify-center gap-2 px-4 py-4 rounded-xl bg-primary/5 text-primary border border-primary/10 font-bold uppercase tracking-widest text-[10px]"
                   >
                     Resources <ShoppingBag className="w-4 h-4" />
-                  </motion.button>
+                  </motion.a>
                 </div>
 
                 <div className="pt-8 mt-8 border-t border-gray-100">
@@ -620,18 +635,22 @@ const Hero = () => {
 const Logos = () => {
   const logos = [
     { name: "AIBT", url: "https://aibtglobal.edu.au/u", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/AIBT.svg" },
-    { name: "AIBT-I", url: "https://aibti.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/AIBT-I.svg" },
-    { name: "AVTA", url: "https://avta.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/AVTA.svg" },
-    { name: "NPA", url: "https://npa.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/NPA.svg", scale: 0.75 },
-    { name: "REACH", url: "https://reachcollege.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/REACH.svg" },
+    { name: "AIBT-I", url: "https://aibti.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/AIBT-I.svg", scale: 0.8 },
+    { name: "AVTA", url: "https://avta.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/AVTA.svg", scale: 1.2 },
+    { name: "NPA", url: "https://npa.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/NPA.svg", scale: 0.9 },
+    { name: "REACH", url: "https://reachcollege.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/REACH.svg", scale: 0.85 },
     { name: "BIC", url: "https://brooklyn.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/BIC.svg" },
     { name: "HJ", url: "https://hjaustralianinstitute.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/HJ.svg" },
     { name: "PIVOT", url: "http://pivoteducation.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/PIVOT.svg", scale: 1.2 },
     { name: "PROFOUND", url: "https://profound.nsw.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/PROFOUND.svg" },
   ];
 
-  const LogoItem = ({ item }: { item: { name: string, url: string, logo: string, scale?: number }, key?: string | number }) => {
+  const LogoItem = ({ item }: { item: { name: string, url: string, logo: string, scale?: number, width?: number, extraGap?: number }, key?: string | number }) => {
     const [hasError, setHasError] = useState(false);
+    
+    // Tweakable size and gap defaults
+    const currentWidth = item.width !== undefined ? item.width : 180;
+    const additionalGap = item.extraGap !== undefined ? item.extraGap : 0;
     
     return (
       <motion.a 
@@ -641,7 +660,11 @@ const Logos = () => {
         className="flex items-center justify-center shrink-0"
         whileHover={{ scale: 1.1, y: -5 }}
         transition={{ type: "spring", stiffness: 400, damping: 15 }}
-        style={{ width: '180px', height: '80px' }}
+        style={{ 
+          width: `${currentWidth}px`, 
+          height: '80px',
+          marginRight: additionalGap ? `${additionalGap}px` : undefined
+        }}
       >
         {item.logo && !hasError ? (
           <img 
@@ -653,7 +676,7 @@ const Logos = () => {
             }}
             className="object-contain opacity-100" 
             style={{ 
-              width: '180px', 
+              width: `${currentWidth}px`, 
               height: '80px',
               transform: item.scale ? `scale(${item.scale})` : 'none'
             }}
@@ -676,7 +699,7 @@ const Logos = () => {
       
       <div className="w-full flex items-center">
         <motion.div 
-          className="flex items-center gap-12 md:gap-16 px-6"
+          className="flex items-center gap-16 md:gap-24 px-8"
           animate={{ x: ["0%", "-50%"] }}
           transition={{
             x: {
@@ -1034,8 +1057,16 @@ const WorldMapGraphic = () => {
 
 const About = () => {
   return (
-    <section id="about" className="py-24 lg:py-[91px] xl:py-24 bg-gradient-to-b from-[#042F61]/[0.18] via-[#042F61]/[0.04] to-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
+    <section 
+      id="about" 
+      style={{
+        background: "#ffffff",
+        backgroundImage: "radial-gradient(circle at bottom center, rgba(4, 47, 97, 0.16) 0%, rgba(4, 47, 97, 0.03) 55%, transparent 80%)"
+      }}
+      className="py-24 lg:py-[91px] xl:py-24 overflow-hidden relative"
+    >
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <motion.div 
             whileInView={{ opacity: 1, x: 0 }}
@@ -1052,34 +1083,34 @@ const About = () => {
             viewport={{ once: true }}
             className="lg:pl-12"
           >
-            <h2 className="text-4xl leading-tight mb-8 text-primary max-w-md">
+            <h2 className="text-4xl leading-tight mb-8 text-primary max-w-md font-bold">
              Globally Connected Expertise.
             </h2>
-            <p className="text-gray-600 text-lg mb-10 leading-relaxed">
+            <p className="text-slate-700 text-lg mb-10 leading-relaxed font-medium">
              We combine international presence with multidisciplinary expertise to deliver tailored and results-oriented solutions. Our collaborative approach supports organisations in achieving efficiency, innovation, and long-term success.
             </p>
             <a href="#" className="inline-flex items-center gap-2 font-bold text-primary border-b-2 border-accent pb-1 hover:gap-4 transition-all mb-12">
               More about Our Presence <ArrowRight className="w-4 h-4" />
             </a>
 
-            <div className="grid grid-cols-3 gap-8 pt-10 border-t border-gray-100">
+            <div className="grid grid-cols-3 gap-8 pt-10 border-t border-gray-200">
               <div>
                 <div className="text-3xl font-bold text-primary">
                   <CountingNumber value={50} suffix="+" />
                 </div>
-                <div className="text-xs text-gray-400 uppercase tracking-wider mt-1">RTOs Supported</div>
+                <div className="text-xs text-slate-500 uppercase font-bold tracking-wider mt-1">RTOs Supported</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary">
                   <CountingNumber value={7} />
                 </div>
-                <div className="text-xs text-gray-400 uppercase tracking-wider mt-1">Global Locations</div>
+                <div className="text-xs text-slate-500 uppercase font-bold tracking-wider mt-1">Global Locations</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary">
                   <CountingNumber value={20} suffix="+" />
                 </div>
-                <div className="text-xs text-gray-400 uppercase tracking-wider mt-1">Experienced Consultants</div>
+                <div className="text-xs text-slate-500 uppercase font-bold tracking-wider mt-1">Experienced Consultants</div>
               </div>
             </div>
           </motion.div>
@@ -1310,7 +1341,7 @@ const Portfolio = () => {
             </h2>
           </div>
           <div className="flex gap-4">
-            <a href="#org-chart" className="bg-primary text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-primary-light transition-all flex items-center gap-2 group">
+            <a href="#our-teams" className="bg-primary text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-primary-light transition-all flex items-center gap-2 group">
                Explore Our Teams <ExternalLink className="w-4 h-4" />
             </a>
           </div>
@@ -1377,9 +1408,12 @@ const Portfolio = () => {
                           {item.description}
                         </p>
                       </div>
-                      <button className="flex items-center justify-center gap-3 text-white font-bold text-[10px] md:text-sm uppercase tracking-widest bg-primary/90 backdrop-blur-md hover:bg-accent hover:text-primary border border-white/20 p-4 md:p-6 rounded-xl md:rounded-2xl w-fit px-8 md:px-10 transition-all hover:shadow-xl">
-                        View Team <ArrowRight className="w-4 h-4" />
-                      </button>
+                      <a 
+                        href="#our-teams" 
+                        className="inline-flex items-center justify-center gap-3 text-white font-bold text-[10px] md:text-sm uppercase tracking-widest bg-primary/90 backdrop-blur-md hover:bg-accent hover:text-primary border border-white/20 p-4 md:p-6 rounded-xl md:rounded-2xl w-fit px-8 md:px-10 transition-all hover:shadow-xl group"
+                      >
+                        View Team <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                      </a>
                     </div>
                     <div className="flex-1 md:h-full md:w-1/2 overflow-hidden relative">
                       <img 
@@ -1456,8 +1490,8 @@ const Principles = () => {
         waveAmplitude: 0,
         shadows: 2,
         highlights: 7,
-        colorBrightness: 0.9,
-        colorSaturation: 4,
+        colorBrightness: 0.95,
+        colorSaturation: 5.2,
         wireframe: false,
         colorBlending: 5,
         backgroundColor: '#042F61',
@@ -1556,7 +1590,11 @@ const Principles = () => {
     <section className="relative min-h-[90vh] flex items-center py-16 lg:py-[59px] xl:py-16 overflow-hidden bg-[#042F61]">
       {/* Animated Neat Gradient Canvas Background */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <canvas id="gradient" ref={canvasRef} style={{ width: '100%', height: '100%' }} className="pointer-events-none opacity-70" />
+        <canvas id="gradient" ref={canvasRef} style={{ width: '100%', height: '100%' }} className="pointer-events-none opacity-90" />
+        
+        {/* Smooth transition fade overlays to eliminate canvas boundaries */}
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#042F61] to-transparent pointer-events-none z-10" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#042F61] to-transparent pointer-events-none z-10" />
       </div>
       
       {/* Brand Accent Glows */}
@@ -1673,6 +1711,17 @@ const Principles = () => {
 const HearFromOurTeam = () => {
   const [index, setIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const videos = [
     {
       name: "Peace Kunthongkaew",
@@ -1685,6 +1734,12 @@ const HearFromOurTeam = () => {
       role: "Executive Assistant",
       image: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/srija.webp",
       videoUrl: "https://www.youtube.com/watch?v=kCpGdjSULkc&pp=0gcJCQQLAYcqIYzv"
+    },
+    {
+      name: "Sweta Singh",
+      role: "Junior Business Administrator",
+      image: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/sweta.webp",
+      videoUrl: "https://youtu.be/A6t-lIdY9RM?si=1shdNeSx_2GzKIaD"
     }
   ];
 
@@ -1732,17 +1787,35 @@ const HearFromOurTeam = () => {
           <div className="relative aspect-video w-full bg-transparent">
             {videos.map((video, i) => {
               const isActive = i === index;
+              const L = videos.length;
+              let diff = i - index;
+              while (diff > L / 2) diff -= L;
+              while (diff < -L / 2) diff += L;
+
               return (
                 <motion.div
                   key={i}
                   style={{
                     zIndex: isActive ? 30 : 10,
                   }}
+                  drag={isActive && isMobile && !isPlaying ? "x" : false}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.4}
+                  onDragEnd={(e, info) => {
+                    const threshold = 50;
+                    if (info.offset.x < -threshold) {
+                      next();
+                    } else if (info.offset.x > threshold) {
+                      prev();
+                    }
+                  }}
                   animate={{
-                    scale: isActive ? 1 : 0.85,
-                    x: isActive ? "0%" : (i - index < 0 ? "-28.75%" : "28.75%"),
+                    scale: isActive ? 1 : (isMobile ? 0.70 : 0.85),
+                    x: isActive ? "0%" : (diff < 0 
+                      ? (isMobile ? "-11%" : "-28.75%") 
+                      : (isMobile ? "11%" : "28.75%")),
                     y: isActive ? "0%" : "0%",
-                    opacity: isActive ? 1 : 0.5,
+                    opacity: isActive ? 1 : (isMobile ? 0.45 : 0.5),
                     filter: "none",
                   }}
                   transition={{
@@ -2142,48 +2215,222 @@ const Connect = () => {
   );
 };
 
+const PartnersAndTeam = () => {
+  const partners = [
+    { name: "AMITY", logo: "https://www.amity.edu/images/logo.png", scale: 1.1, isBrandBlue: true },
+    { name: "EIILM", logo: "https://eiilm.co.in/wp-content/themes/eiilm/images/eiilm-logo.png", scale: 1.2, isBrandBlue: true },
+    { name: "TECHNO", logo: "https://www.technoindiagroup.com/img/logo.png", scale: 1.2, isBrandBlue: true },
+    { name: "ADAMAS", logo: "https://upload.wikimedia.org/wikipedia/en/0/05/Adamas_University_Logo.png", scale: 0.72, isBrandBlue: false },
+    { name: "BRAINWARE", logo: "https://www.brainwareuniversity.ac.in/assets/img/bwu-logo.webp", scale: 1.2, isBrandBlue: false },
+    { name: "GLOBSYN", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Globsyn-Business-School-Logo.png/960px-Globsyn-Business-School-Logo.png", scale: 1.3, isBrandBlue: false },
+    { name: "ICFAI", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/ICFAI.svg", scale: 1.2, isBrandBlue: false },
+    { name: "RNB", logo: "https://www.rnbglobal.edu.in/assets/images/logo.svg", scale: 1.18, isBrandBlue: false },
+    { name: "SNU", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/snu.webp", scale: 1.15, isBrandBlue: false },
+    { name: "SPSU", logo: "https://spsu.ac.in/apply-now-mba/wp-content/uploads/2023/06/Asset-5@300x.png", scale: 1.18, isBrandBlue: false },
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.1
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring" as const,
+        stiffness: 110,
+        damping: 15
+      }
+    }
+  };
+
+  return (
+    <section className="relative py-10 lg:py-12 overflow-hidden bg-gradient-to-b from-white via-slate-50/55 to-white font-sans border-t border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 relative z-10">
+        
+        {/* Header Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 mb-8 items-start">
+          <div className="lg:col-span-6">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="mb-2"
+            >
+              <span className="text-[#042F61] font-extrabold text-[10px] md:text-xs uppercase tracking-[0.25em] bg-[#042F61]/5 px-3 py-1 rounded-full">
+                Partners & Network
+              </span>
+            </motion.div>
+            <motion.h3
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.05 }}
+              className="text-3xl md:text-4xl lg:text-5xl font-black text-[#042F61] tracking-tight leading-[1.1]"
+            >
+              Collaboration<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#042F61] via-[#0D59A7] to-[#042F61]">
+                That Drives Success
+              </span>
+            </motion.h3>
+          </div>
+          <div className="lg:col-span-6 lg:pt-4">
+            <motion.p
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="text-slate-600 text-sm md:text-base leading-relaxed font-semibold text-justify"
+            >
+              Connecting business, education, and regional partners to build practical workforce solutions. Together, we create stronger skills, stronger organisations, and sustainable growth.
+            </motion.p>
+          </div>
+        </div>
+
+        {/* Content Row: Grid of cards + CTA Column */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10 items-center">
+          
+          {/* Left Grid: 2x5 Logo Grid */}
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4"
+          >
+            {partners.map((partner) => {
+              const hoverStyles = partner.isBrandBlue
+                ? {
+                    y: -5,
+                    borderColor: "rgba(253, 185, 19, 0.45)",
+                    boxShadow: "0 12px 24px -10px rgba(4, 47, 97, 0.45)"
+                  }
+                : {
+                    y: -5,
+                    borderColor: "rgba(4, 47, 97, 0.25)",
+                    backgroundColor: "#ffffff",
+                    boxShadow: "0 12px 24px -10px rgba(4, 47, 97, 0.12)"
+                  };
+
+              const cardClasses = partner.isBrandBlue
+                ? "bg-gradient-to-br from-[#042F61] via-[#053266] to-[#0D59A7] border-white/10 rounded-2xl border flex items-center justify-center p-4 h-24 sm:h-26 transition-all duration-300 group cursor-pointer overflow-hidden relative shadow-[0_2px_8px_rgba(4,47,97,0.12)]"
+                : "bg-slate-100/90 border-slate-200/80 rounded-2xl border flex items-center justify-center p-4 h-24 sm:h-26 transition-all duration-300 group cursor-pointer overflow-hidden relative shadow-[0_2px_8px_rgba(4,47,97,0.02)]";
+
+              return (
+                <motion.div
+                  key={partner.name}
+                  variants={cardVariants}
+                  whileHover={hoverStyles}
+                  className={cardClasses}
+                >
+                  <div className="w-full h-full flex items-center justify-center relative overflow-hidden pointer-events-none">
+                    <motion.div 
+                      className="flex items-center justify-center w-full h-full"
+                      initial={{ scale: partner.scale }}
+                      whileHover={{ scale: partner.scale * 1.12 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    >
+                      <img 
+                        src={partner.logo} 
+                        alt={partner.name} 
+                        className="max-h-full max-w-[85%] object-contain shrink-0"
+                        style={{ maxHeight: '200px' }}
+                        referrerPolicy="no-referrer"
+                      />
+                    </motion.div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+
+          {/* Right Column: Reverted CTA design */}
+          <div className="lg:col-span-4 flex flex-col items-center lg:items-start pl-0 lg:pl-6 xl:pl-10 justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="text-center lg:text-left"
+            >
+              <h4 className="text-xl md:text-2xl font-bold text-[#042F61] mb-5 tracking-tight">
+                Join our partners network
+              </h4>
+              <motion.a
+                href="mailto:support.coordinator@chelsongordon.com?subject=Partner%20Network%20Inquiry"
+                whileHover={{ 
+                  scale: 1.04, 
+                  backgroundColor: '#FDB913', 
+                  color: '#042F61',
+                  boxShadow: '0 20px 25px -5px rgba(253, 185, 19, 0.25)'
+                }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                className="inline-flex items-center gap-2.5 bg-[#042F61] text-white font-extrabold text-[13px] md:text-sm tracking-wider uppercase px-7 py-3.5 rounded-full shadow-lg group transition-all"
+              >
+                Become a partner <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
+              </motion.a>
+            </motion.div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  );
+};
+
 const Footer = () => {
   return (
-    <footer className="relative pt-8 pb-6 md:pt-12 md:pb-8 lg:pt-8 lg:pb-6 overflow-hidden text-primary/80 bg-white border-t border-gray-100 h-auto">
-      <div className="max-w-[1440px] mx-auto w-full px-8 md:px-16 lg:px-12 xl:px-24 relative z-10">
-        <div className="flex flex-col md:flex-row gap-8 md:gap-16 lg:gap-12 xl:gap-20 mb-8 md:mb-12 lg:mb-8 items-start">
+    <footer className="relative pt-3.5 pb-4 md:pt-4.5 md:pb-5.5 overflow-hidden text-primary/80 bg-[#F8FAFC] border-t border-slate-200/60 h-auto font-sans">
+      <div className="max-w-full w-full px-4 sm:px-6 md:px-8 lg:px-12 relative z-10">
+        <div className="flex flex-col md:flex-row gap-8 md:gap-16 lg:gap-12 xl:gap-20 mb-3 md:mb-4 items-stretch">
           {/* Logo & About Section */}
           <div className="w-full md:w-5/12 flex flex-col justify-start">
-            <div className="space-y-2 md:space-y-3 mb-4 md:mb-5 lg:mb-4">
+            <div className="space-y-2 md:space-y-3 mb-3 md:mb-3.5 lg:mb-3">
               <a 
                 href="#" 
                 onClick={(e) => {
                   e.preventDefault();
+                  window.location.hash = "";
                   window.scrollTo({ top: 0, behavior: 'smooth' });
-                  window.history.pushState(null, '', '#');
                 }}
-                className="flex items-center gap-3 md:gap-4 group cursor-pointer decoration-none"
+                className="flex items-center gap-4 group cursor-pointer decoration-none"
               >
-                <div className="relative">
-                  <div className="absolute inset-0 bg-accent rounded-full blur-xl opacity-10 group-hover:opacity-30 transition-opacity" />
+                <div className="relative flex items-center justify-center">
                   <img 
                     src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/CG_plain.webp" 
                     alt="Chelson Gordon Logo" 
-                    className="h-8 md:h-12 w-auto relative z-10 transition-transform group-hover:scale-105 duration-500"
-                    style={{ transform: 'scale(1.2)' }}
+                    className="h-14 md:h-[72px] w-auto relative z-10 transition-all duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-0.5 filter group-hover:brightness-105"
                     referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="flex flex-col justify-center">
-                  <span className="text-primary font-bold text-[14px] md:text-[20px] lg:text-[18px] xl:text-[20px] tracking-widest leading-tight uppercase" style={{ wordSpacing: '0.2em' }}>Chelson Gordon</span>
-                  <span className="text-primary font-bold text-[12px] md:text-[16px] lg:text-[14px] xl:text-[16px] tracking-[0.1em] uppercase leading-none">Consultancy</span>
+                  <span className="text-primary font-bold text-[14px] md:text-[20px] lg:text-[18px] xl:text-[20px] tracking-widest leading-tight uppercase" style={{ wordSpacing: '0.15em' }}>Chelson Gordon</span>
+                  <span className="text-primary font-bold text-[12px] md:text-[16px] lg:text-[14px] xl:text-[16px] uppercase leading-none" style={{ letterSpacing: '0.66em', marginRight: '-0.66em' }}>Consultancy</span>
                 </div>
               </a>
               <div className="h-[1.5px] w-full max-w-[280px] md:max-w-[340px] bg-accent/40" />
             </div>
 
-            <p className="text-gray-500 text-[11px] md:text-sm lg:text-[10px] xl:text-[13px] leading-relaxed max-w-lg lg:max-w-md xl:max-w-lg font-medium text-justify opacity-90">
+            <p className="text-slate-700 text-[11px] md:text-sm lg:text-[10px] xl:text-[13px] leading-relaxed max-w-lg lg:max-w-md xl:max-w-lg font-medium text-justify">
               All content and materials on this website are protected under the Australian Copyright Act 1968, with all rights reserved by Chelson Gordon Consultancy Pty Ltd. No part of this website may be reproduced, stored, transmitted, distributed, or otherwise used in any form without prior written permission. Unauthorised use may result in penalties for copyright infringement.
             </p>
           </div>
           
           {/* Contact Details with vertical border */}
-          <div className="w-full md:w-4/12 md:border-l border-gray-100 md:pl-10 lg:pl-8 xl:pl-12">
+          <div className="w-full md:w-4/12 md:pl-10 lg:pl-8 xl:pl-12 relative flex flex-col justify-start self-stretch">
+            <div className="hidden md:block absolute left-0 top-[2%] bottom-[2%] w-[1.5px] bg-gradient-to-b from-transparent via-[#042F61]/40 to-transparent rounded-full filter blur-[0.5px] opacity-50" />
             <div className="mb-3 lg:mb-2">
               <h4 className="font-bold text-primary mb-1 text-base lg:text-lg tracking-tight">Contact Us</h4>
               <div className="h-0.5 w-16 lg:w-20 bg-accent/60" />
@@ -2191,7 +2438,7 @@ const Footer = () => {
             <ul className="space-y-3 md:space-y-5 lg:space-y-3 xl:space-y-5 mt-3 md:mt-6 lg:mt-4">
               <li className="flex items-center gap-3 group">
                 <div className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
-                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/phone-in-talk.svg" alt="Phone" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
+                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/call.svg" alt="Phone" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
                 </div>
                 <div className="flex flex-wrap lg:flex-nowrap items-center gap-x-4 md:gap-x-8 lg:gap-x-4 xl:gap-x-8">
                   <a href="tel:+61499994530" className="hover:text-accent text-primary transition-colors font-bold text-[12px] md:text-sm lg:text-[11px] xl:text-sm tracking-tight whitespace-nowrap">+61 499 994 530</a>
@@ -2199,47 +2446,23 @@ const Footer = () => {
                 </div>
               </li>
               <li className="flex items-center gap-3 group">
-                <div className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
+                <div className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/15 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
                   <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/email.svg" alt="Email" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <a href="mailto:support.coordinator@chelsongordon.com" className="hover:text-accent text-primary transition-colors font-bold text-[11px] md:text-sm lg:text-[10px] xl:text-[13px] tracking-tight block truncate">support.coordinator@chelsongordon.com</a>
                 </div>
               </li>
-              <li className="flex items-center gap-4 pt-1 lg:pt-0">
-                <div className="flex items-center gap-3">
-                  <a 
-                    href="https://www.instagram.com/chelsongordonofficial?igsh=MXhwc3o2ZTRieXJyaQ==" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
-                  >
-                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/instagram.svg" alt="Instagram" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
-                  </a>
-                  <a 
-                    href="https://www.youtube.com/@ChelsonGordonConsultancy" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
-                  >
-                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/youtube.svg" alt="Youtube" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
-                  </a>
-                  <a 
-                    href="https://www.facebook.com/share/15r9QeRt2x/?mibextid=wwXIfr" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 hover:bg-accent hover:text-primary hover:border-accent transition-all duration-300 shadow-sm"
-                  >
-                    <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/facebook.svg" alt="Facebook" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
-                  </a>
-                </div>
-              </li>
             </ul>
           </div>
 
           {/* Action Column with vertical border */}
-          <div className="w-full md:w-3/12 md:border-l border-gray-100 md:pl-10 lg:pl-8 xl:pl-12 flex flex-col items-center justify-center self-stretch">
-            <motion.button 
+          <div className="w-full md:w-3/12 md:pl-10 lg:pl-8 xl:pl-12 flex flex-col items-center justify-center self-stretch relative">
+            <div className="hidden md:block absolute left-0 top-[2%] bottom-[2%] w-[1.5px] bg-gradient-to-b from-transparent via-[#042F61]/40 to-transparent rounded-full filter blur-[0.5px] opacity-50" />
+            <motion.a 
+              href="https://mycg.chelsongordon.com/"
+              target="_blank"
+              rel="noopener noreferrer"
               initial="initial"
               whileHover="hover"
               whileTap={{ scale: 0.95 }}
@@ -2273,25 +2496,75 @@ const Footer = () => {
                   Staff Intranet
                 </motion.span>
               </div>
-            </motion.button>
+            </motion.a>
           </div>
         </div>
 
-        <div className="pt-3 md:pt-4 lg:pt-3 border-t border-gray-100 flex flex-col items-center gap-2 md:gap-2">
-          <div className="flex flex-wrap justify-center gap-x-6 md:gap-x-24 lg:gap-x-10 xl:gap-x-20 gap-y-1.5 md:gap-y-2">
-            {['Terms of use', 'Privacy Policy', 'Cancellation & Refund'].map(item => (
-              <a 
-                key={item} 
-                href="#" 
-                className="text-gray-500 hover:text-accent transition-colors font-bold text-[12px] md:text-xs lg:text-[10px] xl:text-xs tracking-wider uppercase px-1 py-0.5"
-              >
-                {item}
-              </a>
-            ))}
+        {/* Divider Line with Gradient of Brand Blue and Dark Premium Blue */}
+        <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-[#042F61]/15 via-[#021E3D]/50 via-[#042F61]/15 to-transparent rounded-full filter blur-[0.5px] opacity-60 mt-1 mb-2.5 md:mt-1.5 md:mb-3.5" />
+
+        <div className="pt-0 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 w-full">
+          {/* Left Aligned Copyright */}
+          <div className="w-full lg:w-5/12 flex justify-center lg:justify-start">
+            <p className="text-[#042F61] text-[12px] md:text-sm tracking-wide uppercase font-extrabold text-center lg:text-left" style={{ wordSpacing: '0.05em' }}>
+              © 2026 Chelson Gordon Consultancy. All Rights Reserved.
+            </p>
           </div>
-          <p className="text-gray-400 text-[11px] md:text-[14px] lg:text-[11px] xl:text-[14px] tracking-normal md:tracking-[0.1em] uppercase font-bold text-center px-4" style={{ wordSpacing: '0.1em', fontWeight: 700 }}>
-            © 2026 Chelson Gordon Consultancy. <br className="md:hidden" /> All Rights Reserved.
-          </p>
+
+          {/* Centered Policies */}
+          <div className="w-full lg:w-4/12 flex justify-center font-sans font-medium">
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-1.5">
+              {['Terms of use', 'Privacy Policy', 'Cancellation & Refund'].map(item => (
+                <a 
+                  key={item} 
+                  href="#" 
+                  className="text-slate-500 hover:text-accent transition-colors font-bold text-[11px] md:text-xs tracking-wider uppercase whitespace-nowrap"
+                >
+                  {item}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Aligned Social Media Links */}
+          <div className="w-full lg:w-3/12 flex items-center justify-center lg:justify-end gap-3 shrink-0">
+            <a 
+              href="https://www.linkedin.com/company/92809574/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group bg-[#042F61]/5 rounded-lg text-primary border border-[#042F61]/10 hover:bg-[#042F61] hover:border-[#042F61] transition-all duration-300 shadow-sm"
+              style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Linkedin className="w-[23px] h-[23px] md:w-[27px] md:h-[27px] text-[#042F61] group-hover:text-white transition-colors" />
+            </a>
+            <a 
+              href="https://www.instagram.com/chelsongordonofficial?igsh=MXhwc3o2ZTRieXJyaQ==" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group bg-[#042F61]/5 rounded-lg border border-[#042F61]/10 hover:bg-[#042F61] hover:border-[#042F61] transition-all duration-300 shadow-sm"
+              style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/instagram.svg" alt="Instagram" className="w-[23px] h-[23px] md:w-[27px] md:h-[27px] transition-all group-hover:brightness-0 group-hover:invert" />
+            </a>
+            <a 
+              href="https://www.youtube.com/@ChelsonGordonConsultancy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group bg-[#042F61]/5 rounded-lg border border-[#042F61]/10 hover:bg-[#042F61] hover:border-[#042F61] transition-all duration-300 shadow-sm"
+              style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/youtube.svg" alt="Youtube" className="w-[23px] h-[23px] md:w-[27px] md:h-[27px] transition-all group-hover:brightness-0 group-hover:invert" />
+            </a>
+            <a 
+              href="https://www.facebook.com/share/15r9QeRt2x/?mibextid=wwXIfr" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group bg-[#042F61]/5 rounded-lg border border-[#042F61]/10 hover:bg-[#042F61] hover:border-[#042F61] transition-all duration-300 shadow-sm"
+              style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/facebook.svg" alt="Facebook" className="w-[23px] h-[23px] md:w-[27px] md:h-[27px] transition-all group-hover:brightness-0 group-hover:invert" />
+            </a>
+          </div>
         </div>
       </div>
     </footer>
@@ -2300,11 +2573,55 @@ const Footer = () => {
 
 export default function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
+  const [typedKeys, setTypedKeys] = useState("");
+  const [showEasterEgg, setShowEasterEgg] = useState(false);
+
+  useEffect(() => {
+    if (showEasterEgg) {
+      const timer = setTimeout(() => {
+        setShowEasterEgg(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showEasterEgg]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Avoid tracking if user is typing in form inputs/textarea
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' || 
+        target.tagName === 'TEXTAREA' || 
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      setTypedKeys((prev) => {
+        const next = (prev + e.key).slice(-20); // Keep last 20 characters
+        if (next.endsWith("@noodlez000")) {
+          setShowEasterEgg(true);
+          return ""; // Reset key tracking
+        }
+        return next;
+      });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     const handleHashChange = () => {
       setCurrentHash(window.location.hash);
-      if (window.location.hash === '#org-chart' || window.location.hash === '#our-people') {
+      const isTeamHash = [
+        '#org-chart', 
+        '#our-people', 
+        '#our-teams', 
+        '#meet-our-team'
+      ].includes(window.location.hash);
+      
+      if (isTeamHash) {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
     };
@@ -2312,14 +2629,19 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const isOrgChart = currentHash === '#org-chart' || currentHash === '#our-people';
+  const isOrgChartPage = currentHash === '#org-chart';
+  const isOurTeamsPage = [
+    '#our-people', 
+    '#our-teams', 
+    '#meet-our-team'
+  ].includes(currentHash);
 
   return (
     <div className="font-sans">
-      <Navbar />
+      <Navbar forceSolid={isOrgChartPage || isOurTeamsPage} />
       <main>
         <AnimatePresence mode="wait">
-          {isOrgChart ? (
+          {isOrgChartPage ? (
             <motion.div
               key="org-chart-page"
               initial={{ opacity: 0, y: 15 }}
@@ -2327,7 +2649,17 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.35, ease: 'easeOut' }}
             >
-              <OrgChart onBack={() => { window.location.hash = ""; }} />
+              <OrgChart onBack={() => { window.location.hash = "#our-teams"; }} />
+            </motion.div>
+          ) : isOurTeamsPage ? (
+            <motion.div
+              key="our-teams"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+            >
+              <OurTeamsPage />
             </motion.div>
           ) : (
             <motion.div
@@ -2345,11 +2677,77 @@ export default function App() {
               <Principles />
               <HearFromOurTeam />
               <Connect />
+              <PartnersAndTeam />
             </motion.div>
           )}
         </AnimatePresence>
       </main>
       <Footer />
+
+      {/* Secret Signature Easter Egg Modal */}
+      <AnimatePresence>
+        {showEasterEgg && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md cursor-pointer select-none"
+            onClick={() => setShowEasterEgg(false)}
+          >
+            <motion.div
+              variants={{
+                initial: {
+                  opacity: 0,
+                  scale: 0.8,
+                  skewX: 0,
+                  x: 0,
+                  y: 0,
+                },
+                animate: {
+                  opacity: [0, 0.95, 0.45, 1, 0.85, 1, 0.75, 1, 0.6, 1],
+                  scale: [0.8, 1.25, 0.9, 1.1, 0.95, 1.05, 1],
+                  x: [0, -12, 10, -5, 6, -3, 3, 0],
+                  y: [0, 6, -6, 3, -1, 2, -2, 0],
+                  skewX: [0, 15, -15, 8, -8, 4, -4, 0],
+                  transition: {
+                    duration: 0.45,
+                    times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1],
+                    ease: "linear"
+                  }
+                },
+                exit: {
+                  opacity: [1, 0.75, 0.9, 0.35, 0.6, 0.15, 0],
+                  scale: [1, 1.15, 0.8, 0.95, 0.65, 0.3, 0],
+                  x: [0, 15, -15, 8, -5, 0],
+                  y: [0, -6, 6, -2, 2, 0],
+                  skewX: [0, -20, 20, -10, 5, 0],
+                  transition: {
+                    duration: 0.4,
+                    times: [0, 0.15, 0.3, 0.45, 0.6, 0.8, 1],
+                    ease: "linear"
+                  }
+                }
+              }}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="flex items-center justify-center gap-12 p-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@14.0.0/img/apple/64/1f646-1f3fc-200d-2640-fe0f.png"
+                alt="🙆🏼‍♀️"
+                className="w-28 h-28 md:w-40 md:h-40 object-contain drop-shadow-[4px_0px_0px_rgba(255,0,0,0.7)] filter brightness-105 pointer-events-none"
+              />
+              <img
+                src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@14.0.0/img/apple/64/1f482.png"
+                alt="💂"
+                className="w-28 h-28 md:w-40 md:h-40 object-contain drop-shadow-[-4px_0px_0px_rgba(0,0,255,0.7)] filter brightness-105 pointer-events-none"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

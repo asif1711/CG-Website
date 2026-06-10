@@ -18,7 +18,7 @@ export const BRAND_CONFIG = {
 };
 
 // Replace this URL with your actual cloud link video
-export const HERO_VIDEO_URL = "https://storage.googleapis.com/chelsongordon/com.chelsongordon/CG%20Website%20Landing%20Page%20Video.mp4";
+export const HERO_VIDEO_URL = "https://storage.googleapis.com/chelsongordon/com.chelsongordon/CG%202026.mp4";
 
 // Replace this URL with your actual logo link
 export const LOGO_URL = "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/logo.svg"; // Colored logo
