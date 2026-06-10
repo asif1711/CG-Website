@@ -50,24 +50,28 @@ export default function OurTeamsPage() {
               We are currently designing a comprehensive digital directory. Our new team showcase will feature multidisciplinary specialists across our human strategy, educational consulting, and learning operations units.
             </p>
 
-            {/* Divider */}
-            <div className="w-16 h-[2px] bg-[#042F61]/10 rounded-full my-4" />
+            {((import.meta as any).env?.DEV) && (
+              <>
+                {/* Divider */}
+                <div className="w-16 h-[2px] bg-[#042F61]/10 rounded-full my-4" />
 
-            {/* Interactive Org Chart Option */}
-            <div className="space-y-4 w-full">
-              <p className="text-[#042F61] text-xs sm:text-sm font-bold tracking-tight">
-                Would you like to explore our real-time company structure?
-              </p>
-              
-              <a
-                href="#org-chart"
-                className="inline-flex items-center gap-3 bg-[#042F61] text-[#FDB913] font-black text-xs sm:text-sm tracking-widest uppercase px-8 py-4 rounded-full shadow-lg hover:bg-[#042F61]/90 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center group"
-              >
-                <Network className="w-4 h-4 text-[#FDB913]" />
-                Explore Interactive Org Chart
-                <ArrowRight className="w-4 h-4 text-[#FDB913] transition-transform group-hover:translate-x-1" />
-              </a>
-            </div>
+                {/* Interactive Org Chart Option */}
+                <div className="space-y-4 w-full">
+                  <p className="text-[#042F61] text-xs sm:text-sm font-bold tracking-tight">
+                    Would you like to explore our real-time company structure?
+                  </p>
+                  
+                  <a
+                    href="#org-chart"
+                    className="inline-flex items-center gap-3 bg-[#042F61] text-[#FDB913] font-black text-xs sm:text-sm tracking-widest uppercase px-8 py-4 rounded-full shadow-lg hover:bg-[#042F61]/90 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto justify-center group"
+                  >
+                    <Network className="w-4 h-4 text-[#FDB913]" />
+                    Explore Interactive Org Chart
+                    <ArrowRight className="w-4 h-4 text-[#FDB913] transition-transform group-hover:translate-x-1" />
+                  </a>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

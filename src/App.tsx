@@ -30,7 +30,10 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { NeatGradient } from "@firecms/neat";
-import OrgChart from "./OrgChart";
+// Dynamically import OrgChart ONLY in development to prevent it from being bundled in production
+const OrgChart = ((import.meta as any).env?.DEV)
+  ? React.lazy(() => import("./OrgChart"))
+  : () => null as any;
 import OurTeamsPage from "./OurTeamsPage";
 
 // --- Types ---
@@ -2629,7 +2632,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const isOrgChartPage = currentHash === '#org-chart';
+  const isOrgChartPage = ((import.meta as any).env?.DEV) && currentHash === '#org-chart';
   const isOurTeamsPage = [
     '#our-people', 
     '#our-teams', 
@@ -2649,7 +2652,9 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.35, ease: 'easeOut' }}
             >
-              <OrgChart onBack={() => { window.location.hash = "#our-teams"; }} />
+              <React.Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
+                <OrgChart onBack={() => { window.location.hash = "#our-teams"; }} />
+              </React.Suspense>
             </motion.div>
           ) : isOurTeamsPage ? (
             <motion.div
