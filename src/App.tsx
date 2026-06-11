@@ -203,6 +203,13 @@ const LanguageSelector = ({ isScrolled, selectedLang, onLanguageChange }: { isSc
   );
 };
 
+const NAV_LINKS = [
+  { name: 'About Us', href: 'https://chelsongordon.com/who-we-are/' },
+  { name: 'Our Services', href: 'https://chelsongordon.com/our-services/' },
+  { name: 'Our People', href: 'https://chelsongordon.com/our-team/' },
+  { name: 'Careers', href: 'https://chelsongordon.com/careers/' },
+];
+
 const Navbar = ({ forceSolid }: { forceSolid?: boolean }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [logoError, setLogoError] = useState(false);
@@ -385,20 +392,25 @@ const Navbar = ({ forceSolid }: { forceSolid?: boolean }) => {
         <div className="hidden lg:flex items-center gap-3 xl:gap-5 2xl:gap-8 justify-end ml-auto min-w-0">
           {/* Nav links */}
           <div className="flex items-center gap-3.5 xl:gap-5 2xl:gap-7 mr-1 xl:mr-2 flex-shrink-0">
-            {['About Us', 'Our Services', 'Our People', 'Careers'].map((item) => (
+            {NAV_LINKS.map((item) => (
               <a 
-                key={item} 
-                href={`#${item.toLowerCase().replace(' ', '-')}`}
+                key={item.name} 
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`text-[10px] xl:text-xs font-bold uppercase tracking-widest transition-all hover:text-accent whitespace-nowrap ${activeScrolled ? 'text-primary' : 'text-white'}`}
               >
-                {item}
+                {item.name}
               </a>
             ))}
           </div>
 
           {/* Action Buttons */}
           <div className="flex items-center gap-1.5 xl:gap-2.5 2xl:gap-3 flex-shrink-0">
-            <motion.button 
+            <motion.a 
+              href="https://chelsongordon.com/contact-us-page/"
+              target="_blank"
+              rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-md border border-transparent ${
@@ -408,7 +420,7 @@ const Navbar = ({ forceSolid }: { forceSolid?: boolean }) => {
               }`}
             >
               Get in Touch <ArrowRight className="w-3.5 h-3.5" />
-            </motion.button>
+            </motion.a>
             
             <motion.a 
               href="https://storage.googleapis.com/chelsongordon/com.chelsongordon/CG%20-%20Company%20Handbook.pdf"
@@ -462,23 +474,29 @@ const Navbar = ({ forceSolid }: { forceSolid?: boolean }) => {
           >
             <div className="flex flex-col p-6 pt-20 pb-10">
               <div className="flex flex-col gap-5 mb-10">
-                {['About Us', 'Our Services', 'Our People', 'Careers'].map((item, idx) => (
+                {NAV_LINKS.map((item, idx) => (
                   <motion.a 
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 + idx * 0.05 }}
-                    key={item} 
-                    href={`#${item.toLowerCase().replace(' ', '-')}`}
+                    key={item.name} 
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() => setMobileMenuOpen(false)}
                     className="text-4xl font-black text-primary uppercase tracking-tighter hover:text-accent transition-colors"
                   >
-                    {item}
+                    {item.name}
                   </motion.a>
                 ))}
               </div>
 
               <div className="space-y-4">
-                <motion.button 
+                <motion.a 
+                  href="https://chelsongordon.com/contact-us-page/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
@@ -486,7 +504,7 @@ const Navbar = ({ forceSolid }: { forceSolid?: boolean }) => {
                   className="w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-primary text-white font-extrabold uppercase tracking-widest text-sm shadow-xl"
                 >
                   Get in Touch <ArrowRight className="w-5 h-5" />
-                </motion.button>
+                </motion.a>
                 
                 <div className="grid grid-cols-2 gap-3">
                   <motion.a 
@@ -606,13 +624,16 @@ const Hero = () => {
               We deliver end-to-end consultancy solutions for Australia’s VET sector, specialising in RTO and CRICOS registration, compliance, and operational support.
             </p>
             <div className="flex flex-wrap gap-6 items-center lg:pb-12 xl:pb-0">
-              <motion.button 
+              <motion.a 
+                href="https://chelsongordon.com/who-we-are/"
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-primary text-white hover:bg-accent hover:text-primary px-8 py-4 xl:px-10 xl:py-5 rounded-full font-extrabold uppercase tracking-widest text-[12px] xl:text-[13px] flex items-center gap-3 transition-all shadow-2xl group border border-transparent"
+                className="bg-primary text-white hover:bg-accent hover:text-primary px-8 py-4 xl:px-10 xl:py-5 rounded-full font-extrabold uppercase tracking-widest text-[12px] xl:text-[13px] flex items-center gap-3 transition-all shadow-2xl group border border-transparent whitespace-nowrap"
               >
                 Get Started <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
+              </motion.a>
             </div>
           </motion.div>
 
@@ -637,7 +658,7 @@ const Hero = () => {
 
 const Logos = () => {
   const logos = [
-    { name: "AIBT", url: "https://aibtglobal.edu.au/u", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/AIBT.svg" },
+    { name: "AIBT", url: "https://aibtglobal.edu.au/", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/AIBT.svg" },
     { name: "AIBT-I", url: "https://aibti.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/AIBT-I.svg", scale: 0.8 },
     { name: "AVTA", url: "https://avta.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/AVTA.svg", scale: 1.2 },
     { name: "NPA", url: "https://npa.edu.au", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/NPA.svg", scale: 0.9 },
@@ -1092,7 +1113,12 @@ const About = () => {
             <p className="text-slate-700 text-lg mb-10 leading-relaxed font-medium">
              We combine international presence with multidisciplinary expertise to deliver tailored and results-oriented solutions. Our collaborative approach supports organisations in achieving efficiency, innovation, and long-term success.
             </p>
-            <a href="#" className="inline-flex items-center gap-2 font-bold text-primary border-b-2 border-accent pb-1 hover:gap-4 transition-all mb-12">
+            <a 
+              href="https://chelsongordon.com/who-we-are/" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 font-bold text-primary border-b-2 border-accent pb-1 hover:gap-4 transition-all mb-12"
+            >
               More about Our Presence <ArrowRight className="w-4 h-4" />
             </a>
 
@@ -1242,10 +1268,13 @@ const Capabilities = () => {
                <p className="text-[#021E3D] text-lg opacity-90">
                 We deliver end-to-end practical, compliance-focused solutions across RTO operations with structured planning in multiple countries.
               </p>
-              <motion.button 
+              <motion.a 
+                href="https://chelsongordon.com/our-services/"
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover="hover"
                 whileTap={{ scale: 0.98 }}
-                className="bg-primary text-white px-8 py-4 rounded-full font-bold w-fit shadow-lg hover:shadow-xl transition-shadow flex items-center gap-2"
+                className="bg-primary text-white px-8 py-4 rounded-full font-bold w-fit shadow-lg hover:shadow-xl transition-shadow flex items-center gap-2 cursor-pointer whitespace-nowrap"
               >
                 Discover more{' '}
                 <motion.span
@@ -1258,7 +1287,7 @@ const Capabilities = () => {
                 >
                   <ArrowRight className="w-4 h-4" />
                 </motion.span>
-              </motion.button>
+              </motion.a>
             </div>
           </div>
 
@@ -1291,7 +1320,8 @@ const Portfolio = () => {
       logo: 'MK', 
       image: 'https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/MARKETING.webp',
       description: 'Elevating the brand with compliant marketing resources that enhance student engagement, strengthen visibility, and drive enrolment confidence.',
-      color: '#2d3436'
+      color: '#2d3436',
+      link: 'https://chelsongordon.com/our-team/marketing-team/'
     },
     { 
       name: 'Consultant Team', 
@@ -1299,7 +1329,8 @@ const Portfolio = () => {
       logo: 'CT', 
       image: 'https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/CONSULTANCY.webp',
       description: 'We support organisations with ongoing training, regulatory guidance, compliant resources, and operational assistance to maintain audit readiness and compliance confidence.',
-      color: '#0984e3'
+      color: '#0984e3',
+      link: 'https://chelsongordon.com/our-team/consultant-team/'
     },
     { 
       name: 'Human Strategy Team', 
@@ -1307,7 +1338,8 @@ const Portfolio = () => {
       logo: 'HS', 
       image: 'https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/HR.webp',
       description: 'We deliver strategic workforce and talent solutions that support organisational performance and sustainable growth.',
-      color: '#6c5ce7'
+      color: '#6c5ce7',
+      link: 'https://chelsongordon.com/our-team/human-strategy-team/'
     },
     { 
       name: 'Learning & Academic Operations Team', 
@@ -1315,7 +1347,8 @@ const Portfolio = () => {
       logo: 'LA', 
       image: 'https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/L%26O.webp',
       description: 'We help enhancing RTO performance through compliant documentation, quality assurance, and audit-ready systems that strengthen training delivery, academic operations, and learner outcomes.',
-      color: '#00b894'
+      color: '#00b894',
+      link: 'https://chelsongordon.com/our-team/adminstrative-teams/'
     },
     { 
       name: 'Executive Assistant Team', 
@@ -1323,7 +1356,8 @@ const Portfolio = () => {
       logo: 'EA', 
       image: 'https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/EXECUTIVE.webp',
       description: 'We deliver seamless executive, administrative, and financial support to ensure efficient operations and organisational effectiveness.',
-      color: '#00b894'
+      color: '#00b894',
+      link: 'https://chelsongordon.com/our-team/executive-assistant-team/'
     }
   ];
 
@@ -1344,7 +1378,12 @@ const Portfolio = () => {
             </h2>
           </div>
           <div className="flex gap-4">
-            <a href="#our-teams" className="bg-primary text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-primary-light transition-all flex items-center gap-2 group">
+            <a 
+              href="https://chelsongordon.com/our-team/" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-primary text-white px-8 py-4 rounded-full font-bold shadow-xl hover:bg-primary-light transition-all flex items-center gap-2 group whitespace-nowrap"
+            >
                Explore Our Teams <ExternalLink className="w-4 h-4" />
             </a>
           </div>
@@ -1412,8 +1451,10 @@ const Portfolio = () => {
                         </p>
                       </div>
                       <a 
-                        href="#our-teams" 
-                        className="inline-flex items-center justify-center gap-3 text-white font-bold text-[10px] md:text-sm uppercase tracking-widest bg-primary/90 backdrop-blur-md hover:bg-accent hover:text-primary border border-white/20 p-4 md:p-6 rounded-xl md:rounded-2xl w-fit px-8 md:px-10 transition-all hover:shadow-xl group"
+                        href={item.link} 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-3 text-white font-bold text-[10px] md:text-sm uppercase tracking-widest bg-primary/90 backdrop-blur-md hover:bg-accent hover:text-primary border border-white/20 p-4 md:p-6 rounded-xl md:rounded-2xl w-fit px-8 md:px-10 transition-all hover:shadow-xl group cursor-pointer"
                       >
                         View Team <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                       </a>
@@ -2192,7 +2233,10 @@ const Connect = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <motion.button 
+          <motion.a 
+            href="https://chelsongordon.com/contact-us-page/"
+            target="_blank"
+            rel="noopener noreferrer"
             whileHover={{ 
               scale: 1.05, 
               backgroundColor: '#FDB913', 
@@ -2201,10 +2245,10 @@ const Connect = () => {
             }}
             whileTap={{ scale: 0.95 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            className="bg-white text-primary px-8 py-4 rounded-full font-bold text-lg transition-colors duration-300 shadow-2xl flex items-center gap-3 mx-auto group"
+            className="bg-white text-primary px-8 py-4 rounded-full font-bold text-lg transition-colors duration-300 shadow-2xl flex items-center gap-3 mx-auto group w-fit cursor-pointer"
           >
             Get in Touch <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </motion.button>
+          </motion.a>
         </motion.div>
       </div>
 
@@ -2517,13 +2561,19 @@ const Footer = () => {
           {/* Centered Policies */}
           <div className="w-full lg:w-4/12 flex justify-center font-sans font-medium">
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-1.5">
-              {['Terms of use', 'Privacy Policy', 'Cancellation & Refund'].map(item => (
+              {[
+                { name: 'Terms of use', href: 'https://chelsongordon.com/terms-and-conditions/' },
+                { name: 'Privacy Policy', href: 'https://chelsongordon.com/privacy-policy/' },
+                { name: 'Cancellation & Refund', href: 'https://chelsongordon.com/cancellation-and-refunds/' }
+              ].map(item => (
                 <a 
-                  key={item} 
-                  href="#" 
-                  className="text-slate-500 hover:text-accent transition-colors font-bold text-[11px] md:text-xs tracking-wider uppercase whitespace-nowrap"
+                  key={item.name} 
+                  href={item.href} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-500 hover:text-accent transition-colors font-bold text-[11px] md:text-xs tracking-wider uppercase whitespace-nowrap cursor-pointer"
                 >
-                  {item}
+                  {item.name}
                 </a>
               ))}
             </div>
