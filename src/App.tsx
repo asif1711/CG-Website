@@ -716,7 +716,7 @@ const Logos = () => {
   };
 
   return (
-    <section className="border-b border-gray-100 bg-white overflow-hidden h-[120px] lg:h-[110px] xl:h-[120px] flex items-center relative">
+    <section className="border-b border-gray-100 bg-white overflow-hidden h-[120px] lg:h-[110px] xl:h-[120px] flex items-center relative notranslate" translate="no">
       {/* Premium edge fades */}
       <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none" />
@@ -1096,7 +1096,8 @@ const About = () => {
             whileInView={{ opacity: 1, x: 0 }}
             initial={{ opacity: 0, x: -50 }}
             viewport={{ once: true }}
-            className="w-full"
+            className="w-full notranslate"
+            translate="no"
           >
             <WorldMapGraphic />
           </motion.div>
@@ -1826,7 +1827,7 @@ const HearFromOurTeam = () => {
           <h2 className="text-primary tracking-tight text-center w-full text-3xl md:text-[40px] font-bold">Inside Chelson Gordon</h2>
         </div>
         
-        <div className="max-w-4xl mx-auto relative group px-4 md:px-8">
+        <div className="max-w-4xl mx-auto relative group px-4 md:px-8 notranslate" translate="no">
           {/* Main Player Carousel Stack */}
           <div className="relative aspect-video w-full bg-transparent">
             {videos.map((video, i) => {
