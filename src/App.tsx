@@ -779,16 +779,12 @@ const WorldMapGraphic = () => {
     { 
       name: "Philippines", 
       coordinates: [121.7740, 12.8797], 
-      stats: [
-        { label: "Core Team", value: 14 }
-      ]
+      stats: []
     },
     { 
       name: "Singapore", 
       coordinates: [103.851959, 1.290270], 
-      stats: [
-        { label: "Global Hub", value: 6 }
-      ]
+      stats: []
     },
     { 
       name: "Australia", 
@@ -1046,27 +1042,23 @@ const WorldMapGraphic = () => {
                 initial={{ opacity: 0, y: 15, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                className="bg-primary text-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-2xl p-6 border border-white/10 relative w-[240px]"
+                className={`bg-primary text-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-2xl border border-white/10 relative transition-all duration-200 ${
+                  loc.stats.length > 0 ? "p-6 w-[240px]" : "p-4 pb-5 w-[180px]"
+                }`}
               >
                 <div className="flex flex-col gap-4">
-                  <div className="border-b border-white/10 pb-3">
-                    <h4 className="text-[16px] font-black uppercase tracking-widest text-accent leading-none">{loc.name}</h4>
+                  <div className={loc.stats.length > 0 ? "border-b border-white/10 pb-3" : "text-center"}>
+                    <h4 className={`text-[16px] font-black uppercase tracking-widest text-accent leading-none ${loc.stats.length === 0 ? "text-center" : ""}`}>{loc.name}</h4>
                   </div>
-                  <div className="space-y-4">
-                    {loc.stats.map((stat, idx) => (
-                      <div key={idx} className="flex items-center justify-between gap-6">
-                        {!(loc.name === "Singapore" || loc.name === "Philippines") && (
+                  {loc.stats.length > 0 && (
+                    <div className="space-y-4">
+                      {loc.stats.map((stat, idx) => (
+                        <div key={idx} className="flex items-center justify-between gap-6">
                           <span className="text-[18px] text-white font-medium whitespace-nowrap">{stat.label}</span>
-                        )}
-                        <span 
-                          className="text-[16px] text-white whitespace-nowrap"
-                          style={{ fontWeight: 650 }}
-                        >
-                          {stat.value} Staff
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {/* Arrow */}
                 <div className={`absolute ${isFiji ? "left-[85%]" : "left-1/2"} -translate-x-1/2 -bottom-2 w-4 h-4 bg-primary rotate-45`} />
