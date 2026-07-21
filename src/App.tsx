@@ -35,6 +35,7 @@ const OrgChart = ((import.meta as any).env?.DEV)
   ? React.lazy(() => import("./OrgChart"))
   : () => null as any;
 import OurTeamsPage from "./OurTeamsPage";
+import WorldMapGraphic from "./components/WorldMapGraphic";
 
 // --- Types ---
 interface TeamMember {
@@ -757,8 +758,6 @@ const Logos = () => {
   );
 };
 
-const WorldMapGraphic = React.lazy(() => import("./components/WorldMapGraphic"));
-
 const About = () => {
   return (
     <section 
@@ -779,9 +778,7 @@ const About = () => {
             className="w-full notranslate"
             translate="no"
           >
-            <React.Suspense fallback={<div className="w-full aspect-[4/3] bg-white rounded-[2.5rem] border border-gray-100 shadow-sm" />}>
-              <WorldMapGraphic />
-            </React.Suspense>
+            <WorldMapGraphic />
           </motion.div>
 
           <motion.div
