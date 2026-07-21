@@ -222,7 +222,7 @@ const Navbar = ({ forceSolid }: { forceSolid?: boolean }) => {
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     // Initial language detection from cookie or localStorage
     const getCookie = (name: string) => {
@@ -384,6 +384,8 @@ const Navbar = ({ forceSolid }: { forceSolid?: boolean }) => {
                className={`h-[145px] md:h-[125px] lg:h-[110px] xl:h-[145px] 2xl:h-[170px] w-auto transition-all transform origin-left ${!activeScrolled && logoError ? 'brightness-0 invert' : ''}`}
                onError={() => !activeScrolled && setLogoError(true)}
                referrerPolicy="no-referrer"
+               decoding="async"
+               fetchPriority="high"
              />
           </a>
         </div>
@@ -705,6 +707,8 @@ const Logos = () => {
               transform: item.scale ? `scale(${item.scale})` : 'none'
             }}
             referrerPolicy="no-referrer"
+            loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="text-xl md:text-2xl font-black tracking-tighter text-primary whitespace-nowrap">
@@ -744,332 +748,7 @@ const Logos = () => {
   );
 };
 
-import { 
-  ComposableMap, 
-  Geographies, 
-  Geography, 
-  Marker,
-  Sphere,
-  Graticule,
-  Line
-} from "react-simple-maps";
-
-const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
-
-const WorldMapGraphic = () => {
-  const [activeLoc, setActiveLoc] = useState<string | null>(null);
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
-  
-  const locations = [
-    { 
-      name: "India", 
-      coordinates: [78.9629, 20.5937], 
-      stats: [
-        { label: "Kolkata", value: 40 },
-        { label: "Udaipur", value: 8 }
-      ]
-    },
-    { 
-      name: "Thailand", 
-      coordinates: [100.9925, 15.8700], 
-      stats: [
-        { label: "Bangkok", value: 14 }
-      ]
-    },
-    { 
-      name: "Philippines", 
-      coordinates: [121.7740, 12.8797], 
-      stats: []
-    },
-    { 
-      name: "Singapore", 
-      coordinates: [103.851959, 1.290270], 
-      stats: []
-    },
-    { 
-      name: "Australia", 
-      coordinates: [133.7751, -25.2744], 
-      stats: [
-        { label: "Brisbane", value: 8 },
-        { label: "Sydney", value: 2 }
-      ]
-    },
-    { 
-      name: "Fiji", 
-      coordinates: [178.4419, -18.1416], 
-      stats: [
-        { label: "Lautoka", value: 10 }
-      ]
-    },
-  ];
-
-  const HighlightDots = () => {
-    const dots = [
-      { x: 10, y: 5, r: 1.2, o: 0.5 },
-      { x: -12, y: 8, r: 0.8, o: 0.3 },
-      { x: 14, y: -10, r: 1.0, o: 0.4 },
-      { x: -8, y: -14, r: 0.6, o: 0.2 },
-      { x: 18, y: 2, r: 0.9, o: 0.35 },
-      { x: -15, y: -5, r: 0.7, o: 0.25 },
-      { x: 4, y: 16, r: 0.8, o: 0.3 },
-      { x: -6, y: 10, r: 1.1, o: 0.45 },
-    ];
-    return (
-      <g className="pointer-events-none">
-        {dots.map((d, i) => (
-          <circle 
-            key={i} 
-            cx={d.x} 
-            cy={d.y} 
-            r={d.r} 
-            fill="var(--color-primary)" 
-            fillOpacity={d.o} 
-            className="animate-pulse" 
-            style={{ animationDelay: `${i * 0.1}s`, animationDuration: `${2 + i * 0.2}s` }} 
-          />
-        ))}
-      </g>
-    );
-  };
-
-  return (
-    <div className="relative w-full aspect-[4/3]">
-      <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm group/map relative">
-        {/* Overlays - Set to lower z-index */}
-        <div className="absolute top-8 right-8 flex flex-col gap-4 pointer-events-none z-10">
-          <div className="bg-white/95 backdrop-blur-md px-6 py-3 rounded-full border border-gray-100 shadow-xl flex items-center gap-4">
-            <div className="w-2.5 h-2.5 bg-accent rounded-full animate-pulse" />
-            <span 
-              className="text-[12px] uppercase tracking-[0.2em] text-primary whitespace-nowrap"
-              style={{ fontWeight: 700 }}
-            >
-              Global Presence
-            </span>
-          </div>
-        </div>
-
-        {/* Legend - Left bottom aligned list, transparent - Hidden on mobile */}
-        <div className="absolute bottom-12 left-10 hidden md:flex flex-col gap-4 pointer-events-none z-10">
-          <div className="flex flex-col items-start gap-4 p-0">
-            {['Australia', 'India', 'Thailand', 'Singapore', 'Philippines', 'Fiji'].map((loc) => (
-              <div key={loc} className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                <span className="text-[12px] font-black text-primary uppercase tracking-widest">{loc}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="relative z-20 w-full h-full">
-          <ComposableMap 
-            projection="geoMercator"
-            projectionConfig={{
-              scale: 320,
-              center: [125, 0]
-            }}
-            className="w-full h-full"
-          >
-          <defs>
-            {/* Saturated gray dots for general landmasses */}
-            <pattern id="landDots" x="0" y="0" width="5.5" height="5.5" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1.3" fill="#94A3B8" />
-            </pattern>
-            {/* Brand Yellow dots for highlighted areas */}
-            <pattern id="highlightDots" x="0" y="0" width="5.0" height="5.0" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="2.0" fill="var(--color-accent)" />
-            </pattern>
-
-            {/* Mask for all landmasses EXCEPT highlighted ones */}
-            <mask id="generalLandMask">
-              <Geographies geography={geoUrl}>
-                {({ geographies }) =>
-                  geographies.map((geo) => {
-                    const name = geo.properties.name;
-                    const isHighlighted = ["Australia", "India", "Thailand", "Philippines", "Singapore", "Fiji"].includes(name);
-                    return !isHighlighted ? (
-                      <Geography
-                        key={geo.rsmKey}
-                        geography={geo}
-                        fill="white"
-                        stroke="none"
-                      />
-                    ) : null;
-                  })
-                }
-              </Geographies>
-            </mask>
-
-            {/* Mask for only highlighted operational areas */}
-            <mask id="highlightLandMask">
-              <Geographies geography={geoUrl}>
-                {({ geographies }) =>
-                  geographies.map((geo) => {
-                    const name = geo.properties.name;
-                    const isHighlighted = ["Australia", "India", "Thailand", "Philippines", "Singapore", "Fiji"].includes(name);
-                    return isHighlighted ? (
-                      <Geography
-                        key={geo.rsmKey}
-                        geography={geo}
-                        fill="white"
-                        stroke="none"
-                      />
-                    ) : null;
-                  })
-                }
-              </Geographies>
-              {/* Manual buffers for small island nations and city states */}
-              {locations.map(loc => (
-                <Marker key={`mask-marker-${loc.name}`} coordinates={loc.coordinates as [number, number]}>
-                  <circle r={loc.name === "Singapore" ? "8" : loc.name === "Fiji" ? "12" : "0"} fill="white" />
-                </Marker>
-              ))}
-            </mask>
-          </defs>
-
-          <Graticule stroke="#F1F5F9" strokeWidth={0.5} opacity={0.3} />
-
-          <rect width="100%" height="100%" fill="url(#landDots)" mask="url(#generalLandMask)" className="pointer-events-none" />
-          <rect width="100%" height="100%" fill="url(#highlightDots)" mask="url(#highlightLandMask)" className="pointer-events-none" />
-
-          <Geographies geography={geoUrl}>
-            {({ geographies }) =>
-              geographies.map((geo) => {
-                const name = geo.properties.name;
-                const isHighlighted = ["Australia", "India", "Thailand", "Philippines", "Singapore", "Fiji"].includes(name);
-                return (
-                  <Geography
-                    key={`outline-${geo.rsmKey}`}
-                    geography={geo}
-                    fill="transparent"
-                    stroke={isHighlighted ? "var(--color-accent)" : "#E2E8F0"}
-                    strokeWidth={isHighlighted ? 0.6 : 0.3}
-                    strokeOpacity={isHighlighted ? 0.4 : 0.2}
-                    style={{
-                      default: { outline: "none" },
-                      hover: { outline: "none" },
-                      pressed: { outline: "none" },
-                    }}
-                  />
-                );
-              })
-            }
-          </Geographies>
-
-          {/* Network Connections */}
-          <g stroke="var(--color-primary)" strokeWidth="0.6" strokeOpacity="0.25" fill="none">
-            {/* Hub-and-Spoke from Singapore */}
-            {locations.map((loc) => {
-              if (loc.name === "Singapore") return null;
-              return (
-                <Line
-                  key={`line-hub-${loc.name}`}
-                  from={loc.coordinates as [number, number]}
-                  to={[103.851959, 1.290270]} // Singapore HQ
-                  strokeDasharray="3,3"
-                />
-              );
-            })}
-            {/* Additional interconnects for mesh feel */}
-            <Line from={[133.7751, -25.2744]} to={[178.4419, -18.1416]} strokeDasharray="3,3" /> {/* Aus - Fiji */}
-            <Line from={[78.9629, 20.5937]} to={[100.9925, 15.8700]} strokeDasharray="3,3" /> {/* India - Thailand */}
-            <Line from={[121.7740, 12.8797]} to={[103.851959, 1.290270]} strokeDasharray="3,3" /> {/* Phil - Sing */}
-          </g>
-
-          {/* Interactive Locations - Points */}
-          {locations.map((loc) => (
-            <Marker key={`point-${loc.name}`} coordinates={loc.coordinates as [number, number]}>
-              <g
-                className="cursor-pointer"
-                onMouseEnter={(e) => {
-                  setActiveLoc(loc.name);
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const parent = document.querySelector('.group\\/map');
-                  if (parent) {
-                    const parentRect = parent.getBoundingClientRect();
-                    setTooltipPos({
-                      x: rect.left - parentRect.left + rect.width / 2,
-                      y: rect.top - parentRect.top,
-                    });
-                  }
-                }}
-                onMouseLeave={() => setActiveLoc(null)}
-              >
-                <HighlightDots />
-
-                {/* Pulsating Rings (Brand Blue) */}
-                <motion.circle
-                  r={activeLoc === loc.name ? "14" : "12"}
-                  fill="transparent"
-                  stroke="var(--color-primary)"
-                  strokeWidth="1.5"
-                  animate={{ scale: [1, 2.5], opacity: [0.5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                />
-                
-                {/* Core Point (Brand Blue) */}
-                <circle
-                  r={activeLoc === loc.name ? 8 : 6}
-                  fill="var(--color-primary)"
-                  stroke="white"
-                  strokeWidth="3"
-                  className="transition-all duration-300"
-                />
-              </g>
-            </Marker>
-          ))}
-        </ComposableMap>
-      </div>
-    </div>
-
-      {/* Absolute Tooltip - outside overflow-hidden container to allow full floating bounds */}
-      <AnimatePresence>
-        {activeLoc && tooltipPos && (() => {
-          const loc = locations.find(l => l.name === activeLoc);
-          if (!loc) return null;
-          const isFiji = activeLoc === "Fiji";
-          return (
-            <div
-              style={{
-                position: 'absolute',
-                left: `${tooltipPos.x}px`,
-                top: `${tooltipPos.y}px`,
-                transform: isFiji ? 'translate(-85%, -100%) translateY(-15px)' : 'translate(-50%, -100%) translateY(-15px)',
-                zIndex: 40,
-              }}
-              className="pointer-events-none"
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                className={`bg-primary text-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-2xl border border-white/10 relative transition-all duration-200 ${
-                  loc.stats.length > 0 ? "p-6 w-[240px]" : "p-4 pb-5 w-[180px]"
-                }`}
-              >
-                <div className="flex flex-col gap-4">
-                  <div className={loc.stats.length > 0 ? "border-b border-white/10 pb-3" : "text-center"}>
-                    <h4 className={`text-[16px] font-black uppercase tracking-widest text-accent leading-none ${loc.stats.length === 0 ? "text-center" : ""}`}>{loc.name}</h4>
-                  </div>
-                  {loc.stats.length > 0 && (
-                    <div className="space-y-4">
-                      {loc.stats.map((stat, idx) => (
-                        <div key={idx} className="flex items-center justify-between gap-6">
-                          <span className="text-[18px] text-white font-medium whitespace-nowrap">{stat.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {/* Arrow */}
-                <div className={`absolute ${isFiji ? "left-[85%]" : "left-1/2"} -translate-x-1/2 -bottom-2 w-4 h-4 bg-primary rotate-45`} />
-              </motion.div>
-            </div>
-          );
-        })()}
-      </AnimatePresence>
-    </div>
-  );
-};
+const WorldMapGraphic = React.lazy(() => import("./components/WorldMapGraphic"));
 
 const About = () => {
   return (
@@ -1091,7 +770,9 @@ const About = () => {
             className="w-full notranslate"
             translate="no"
           >
-            <WorldMapGraphic />
+            <React.Suspense fallback={<div className="w-full aspect-[4/3] bg-white rounded-[2.5rem] border border-gray-100 shadow-sm" />}>
+              <WorldMapGraphic />
+            </React.Suspense>
           </motion.div>
 
           <motion.div
@@ -1457,6 +1138,8 @@ const Portfolio = () => {
                         src={item.image} 
                         alt={item.name} 
                         className="w-full h-full object-cover" 
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div className="absolute inset-0 bg-primary/10" />
                     </div>
@@ -1587,15 +1270,22 @@ const Principles = () => {
       }
 
       // Proactively search and remove any generated watermark link
+      let watermarkInterval: any;
+      let watermarkAttempts = 0;
       const removeWatermark = () => {
         const watermark = document.querySelector('a[href*="neat.firecms"]') || document.getElementById('XiSVi8');
         if (watermark) {
           watermark.remove();
+          if (watermarkInterval) clearInterval(watermarkInterval);
+        }
+        watermarkAttempts++;
+        if (watermarkAttempts > 100 && watermarkInterval) {
+          clearInterval(watermarkInterval);
         }
       };
 
       removeWatermark();
-      const watermarkInterval = setInterval(removeWatermark, 100);
+      watermarkInterval = setInterval(removeWatermark, 100);
 
       const handleScroll = () => {
         if (gradientInstance) {
@@ -1607,10 +1297,10 @@ const Principles = () => {
         }
       };
 
-      window.addEventListener("scroll", handleScroll);
+      window.addEventListener("scroll", handleScroll, { passive: true });
 
       return () => {
-        clearInterval(watermarkInterval);
+        if (watermarkInterval) clearInterval(watermarkInterval);
         window.removeEventListener("scroll", handleScroll);
         if (gradientInstance && typeof gradientInstance.destroy === "function") {
           try {
@@ -1885,6 +1575,8 @@ const HearFromOurTeam = () => {
                         src={video.image} 
                         alt={video.name} 
                         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isActive ? 'opacity-60' : 'opacity-40'}`}
+                        loading="lazy"
+                        decoding="async"
                       />
                       
                       {isActive && (
@@ -2011,6 +1703,7 @@ const ParticleField = () => {
 
     let animationFrameId: number;
     let particles: Particle[] = [];
+    let isVisible = false;
 
     class Particle {
       x: number;
@@ -2052,19 +1745,29 @@ const ParticleField = () => {
 
     const init = () => {
       particles = [];
-      const particleCount = Math.floor((canvas.width * canvas.height) / 12000);
+      const rawCount = Math.floor((canvas.width * canvas.height) / 14000);
+      const particleCount = Math.min(window.innerWidth < 768 ? 40 : 80, rawCount);
       for (let i = 0; i < particleCount; i++) {
         particles.push(new Particle());
       }
     };
 
-    const handleResize = () => {
+    const setSize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       init();
     };
 
+    let resizeTimeout: any;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setSize();
+      }, 150);
+    };
+
     const animateParticles = () => {
+      if (!isVisible) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       const time = Date.now() / 1000;
@@ -2109,11 +1812,24 @@ const ParticleField = () => {
     };
 
     window.addEventListener('resize', handleResize);
-    handleResize();
-    animateParticles();
+    setSize();
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const wasVisible = isVisible;
+        isVisible = entry.isIntersecting;
+        if (isVisible && !wasVisible) {
+          animateParticles();
+        }
+      });
+    }, { threshold: 0.05 });
+
+    observer.observe(canvas);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+      observer.disconnect();
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
@@ -2386,6 +2102,8 @@ const PartnersAndTeam = () => {
                         className="max-h-full max-w-[85%] object-contain shrink-0"
                         style={{ maxHeight: '200px' }}
                         referrerPolicy="no-referrer"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </motion.div>
                   </div>
@@ -2453,6 +2171,8 @@ const Footer = () => {
                     alt="Chelson Gordon Logo" 
                     className="h-14 md:h-[72px] w-auto relative z-10 transition-all duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-0.5 filter group-hover:brightness-105"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <div className="flex flex-col justify-center">
@@ -2478,7 +2198,7 @@ const Footer = () => {
             <ul className="space-y-3 md:space-y-5 lg:space-y-3 xl:space-y-5 mt-3 md:mt-6 lg:mt-4">
               <li className="flex items-center gap-3 group">
                 <div className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/10 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
-                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/call.svg" alt="Phone" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
+                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/call.svg" alt="Phone" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" loading="lazy" decoding="async" />
                 </div>
                 <div className="flex flex-wrap lg:flex-nowrap items-center gap-x-4 md:gap-x-8 lg:gap-x-4 xl:gap-x-8">
                   <a href="tel:+61499994530" className="hover:text-accent text-primary transition-colors font-bold text-[12px] md:text-sm lg:text-[11px] xl:text-sm tracking-tight whitespace-nowrap">+61 499 994 530</a>
@@ -2487,7 +2207,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3 group">
                 <div className="p-1.5 md:p-2 bg-primary/5 rounded-lg text-primary border border-primary/15 group-hover:bg-accent group-hover:text-primary group-hover:border-accent transition-all duration-300">
-                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/email.svg" alt="Email" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />
+                  <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/email.svg" alt="Email" className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" loading="lazy" decoding="async" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <a href="mailto:support.coordinator@chelsongordon.com" className="hover:text-accent text-primary transition-colors font-bold text-[11px] md:text-sm lg:text-[10px] xl:text-[13px] tracking-tight block truncate">support.coordinator@chelsongordon.com</a>
@@ -2590,7 +2310,7 @@ const Footer = () => {
               className="group bg-[#042F61]/5 rounded-lg border border-[#042F61]/10 hover:bg-[#042F61] hover:border-[#042F61] transition-all duration-300 shadow-sm"
               style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/instagram.svg" alt="Instagram" className="w-[23px] h-[23px] md:w-[27px] md:h-[27px] transition-all group-hover:brightness-0 group-hover:invert" />
+              <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/instagram.svg" alt="Instagram" className="w-[23px] h-[23px] md:w-[27px] md:h-[27px] transition-all group-hover:brightness-0 group-hover:invert" loading="lazy" decoding="async" />
             </a>
             <a 
               href="https://www.youtube.com/@ChelsonGordonConsultancy" 
@@ -2599,7 +2319,7 @@ const Footer = () => {
               className="group bg-[#042F61]/5 rounded-lg border border-[#042F61]/10 hover:bg-[#042F61] hover:border-[#042F61] transition-all duration-300 shadow-sm"
               style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/youtube.svg" alt="Youtube" className="w-[23px] h-[23px] md:w-[27px] md:h-[27px] transition-all group-hover:brightness-0 group-hover:invert" />
+              <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/youtube.svg" alt="Youtube" className="w-[23px] h-[23px] md:w-[27px] md:h-[27px] transition-all group-hover:brightness-0 group-hover:invert" loading="lazy" decoding="async" />
             </a>
             <a 
               href="https://www.facebook.com/share/15r9QeRt2x/?mibextid=wwXIfr" 
@@ -2608,7 +2328,7 @@ const Footer = () => {
               className="group bg-[#042F61]/5 rounded-lg border border-[#042F61]/10 hover:bg-[#042F61] hover:border-[#042F61] transition-all duration-300 shadow-sm"
               style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/facebook.svg" alt="Facebook" className="w-[23px] h-[23px] md:w-[27px] md:h-[27px] transition-all group-hover:brightness-0 group-hover:invert" />
+              <img src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/facebook.svg" alt="Facebook" className="w-[23px] h-[23px] md:w-[27px] md:h-[27px] transition-all group-hover:brightness-0 group-hover:invert" loading="lazy" decoding="async" />
             </a>
           </div>
         </div>
@@ -2786,11 +2506,15 @@ export default function App() {
                 src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@14.0.0/img/apple/64/1f646-1f3fc-200d-2640-fe0f.png"
                 alt="🙆🏼‍♀️"
                 className="w-28 h-28 md:w-40 md:h-40 object-contain drop-shadow-[4px_0px_0px_rgba(255,0,0,0.7)] filter brightness-105 pointer-events-none"
+                loading="lazy"
+                decoding="async"
               />
               <img
                 src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple@14.0.0/img/apple/64/1f482.png"
                 alt="💂"
                 className="w-28 h-28 md:w-40 md:h-40 object-contain drop-shadow-[-4px_0px_0px_rgba(0,0,255,0.7)] filter brightness-105 pointer-events-none"
+                loading="lazy"
+                decoding="async"
               />
             </motion.div>
           </motion.div>
