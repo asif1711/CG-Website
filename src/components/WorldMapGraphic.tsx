@@ -1,64 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'motion/react';
 import { 
-  ComposableMap, 
-  Geographies, 
-  Geography, 
-  Marker,
-  Graticule,
-  Line
-} from "react-simple-maps";
-
-const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
+  graticulePath, 
+  countries, 
+  locations, 
+  lines 
+} from './worldMapData';
 
 const WorldMapGraphic = () => {
   const [activeLoc, setActiveLoc] = useState<string | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: "200px" });
-  
-  const locations = [
-    { 
-      name: "India", 
-      coordinates: [78.9629, 20.5937] as [number, number], 
-      stats: [
-        { label: "Kolkata", value: 40 },
-        { label: "Udaipur", value: 8 }
-      ]
-    },
-    { 
-      name: "Thailand", 
-      coordinates: [100.9925, 15.8700] as [number, number], 
-      stats: [
-        { label: "Bangkok", value: 14 }
-      ]
-    },
-    { 
-      name: "Philippines", 
-      coordinates: [121.7740, 12.8797] as [number, number], 
-      stats: []
-    },
-    { 
-      name: "Singapore", 
-      coordinates: [103.851959, 1.290270] as [number, number], 
-      stats: []
-    },
-    { 
-      name: "Australia", 
-      coordinates: [133.7751, -25.2744] as [number, number], 
-      stats: [
-        { label: "Brisbane", value: 8 },
-        { label: "Sydney", value: 2 }
-      ]
-    },
-    { 
-      name: "Fiji", 
-      coordinates: [178.4419, -18.1416] as [number, number], 
-      stats: [
-        { label: "Lautoka", value: 10 }
-      ]
-    },
-  ];
 
   const HighlightDots = () => {
     const dots = [
@@ -119,12 +72,8 @@ const WorldMapGraphic = () => {
 
         <div className="relative z-20 w-full h-full">
           {isInView ? (
-            <ComposableMap 
-              projection="geoMercator"
-              projectionConfig={{
-                scale: 320,
-                center: [125, 0]
-              }}
+            <svg 
+              viewBox="0 0 800 600"
               className="w-full h-full"
             >
               <defs>
@@ -139,103 +88,103 @@ const WorldMapGraphic = () => {
 
                 {/* Mask for all landmasses EXCEPT highlighted ones */}
                 <mask id="generalLandMask">
-                  <Geographies geography={geoUrl}>
-                    {({ geographies }) =>
-                      geographies.map((geo) => {
-                        const name = geo.properties.name;
-                        const isHighlighted = ["Australia", "India", "Thailand", "Philippines", "Singapore", "Fiji"].includes(name);
-                        return !isHighlighted ? (
-                          <Geography
-                            key={geo.rsmKey}
-                            geography={geo}
-                            fill="white"
-                            stroke="none"
-                          />
-                        ) : null;
-                      })
+                  {countries.map((geo) => {
+                    if (!geo.isHighlighted && geo.d) {
+                      return (
+                        <path
+                          key={`mask-gen-${geo.id}`}
+                          d={geo.d}
+                          fill="white"
+                          stroke="none"
+                        />
+                      );
                     }
-                  </Geographies>
+                    return null;
+                  })}
                 </mask>
 
                 {/* Mask for only highlighted operational areas */}
                 <mask id="highlightLandMask">
-                  <Geographies geography={geoUrl}>
-                    {({ geographies }) =>
-                      geographies.map((geo) => {
-                        const name = geo.properties.name;
-                        const isHighlighted = ["Australia", "India", "Thailand", "Philippines", "Singapore", "Fiji"].includes(name);
-                        return isHighlighted ? (
-                          <Geography
-                            key={geo.rsmKey}
-                            geography={geo}
-                            fill="white"
-                            stroke="none"
-                          />
-                        ) : null;
-                      })
+                  {countries.map((geo) => {
+                    if (geo.isHighlighted && geo.d) {
+                      return (
+                        <path
+                          key={`mask-high-${geo.id}`}
+                          d={geo.d}
+                          fill="white"
+                          stroke="none"
+                        />
+                      );
                     }
-                  </Geographies>
+                    return null;
+                  })}
                   {/* Manual buffers for small island nations and city states */}
-                  {locations.map(loc => (
-                    <Marker key={`mask-marker-${loc.name}`} coordinates={loc.coordinates}>
-                      <circle r={loc.name === "Singapore" ? "8" : loc.name === "Fiji" ? "12" : "0"} fill="white" />
-                    </Marker>
-                  ))}
+                  {locations.map(loc => {
+                    const radius = loc.name === "Singapore" ? 8 : loc.name === "Fiji" ? 12 : 0;
+                    if (radius === 0) return null;
+                    return (
+                      <circle 
+                        key={`mask-marker-${loc.name}`} 
+                        cx={loc.x} 
+                        cy={loc.y} 
+                        r={radius} 
+                        fill="white" 
+                      />
+                    );
+                  })}
                 </mask>
               </defs>
 
-              <Graticule stroke="#F1F5F9" strokeWidth={0.5} opacity={0.3} />
+              {/* Background Graticule */}
+              {graticulePath && (
+                <path 
+                  d={graticulePath} 
+                  stroke="#F1F5F9" 
+                  strokeWidth={0.5} 
+                  opacity={0.3} 
+                  fill="none" 
+                />
+              )}
 
+              {/* Masked Dot Grids for Landmasses */}
               <rect width="100%" height="100%" fill="url(#landDots)" mask="url(#generalLandMask)" className="pointer-events-none" />
               <rect width="100%" height="100%" fill="url(#highlightDots)" mask="url(#highlightLandMask)" className="pointer-events-none" />
 
-              <Geographies geography={geoUrl}>
-                {({ geographies }) =>
-                  geographies.map((geo) => {
-                    const name = geo.properties.name;
-                    const isHighlighted = ["Australia", "India", "Thailand", "Philippines", "Singapore", "Fiji"].includes(name);
-                    return (
-                      <Geography
-                        key={`outline-${geo.rsmKey}`}
-                        geography={geo}
-                        fill="transparent"
-                        stroke={isHighlighted ? "var(--color-accent)" : "#E2E8F0"}
-                        strokeWidth={isHighlighted ? 0.6 : 0.3}
-                        strokeOpacity={isHighlighted ? 0.4 : 0.2}
-                        style={{
-                          default: { outline: "none" },
-                          hover: { outline: "none" },
-                          pressed: { outline: "none" },
-                        }}
-                      />
-                    );
-                  })
-                }
-              </Geographies>
+              {/* Country Outlines */}
+              {countries.map((geo) => {
+                if (!geo.d) return null;
+                return (
+                  <path
+                    key={`outline-${geo.id}`}
+                    d={geo.d}
+                    fill="transparent"
+                    stroke={geo.isHighlighted ? "var(--color-accent)" : "#E2E8F0"}
+                    strokeWidth={geo.isHighlighted ? 0.6 : 0.3}
+                    strokeOpacity={geo.isHighlighted ? 0.4 : 0.2}
+                  />
+                );
+              })}
 
               {/* Network Connections */}
               <g stroke="var(--color-primary)" strokeWidth="0.6" strokeOpacity="0.25" fill="none">
-                {/* Hub-and-Spoke from Singapore */}
-                {locations.map((loc) => {
-                  if (loc.name === "Singapore") return null;
-                  return (
-                    <Line
-                      key={`line-hub-${loc.name}`}
-                      from={loc.coordinates}
-                      to={[103.851959, 1.290270]} // Singapore HQ
-                      strokeDasharray="3,3"
-                    />
-                  );
-                })}
-                {/* Additional interconnects for mesh feel */}
-                <Line from={[133.7751, -25.2744]} to={[178.4419, -18.1416]} strokeDasharray="3,3" /> {/* Aus - Fiji */}
-                <Line from={[78.9629, 20.5937]} to={[100.9925, 15.8700]} strokeDasharray="3,3" /> {/* India - Thailand */}
-                <Line from={[121.7740, 12.8797]} to={[103.851959, 1.290270]} strokeDasharray="3,3" /> {/* Phil - Sing */}
+                {lines.map((line) => (
+                  <line
+                    key={line.key}
+                    x1={line.x1}
+                    y1={line.y1}
+                    x2={line.x2}
+                    y2={line.y2}
+                    strokeDasharray="3,3"
+                  />
+                ))}
               </g>
 
               {/* Interactive Locations - Points */}
               {locations.map((loc) => (
-                <Marker key={`point-${loc.name}`} coordinates={loc.coordinates}>
+                <g 
+                  key={`point-${loc.name}`} 
+                  transform={`translate(${loc.x}, ${loc.y})`}
+                >
                   <g
                     className="cursor-pointer"
                     onMouseEnter={(e) => {
@@ -273,9 +222,9 @@ const WorldMapGraphic = () => {
                       className="transition-all duration-300"
                     />
                   </g>
-                </Marker>
+                </g>
               ))}
-            </ComposableMap>
+            </svg>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-white" />
           )}
