@@ -221,7 +221,16 @@ const Navbar = ({ forceSolid }: { forceSolid?: boolean }) => {
   const activeScrolled = isScrolled || forceSolid;
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 50);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     // Initial language detection from cookie or localStorage
@@ -1173,8 +1182,24 @@ const Principles = () => {
 
   useEffect(() => {
     let gradientInstance: any = null;
+    let observer: IntersectionObserver | null = null;
+    let watermarkInterval: any = null;
+    let hasInitialized = false;
 
-    if (canvasRef.current) {
+    const handleScroll = () => {
+      if (gradientInstance) {
+        try {
+          gradientInstance.yOffset = window.scrollY;
+        } catch (e) {
+          // handle silently
+        }
+      }
+    };
+
+    const initGradient = () => {
+      if (hasInitialized || !canvasRef.current) return;
+      hasInitialized = true;
+
       const config = {
         colors: [
           {
@@ -1270,7 +1295,6 @@ const Principles = () => {
       }
 
       // Proactively search and remove any generated watermark link
-      let watermarkInterval: any;
       let watermarkAttempts = 0;
       const removeWatermark = () => {
         const watermark = document.querySelector('a[href*="neat.firecms"]') || document.getElementById('XiSVi8');
@@ -1287,30 +1311,34 @@ const Principles = () => {
       removeWatermark();
       watermarkInterval = setInterval(removeWatermark, 100);
 
-      const handleScroll = () => {
-        if (gradientInstance) {
-          try {
-            gradientInstance.yOffset = window.scrollY;
-          } catch (e) {
-            // handle silently
-          }
-        }
-      };
-
       window.addEventListener("scroll", handleScroll, { passive: true });
+    };
 
-      return () => {
-        if (watermarkInterval) clearInterval(watermarkInterval);
-        window.removeEventListener("scroll", handleScroll);
-        if (gradientInstance && typeof gradientInstance.destroy === "function") {
-          try {
-            gradientInstance.destroy();
-          } catch (e) {
-            // handle silently
+    if (canvasRef.current) {
+      observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          initGradient();
+          if (observer) {
+            observer.disconnect();
+            observer = null;
           }
         }
-      };
+      }, { rootMargin: "150px" });
+      observer.observe(canvasRef.current);
     }
+
+    return () => {
+      if (observer) observer.disconnect();
+      if (watermarkInterval) clearInterval(watermarkInterval);
+      window.removeEventListener("scroll", handleScroll);
+      if (gradientInstance && typeof gradientInstance.destroy === "function") {
+        try {
+          gradientInstance.destroy();
+        } catch (e) {
+          // handle silently
+        }
+      }
+    };
   }, []);
 
   return (
@@ -1441,12 +1469,21 @@ const HearFromOurTeam = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    let resizeTimeout: any;
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const isCurrentlyMobile = window.innerWidth < 768;
+      setIsMobile((prev) => (prev !== isCurrentlyMobile ? isCurrentlyMobile : prev));
+    };
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(checkMobile, 150);
     };
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const videos = [
