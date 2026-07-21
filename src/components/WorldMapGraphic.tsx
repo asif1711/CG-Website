@@ -1,46 +1,88 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useInView } from 'motion/react';
-import { 
-  graticulePath, 
-  countries, 
-  locations, 
-  lines 
-} from './worldMapData';
+// @ts-ignore
+import mapSvg from "./world-map.optimized.svg?raw";
+
+interface Stat {
+  label: string;
+  value: number;
+}
 
 const WorldMapGraphic = () => {
   const [activeLoc, setActiveLoc] = useState<string | null>(null);
+  const [activeStats, setActiveStats] = useState<Stat[]>([]);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: "200px" });
 
-  const HighlightDots = () => {
-    const dots = [
-      { x: 10, y: 5, r: 1.2, o: 0.5 },
-      { x: -12, y: 8, r: 0.8, o: 0.3 },
-      { x: 14, y: -10, r: 1.0, o: 0.4 },
-      { x: -8, y: -14, r: 0.6, o: 0.2 },
-      { x: 18, y: 2, r: 0.9, o: 0.35 },
-      { x: -15, y: -5, r: 0.7, o: 0.25 },
-      { x: 4, y: 16, r: 0.8, o: 0.3 },
-      { x: -6, y: 10, r: 1.1, o: 0.45 },
-    ];
-    return (
-      <g className="pointer-events-none">
-        {dots.map((d, i) => (
-          <circle 
-            key={i} 
-            cx={d.x} 
-            cy={d.y} 
-            r={d.r} 
-            fill="var(--color-primary)" 
-            fillOpacity={d.o} 
-            className="animate-pulse" 
-            style={{ animationDelay: `${i * 0.1}s`, animationDuration: `${2 + i * 0.2}s` }} 
-          />
-        ))}
-      </g>
-    );
-  };
+  useEffect(() => {
+    if (!isInView || !containerRef.current) return;
+
+    const container = containerRef.current;
+
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const g = target.closest('.map-location') as SVGGElement | null;
+      
+      if (g) {
+        const name = g.getAttribute('data-name');
+        const statsStr = g.getAttribute('data-stats');
+        if (!name) return;
+
+        setActiveLoc((prev) => {
+          if (prev !== name) {
+            if (statsStr) {
+              try {
+                setActiveStats(JSON.parse(statsStr));
+              } catch {
+                setActiveStats([]);
+              }
+            } else {
+              setActiveStats([]);
+            }
+            return name;
+          }
+          return prev;
+        });
+
+        const rect = g.getBoundingClientRect();
+        const parent = container.querySelector('.group\\/map');
+        if (parent) {
+          const parentRect = parent.getBoundingClientRect();
+          setTooltipPos({
+            x: rect.left - parentRect.left + rect.width / 2,
+            y: rect.top - parentRect.top,
+          });
+        }
+      } else {
+        setActiveLoc((prev) => {
+          if (prev !== null) {
+            setActiveStats([]);
+            return null;
+          }
+          return prev;
+        });
+      }
+    };
+
+    const handleMouseLeave = () => {
+      setActiveLoc((prev) => {
+        if (prev !== null) {
+          setActiveStats([]);
+          return null;
+        }
+        return prev;
+      });
+    };
+
+    container.addEventListener('mouseover', handleMouseOver);
+    container.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      container.removeEventListener('mouseover', handleMouseOver);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [isInView]);
 
   return (
     <div ref={containerRef} className="relative w-full aspect-[4/3]">
@@ -72,159 +114,10 @@ const WorldMapGraphic = () => {
 
         <div className="relative z-20 w-full h-full">
           {isInView ? (
-            <svg 
-              viewBox="0 0 800 600"
+            <div 
               className="w-full h-full"
-            >
-              <defs>
-                {/* Saturated gray dots for general landmasses */}
-                <pattern id="landDots" x="0" y="0" width="5.5" height="5.5" patternUnits="userSpaceOnUse">
-                  <circle cx="2" cy="2" r="1.3" fill="#94A3B8" />
-                </pattern>
-                {/* Brand Yellow dots for highlighted areas */}
-                <pattern id="highlightDots" x="0" y="0" width="5.0" height="5.0" patternUnits="userSpaceOnUse">
-                  <circle cx="2" cy="2" r="2.0" fill="var(--color-accent)" />
-                </pattern>
-
-                {/* Mask for all landmasses EXCEPT highlighted ones */}
-                <mask id="generalLandMask">
-                  {countries.map((geo, idx) => {
-                    if (!geo.isHighlighted && geo.d) {
-                      return (
-                        <path
-                          key={`mask-gen-${geo.id || "no-id"}-${idx}`}
-                          d={geo.d}
-                          fill="white"
-                          stroke="none"
-                        />
-                      );
-                    }
-                    return null;
-                  })}
-                </mask>
-
-                {/* Mask for only highlighted operational areas */}
-                <mask id="highlightLandMask">
-                  {countries.map((geo, idx) => {
-                    if (geo.isHighlighted && geo.d) {
-                      return (
-                        <path
-                          key={`mask-high-${geo.id || "no-id"}-${idx}`}
-                          d={geo.d}
-                          fill="white"
-                          stroke="none"
-                        />
-                      );
-                    }
-                    return null;
-                  })}
-                  {/* Manual buffers for small island nations and city states */}
-                  {locations.map(loc => {
-                    const radius = loc.name === "Singapore" ? 8 : loc.name === "Fiji" ? 12 : 0;
-                    if (radius === 0) return null;
-                    return (
-                      <circle 
-                        key={`mask-marker-${loc.name}`} 
-                        cx={loc.x} 
-                        cy={loc.y} 
-                        r={radius} 
-                        fill="white" 
-                      />
-                    );
-                  })}
-                </mask>
-              </defs>
-
-              {/* Background Graticule */}
-              {graticulePath && (
-                <path 
-                  d={graticulePath} 
-                  stroke="#F1F5F9" 
-                  strokeWidth={0.5} 
-                  opacity={0.3} 
-                  fill="none" 
-                />
-              )}
-
-              {/* Masked Dot Grids for Landmasses */}
-              <rect width="100%" height="100%" fill="url(#landDots)" mask="url(#generalLandMask)" className="pointer-events-none" />
-              <rect width="100%" height="100%" fill="url(#highlightDots)" mask="url(#highlightLandMask)" className="pointer-events-none" />
-
-              {/* Country Outlines */}
-              {countries.map((geo, idx) => {
-                if (!geo.d) return null;
-                return (
-                  <path
-                    key={`outline-${geo.id || "no-id"}-${idx}`}
-                    d={geo.d}
-                    fill="transparent"
-                    stroke={geo.isHighlighted ? "var(--color-accent)" : "#E2E8F0"}
-                    strokeWidth={geo.isHighlighted ? 0.6 : 0.3}
-                    strokeOpacity={geo.isHighlighted ? 0.4 : 0.2}
-                  />
-                );
-              })}
-
-              {/* Network Connections */}
-              <g stroke="var(--color-primary)" strokeWidth="0.6" strokeOpacity="0.25" fill="none">
-                {lines.map((line) => (
-                  <line
-                    key={line.key}
-                    x1={line.x1}
-                    y1={line.y1}
-                    x2={line.x2}
-                    y2={line.y2}
-                    strokeDasharray="3,3"
-                  />
-                ))}
-              </g>
-
-              {/* Interactive Locations - Points */}
-              {locations.map((loc) => (
-                <g 
-                  key={`point-${loc.name}`} 
-                  transform={`translate(${loc.x}, ${loc.y})`}
-                >
-                  <g
-                    className="cursor-pointer"
-                    onMouseEnter={(e) => {
-                      setActiveLoc(loc.name);
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const parent = document.querySelector('.group\\/map');
-                      if (parent) {
-                        const parentRect = parent.getBoundingClientRect();
-                        setTooltipPos({
-                          x: rect.left - parentRect.left + rect.width / 2,
-                          y: rect.top - parentRect.top,
-                        });
-                      }
-                    }}
-                    onMouseLeave={() => setActiveLoc(null)}
-                  >
-                    <HighlightDots />
-
-                    {/* Pulsating Rings (Brand Blue) */}
-                    <motion.circle
-                      r={activeLoc === loc.name ? "14" : "12"}
-                      fill="transparent"
-                      stroke="var(--color-primary)"
-                      strokeWidth="1.5"
-                      animate={{ scale: [1, 2.5], opacity: [0.5, 0] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    />
-                    
-                    {/* Core Point (Brand Blue) */}
-                    <circle
-                      r={activeLoc === loc.name ? 8 : 6}
-                      fill="var(--color-primary)"
-                      stroke="white"
-                      strokeWidth="3"
-                      className="transition-all duration-300"
-                    />
-                  </g>
-                </g>
-              ))}
-            </svg>
+              dangerouslySetInnerHTML={{ __html: mapSvg }} 
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-white" />
           )}
@@ -233,49 +126,44 @@ const WorldMapGraphic = () => {
 
       {/* Absolute Tooltip - outside overflow-hidden container to allow full floating bounds */}
       <AnimatePresence>
-        {activeLoc && tooltipPos && (() => {
-          const loc = locations.find(l => l.name === activeLoc);
-          if (!loc) return null;
-          const isFiji = activeLoc === "Fiji";
-          return (
-            <div
-              style={{
-                position: 'absolute',
-                left: `${tooltipPos.x}px`,
-                top: `${tooltipPos.y}px`,
-                transform: isFiji ? 'translate(-85%, -100%) translateY(-15px)' : 'translate(-50%, -100%) translateY(-15px)',
-                zIndex: 40,
-              }}
-              className="pointer-events-none"
+        {activeLoc && tooltipPos && (
+          <div
+            style={{
+              position: 'absolute',
+              left: `${tooltipPos.x}px`,
+              top: `${tooltipPos.y}px`,
+              transform: activeLoc === "Fiji" ? 'translate(-85%, -100%) translateY(-15px)' : 'translate(-50%, -100%) translateY(-15px)',
+              zIndex: 40,
+            }}
+            className="pointer-events-none"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 15, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 15, scale: 0.95 }}
+              className={`bg-primary text-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-2xl border border-white/10 relative transition-all duration-200 ${
+                activeStats.length > 0 ? "p-6 w-[240px]" : "p-4 pb-5 w-[180px]"
+              }`}
             >
-              <motion.div
-                initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                className={`bg-primary text-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-2xl border border-white/10 relative transition-all duration-200 ${
-                  loc.stats.length > 0 ? "p-6 w-[240px]" : "p-4 pb-5 w-[180px]"
-                }`}
-              >
-                <div className="flex flex-col gap-4">
-                  <div className={loc.stats.length > 0 ? "border-b border-white/10 pb-3" : "text-center"}>
-                    <h4 className={`text-[16px] font-black uppercase tracking-widest text-accent leading-none ${loc.stats.length === 0 ? "text-center" : ""}`}>{loc.name}</h4>
-                  </div>
-                  {loc.stats.length > 0 && (
-                    <div className="space-y-4">
-                      {loc.stats.map((stat, idx) => (
-                        <div key={idx} className="flex items-center justify-between gap-6">
-                          <span className="text-[18px] text-white font-medium whitespace-nowrap">{stat.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+              <div className="flex flex-col gap-4">
+                <div className={activeStats.length > 0 ? "border-b border-white/10 pb-3" : "text-center"}>
+                  <h4 className={`text-[16px] font-black uppercase tracking-widest text-accent leading-none ${activeStats.length === 0 ? "text-center" : ""}`}>{activeLoc}</h4>
                 </div>
-                {/* Arrow */}
-                <div className={`absolute ${isFiji ? "left-[85%]" : "left-1/2"} -translate-x-1/2 -bottom-2 w-4 h-4 bg-primary rotate-45`} />
-              </motion.div>
-            </div>
-          );
-        })()}
+                {activeStats.length > 0 && (
+                  <div className="space-y-4">
+                    {activeStats.map((stat, idx) => (
+                      <div key={idx} className="flex items-center justify-between gap-6">
+                        <span className="text-[18px] text-white font-medium whitespace-nowrap">{stat.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {/* Arrow */}
+              <div className={`absolute ${activeLoc === "Fiji" ? "left-[85%]" : "left-1/2"} -translate-x-1/2 -bottom-2 w-4 h-4 bg-primary rotate-45`} />
+            </motion.div>
+          </div>
+        )}
       </AnimatePresence>
     </div>
   );
