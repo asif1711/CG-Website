@@ -88,11 +88,11 @@ const WorldMapGraphic = () => {
 
                 {/* Mask for all landmasses EXCEPT highlighted ones */}
                 <mask id="generalLandMask">
-                  {countries.map((geo) => {
+                  {countries.map((geo, idx) => {
                     if (!geo.isHighlighted && geo.d) {
                       return (
                         <path
-                          key={`mask-gen-${geo.id}`}
+                          key={`mask-gen-${geo.id || "no-id"}-${idx}`}
                           d={geo.d}
                           fill="white"
                           stroke="none"
@@ -105,11 +105,11 @@ const WorldMapGraphic = () => {
 
                 {/* Mask for only highlighted operational areas */}
                 <mask id="highlightLandMask">
-                  {countries.map((geo) => {
+                  {countries.map((geo, idx) => {
                     if (geo.isHighlighted && geo.d) {
                       return (
                         <path
-                          key={`mask-high-${geo.id}`}
+                          key={`mask-high-${geo.id || "no-id"}-${idx}`}
                           d={geo.d}
                           fill="white"
                           stroke="none"
@@ -151,11 +151,11 @@ const WorldMapGraphic = () => {
               <rect width="100%" height="100%" fill="url(#highlightDots)" mask="url(#highlightLandMask)" className="pointer-events-none" />
 
               {/* Country Outlines */}
-              {countries.map((geo) => {
+              {countries.map((geo, idx) => {
                 if (!geo.d) return null;
                 return (
                   <path
-                    key={`outline-${geo.id}`}
+                    key={`outline-${geo.id || "no-id"}-${idx}`}
                     d={geo.d}
                     fill="transparent"
                     stroke={geo.isHighlighted ? "var(--color-accent)" : "#E2E8F0"}
