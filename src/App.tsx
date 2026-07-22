@@ -811,7 +811,7 @@ const About = () => {
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary">
-                  <CountingNumber value={7} />
+                  <CountingNumber value={6} />
                 </div>
                 <div className="text-xs text-slate-500 uppercase font-bold tracking-wider mt-1">Global Locations</div>
               </div>
@@ -2017,6 +2017,9 @@ const PartnersAndTeam = () => {
     { name: "RNB", logo: "https://www.rnbglobal.edu.in/assets/images/logo.svg", scale: 1.18, isBrandBlue: false },
     { name: "SNU", logo: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/snu.webp", scale: 1.15, isBrandBlue: false },
     { name: "SPSU", logo: "https://spsu.ac.in/apply-now-mba/wp-content/uploads/2023/06/Asset-5@300x.png", scale: 1.18, isBrandBlue: false },
+    { name: "STAMFORD", logo: "https://www.stamford.edu/wp-content/uploads/2025/08/logo.svg", scale: 1.3, isBrandBlue: false },
+    { name: "KKUIC", logo: "https://www.ic.kku.ac.th/wp-content/uploads/2024/01/KKUIC-Logo-ENG-Rainbow-Border@2048x.png", scale: 0.55, isBrandBlue: false },
+    { name: "SRINAKHARINWIROT", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/SWU_Secondary_Logo-EN.svg/250px-SWU_Secondary_Logo-EN.svg.png", scale: 1.1, isBrandBlue: false },
   ];
 
   const containerVariants = {
