@@ -25,6 +25,31 @@
   }
 }
 
+/* Custom Brand Blue Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #042F61;
+  border-radius: 6px;
+  border: 2px solid #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #064082;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #042F61 #f1f5f9;
+}
+
 .glass-nav {
   @apply bg-white/10 backdrop-blur-md border-b border-white/10;
 }
