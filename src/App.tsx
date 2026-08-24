@@ -1744,29 +1744,35 @@ export default function App() {
   }, []);
 
   const teamSlugs = [
-    '/learning-team',
-    '/consultant-team',
-    '/human-strategy-team',
-    '/assistant-team',
-    '/operational-team',
-    '/marketing-team'
+    '/our-people/learning-team',
+    '/our-people/consultant-team',
+    '/our-people/human-strategy-team',
+    '/our-people/assistant-team',
+    '/our-people/operational-team',
+    '/our-people/marketing-team'
   ];
 
+  // Robust path normalization (strips trailing slashes and query strings for comparison)
+  const normalizedCurrentPath = currentPath.split('?')[0].replace(/\/+$/, '') || '/';
+
   const isTeamDetailPage = teamSlugs.some(
-    (slug) => currentPath === slug || currentPath === `${slug}/`
+    (slug) => {
+      const normalizedSlug = slug.replace(/\/+$/, '');
+      return normalizedCurrentPath === normalizedSlug;
+    }
   );
 
   const isOrgChartPage = ((import.meta as any).env?.DEV) && currentHash === '#org-chart';
   const isOurPeoplePage = 
-    currentPath === '/our-people' || 
-    currentPath === '/our-people/' || 
-    currentPath === '/our-teams' || 
-    currentPath === '/our-teams/' || 
-    [
-      '#our-people', 
-      '#our-teams', 
-      '#meet-our-team'
-    ].includes(currentHash);
+    !isTeamDetailPage && (
+      normalizedCurrentPath === '/our-people' || 
+      normalizedCurrentPath === '/our-teams' || 
+      [
+        '#our-people', 
+        '#our-teams', 
+        '#meet-our-team'
+      ].includes(currentHash)
+    );
 
   return (
     <div className="font-sans">

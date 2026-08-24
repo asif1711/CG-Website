@@ -75,7 +75,10 @@ export const TeamsSection: React.FC = () => {
   };
 
   const handleCardClick = (slug: string) => {
-    window.history.pushState({}, '', slug);
+    // Ensure slug has trailing slash if requested, and clear any residual hash
+    const targetUrl = slug.endsWith('/') ? slug : `${slug}/`;
+    window.history.pushState({}, '', targetUrl);
+    window.location.hash = '';
     window.dispatchEvent(new Event('popstate'));
     window.scrollTo({ top: 0, behavior: 'instant' });
   };

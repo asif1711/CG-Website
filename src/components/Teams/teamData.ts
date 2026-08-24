@@ -9,7 +9,7 @@ export const TEAMS_DATA: TeamInfo[] = [
   // ==========================================
   {
     id: 'learning-academic-team',
-    slug: '/learning-team',
+    slug: '/our-people/learning-team',
     category: 'LEARNING & ACADEMIC',
     name: 'Learning and Academic Operations Team',
     description: 'Designing meaningful learning journeys and ensuring academic excellence at every step.',
@@ -23,7 +23,7 @@ export const TEAMS_DATA: TeamInfo[] = [
   },
   {
     id: 'consultant-team',
-    slug: '/consultant-team',
+    slug: '/our-people/consultant-team',
     category: 'CONSULTANT TEAM',
     name: 'Consultant Team',
     description: 'Strategic thinkers and problem solvers partnering with clients to drive impact and sustainable growth.',
@@ -37,7 +37,7 @@ export const TEAMS_DATA: TeamInfo[] = [
   },
   {
     id: 'human-strategy-team',
-    slug: '/human-strategy-team',
+    slug: '/our-people/human-strategy-team',
     category: 'HUMAN STRATEGY',
     name: 'Human Strategy Team',
     description: 'Building a thriving culture by nurturing talent, well-being, and people strategy that drives us forward.',
@@ -58,7 +58,7 @@ export const TEAMS_DATA: TeamInfo[] = [
   // ==========================================
   {
     id: 'executive-assistant-team',
-    slug: '/assistant-team',
+    slug: '/our-people/assistant-team',
     category: 'EXECUTIVE ASSISTANT',
     name: 'Executive Assistant Team',
     description: 'Providing high-level support to leaders and teams, helping drive productivity and ensuring seamless execution of priorities.',
@@ -72,7 +72,7 @@ export const TEAMS_DATA: TeamInfo[] = [
   },
   {
     id: 'operational-support-team',
-    slug: '/operational-team',
+    slug: '/our-people/operational-team',
     category: 'OPERATIONAL SUPPORT',
     name: 'Operational Support Team',
     description: 'Keeping everything running seamlessly so the rest of the team can focus on what matters most.',
@@ -86,7 +86,7 @@ export const TEAMS_DATA: TeamInfo[] = [
   },
   {
     id: 'marketing-team',
-    slug: '/marketing-team',
+    slug: '/our-people/marketing-team',
     category: 'MARKETING TEAM',
     name: 'Marketing Team',
     description: 'Telling our story, connecting with our audience, and creating campaigns that inspire action.',
