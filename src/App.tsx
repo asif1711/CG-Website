@@ -96,11 +96,25 @@ import {
 } from './constants';
 
 const Hero = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.defaultMuted = true;
+    video.muted = true;
+
+    video.play().catch(() => {});
+  }, []);
+
   return (
     <section className="relative h-screen flex items-center lg:items-start xl:items-center overflow-hidden lg:pb-0 xl:pb-0">
       {/* Video Background */}
       <div className="absolute inset-0 z-0 overflow-hidden bg-primary-dark">
         <video 
+          ref={videoRef}
+          src={HERO_VIDEO_URL}
           autoPlay 
           muted 
           loop 
@@ -108,9 +122,7 @@ const Hero = () => {
           width="1920"
           height="1080"
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full object-cover w-auto h-auto max-w-none"
-        >
-          <source src={HERO_VIDEO_URL} type="video/mp4" />
-        </video>
+        />
         <div className="absolute inset-0 bg-black/45" />
       </div>
 

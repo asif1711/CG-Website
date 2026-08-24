@@ -142,7 +142,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 const NAV_LINKS = [
   { name: 'About Us', href: 'https://chelsongordon.com/who-we-are/' },
   { name: 'Our Services', href: 'https://chelsongordon.com/our-services/' },
-  { name: 'Our People', href: '/our-people' },
+  { name: 'Our People', href: 'https://chelsongordon.com/our-team/' },
   { name: 'Careers', href: 'https://chelsongordon.com/careers/' },
 ];
 
