@@ -1,6 +1,8 @@
-import { StrictMode } from 'react';
+import { useState, useEffect, StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { AnimatePresence, motion } from 'motion/react';
 import OurPeoplePage from './OurPeoplePage';
+import TeamDetailPage from './TeamDetailPage';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import './index.css';
@@ -33,18 +35,86 @@ if (typeof Node !== 'undefined' && Node.prototype) {
   };
 }
 
+const TEAM_SLUGS = [
+  '/our-people/learning-team',
+  '/our-people/consultant-team',
+  '/our-people/human-strategy-team',
+  '/our-people/assistant-team',
+  '/our-people/operational-team',
+  '/our-people/marketing-team'
+];
+
+function OurPeopleApp() {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname);
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
+  }, []);
+
+  // Robust path normalization (strips trailing slashes and query strings for comparison)
+  const normalizedCurrentPath = currentPath.split('?')[0].replace(/\/+$/, '') || '/';
+
+  const isTeamDetailPage = TEAM_SLUGS.some((slug) => {
+    const normalizedSlug = slug.replace(/\/+$/, '');
+    return normalizedCurrentPath === normalizedSlug;
+  });
+
+  return (
+    <div className="font-sans">
+      <Navbar forceSolid={true} />
+      <main>
+        <AnimatePresence mode="wait">
+          {isTeamDetailPage ? (
+            <motion.div
+              key={`team-detail-${normalizedCurrentPath}`}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+            >
+              <TeamDetailPage
+                slug={currentPath}
+                onNavigateBack={() => {
+                  window.history.pushState({}, '', '/our-people/');
+                  window.dispatchEvent(new Event('popstate'));
+                  window.scrollTo({ top: 0, behavior: 'instant' });
+                }}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="our-people"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+            >
+              <OurPeoplePage />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 const mountElement = document.getElementById('root');
 
 if (mountElement) {
   createRoot(mountElement).render(
     <StrictMode>
-      <div className="font-sans">
-        <Navbar forceSolid={true} />
-        <main>
-          <OurPeoplePage />
-        </main>
-        <Footer />
-      </div>
+      <OurPeopleApp />
     </StrictMode>,
   );
 } else {
