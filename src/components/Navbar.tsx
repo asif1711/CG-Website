@@ -69,13 +69,13 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all border shadow-sm notranslate bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md"
+        className="flex items-center gap-1 min-[1600px]:gap-1.5 px-2.5 py-1.5 min-[1600px]:px-4 min-[1600px]:py-2.5 rounded-[18px] min-[1600px]:rounded-xl text-[9px] min-[1600px]:text-[11px] font-bold uppercase tracking-wider min-[1600px]:tracking-widest transition-all border shadow-sm notranslate bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md"
         translate="no"
         style={isScrolled ? { backgroundColor: 'rgba(4, 47, 97, 0.05)', color: '#042F61', borderColor: 'rgba(4, 47, 97, 0.1)' } : {}}
       >
-        <Languages className="w-3.5 h-3.5" />
+        <Languages className="w-3 h-3 min-[1600px]:w-3.5 min-[1600px]:h-3.5" />
         <span className="inline">{getLangDisplay(selectedLang)}</span>
-        <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-2.5 h-2.5 min-[1600px]:w-3 min-[1600px]:h-3 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </motion.button>
 
       <AnimatePresence>
@@ -315,19 +315,6 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
 
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${activeScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
-      <style>{`
-        .large-viewport-inline {
-          display: none !important;
-        }
-        @media (min-width: 1600px) and (min-height: 750px) {
-          .large-viewport-inline {
-            display: inline-flex !important;
-          }
-          .large-viewport-bottom {
-            display: none !important;
-          }
-        }
-      `}</style>
       <div className="max-w-full mx-auto w-full px-4 md:px-8 lg:px-10 xl:px-12 2xl:px-[4%] h-[120px] lg:h-[100px] xl:h-[120px] 2xl:h-[140px] flex items-center justify-between gap-4">
         {/* Left: Logo */}
         <div className="flex-shrink-0">
@@ -345,7 +332,7 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
              <img 
                src={activeScrolled ? LOGO_URL : (logoError ? LOGO_URL : LOGO_WHITE_URL)} 
                alt="Chelson Gordon Logo" 
-               className={`mt-0 md:-mt-[20px] h-[145px] md:h-[125px] lg:h-[110px] xl:h-[145px] 2xl:h-[170px] w-auto transition-all transform origin-left ${!activeScrolled && logoError ? 'brightness-0 invert' : ''}`}
+               className={`mt-0 md:-mt-[20px] lg:mt-[5px] h-[145px] md:h-[125px] lg:h-[110px] xl:h-[145px] 2xl:h-[170px] w-auto transition-all transform origin-left ${!activeScrolled && logoError ? 'brightness-0 invert' : ''}`}
                onError={() => !activeScrolled && setLogoError(true)}
                referrerPolicy="no-referrer"
                decoding="async"
@@ -355,13 +342,14 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
         </div>
 
         {/* Right Section: Nav + Buttons */}
-        <div className="hidden lg:flex flex-col items-end justify-center ml-auto min-w-0 gap-1.5 xl:gap-2">
-          {/* Top Row: Nav links + Main Action Buttons */}
-          <div className="flex items-center gap-3 xl:gap-5 2xl:gap-8 justify-end flex-shrink-0">
+        <div className="hidden lg:flex items-center justify-end ml-auto min-w-0 flex-shrink-0">
+          {/* Single Row: Nav links + Action Buttons */}
+          <div className="flex items-center gap-[20px] min-[1600px]:gap-[30px] justify-end flex-shrink-0">
             {/* Nav links */}
-            <div className="flex items-center gap-3.5 xl:gap-5 2xl:gap-7 mr-1 xl:mr-2 flex-shrink-0">
+            <div className="flex items-center gap-[30px] min-[1600px]:gap-[40px] mr-1 xl:mr-2 min-[1600px]:mr-2 flex-shrink-0">
               {NAV_LINKS.map((item) => {
                 const isInternal = item.href.startsWith('/') || item.href.startsWith('#');
+                const isCareers = item.name === 'Careers';
                 return (
                   <a 
                     key={item.name} 
@@ -380,7 +368,7 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }
                     }}
-                    className={`text-[10px] xl:text-xs font-bold uppercase tracking-widest transition-all hover:text-accent whitespace-nowrap ${activeScrolled ? 'text-primary' : 'text-white'}`}
+                    className={`${isCareers ? 'hidden min-[1600px]:inline-block' : 'inline-block'} text-[10px] xl:text-xs font-bold uppercase tracking-widest transition-all hover:text-accent whitespace-nowrap ${activeScrolled ? 'text-primary' : 'text-white'}`}
                   >
                     {item.name}
                   </a>
@@ -388,21 +376,21 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
               })}
             </div>
 
-            {/* Action Buttons Top Row */}
-            <div className="flex items-center gap-1.5 xl:gap-2.5 2xl:gap-3 flex-shrink-0">
+            {/* Action Buttons */}
+            <div className="flex items-center gap-[12px] min-[1600px]:gap-3 flex-shrink-0">
               <motion.a 
                 href="https://chelsongordon.com/contact-us-page/"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-md border border-transparent ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 min-[1600px]:px-4 min-[1600px]:py-2.5 rounded-[18px] min-[1600px]:rounded-xl text-[9px] min-[1600px]:text-[11px] font-bold uppercase tracking-wider min-[1600px]:tracking-widest transition-all whitespace-nowrap shadow-md border border-transparent ${
                   activeScrolled 
                     ? 'bg-primary text-white hover:bg-accent hover:text-primary' 
                     : 'bg-accent text-primary hover:bg-primary hover:text-white'
                 }`}
               >
-                Get in Touch <ArrowRight className="w-3.5 h-3.5" />
+                Get in Touch <ArrowRight className="w-3 h-3 min-[1600px]:w-3.5 min-[1600px]:h-3.5" />
               </motion.a>
               
               <motion.a 
@@ -411,29 +399,31 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm border border-transparent ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 min-[1600px]:px-4 min-[1600px]:py-2.5 rounded-[18px] min-[1600px]:rounded-xl text-[9px] min-[1600px]:text-[11px] font-bold uppercase tracking-wider min-[1600px]:tracking-widest transition-all whitespace-nowrap shadow-sm border border-transparent ${
                   activeScrolled 
                     ? 'bg-accent text-primary hover:bg-primary hover:text-white' 
                     : 'bg-primary text-white hover:bg-accent hover:text-primary'
                 }`}
               >
-                Company Profile <Download className="w-3.5 h-3.5" />
+                Company Profile <Download className="w-3 h-3 min-[1600px]:w-3.5 min-[1600px]:h-3.5" />
               </motion.a>
 
-              {/* Inline Leave a Feedback button - shown only on large monitor viewports (e.g., 1920x911) */}
+              {/* Feedback button - "Feedback" on standard laptop (<1600px), "Leave a Feedback" on large monitors (>=1600px) */}
               <motion.a 
                 href="https://chelsongordon.com/feedback/"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`large-viewport-inline items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm border border-transparent ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 min-[1600px]:px-4 min-[1600px]:py-2.5 rounded-[18px] min-[1600px]:rounded-xl text-[9px] min-[1600px]:text-[11px] font-bold uppercase tracking-wider min-[1600px]:tracking-widest transition-all whitespace-nowrap shadow-sm border border-transparent ${
                   activeScrolled 
                     ? 'bg-primary text-white hover:bg-accent hover:text-primary' 
                     : 'bg-accent text-primary hover:bg-primary hover:text-white'
                 }`}
               >
-                Leave a Feedback <MessageSquare className="w-3.5 h-3.5" />
+                <span className="inline min-[1600px]:hidden">Feedback</span>
+                <span className="hidden min-[1600px]:inline">Leave a Feedback</span>
+                <MessageSquare className="w-3 h-3 min-[1600px]:w-3.5 min-[1600px]:h-3.5" />
               </motion.a>
 
               <motion.a 
@@ -442,9 +432,9 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`flex items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap border shadow-sm ${activeScrolled ? 'bg-primary/5 text-primary border-primary/10 hover:bg-primary/10' : 'bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md'}`}
+                className={`flex items-center gap-1 px-2.5 py-1.5 min-[1600px]:px-4 min-[1600px]:py-2.5 rounded-[18px] min-[1600px]:rounded-xl text-[9px] min-[1600px]:text-[11px] font-bold uppercase tracking-wider min-[1600px]:tracking-widest transition-all whitespace-nowrap border shadow-sm ${activeScrolled ? 'bg-primary/5 text-primary border-primary/10 hover:bg-primary/10' : 'bg-white/5 text-white border-white/10 hover:bg-white/10 backdrop-blur-md'}`}
               >
-                CG Resources <ShoppingBag className="w-3.5 h-3.5" />
+                CG Resources <ShoppingBag className="w-3 h-3 min-[1600px]:w-3.5 min-[1600px]:h-3.5" />
               </motion.a>
 
               <LanguageSelector 
@@ -454,22 +444,6 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
               />
             </div>
           </div>
-
-          {/* Leave a Feedback button - second row for standard desktop/laptop viewports (e.g. 1536x695) */}
-          <motion.a 
-            href="https://chelsongordon.com/feedback/"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`hidden lg:flex large-viewport-bottom items-center gap-1 px-2.5 lg:px-2.5 xl:px-4 py-2 lg:py-2 xl:py-2.5 rounded-lg xl:rounded-xl text-[10px] xl:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm border border-transparent ${
-              activeScrolled 
-                ? 'bg-primary text-white hover:bg-accent hover:text-primary' 
-                : 'bg-accent text-primary hover:bg-primary hover:text-white'
-            }`}
-          >
-            Leave a Feedback <MessageSquare className="w-3.5 h-3.5" />
-          </motion.a>
         </div>
 
         {/* Mobile Menu Toggle */}

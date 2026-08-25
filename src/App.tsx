@@ -995,12 +995,6 @@ const HearFromOurTeam = () => {
       videoUrl: "https://www.youtube.com/watch?v=egkNxxqoRdw"
     },
     {
-      name: "Srija Acharjee",
-      role: "Executive Assistant",
-      image: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/srija.webp",
-      videoUrl: "https://www.youtube.com/watch?v=kCpGdjSULkc&pp=0gcJCQQLAYcqIYzv"
-    },
-    {
       name: "Sweta Singh",
       role: "Junior Business Administrator",
       image: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/sweta.webp",
@@ -1032,7 +1026,7 @@ const HearFromOurTeam = () => {
   };
 
   return (
-    <section className="pt-8 md:pt-24 pb-12 md:pb-24 lg:pt-[91px] lg:pb-[91px] xl:pt-24 xl:pb-24 bg-gray-50/50 overflow-hidden">
+    <section className="pt-8 md:pt-24 pb-12 md:pb-24 lg:pt-[91px] lg:pb-[91px] xl:pt-24 xl:pb-24 bg-[#fafaf8] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-6 md:mb-16">
           <motion.div 

@@ -186,7 +186,9 @@ export default function Testimonials() {
     <section
       id="testimonials"
       className="relative min-h-screen bg-[#fafaf8] py-20 px-6 pb-24 md:py-24 md:px-8 overflow-hidden font-sans"
-      style={{ fontFamily: "'Montserrat', sans-serif" }}
+      style={{ 
+        fontFamily: "'Montserrat', sans-serif"
+      }}
     >
       {/* Dynamic CSS Shimmer Animation & Custom Styles */}
       <style>{`
@@ -217,9 +219,9 @@ export default function Testimonials() {
           style={{
             width: '520px',
             height: '520px',
-            top: '-160px',
+            top: '0px',
             right: '-160px',
-            background: 'radial-gradient(circle, rgba(253,185,19,0.08) 0%, transparent 65%)',
+            background: 'radial-gradient(circle, rgba(253,185,19,0.06) 0%, transparent 65%)',
           }}
         />
 
@@ -235,8 +237,14 @@ export default function Testimonials() {
           }}
         />
 
-        {/* Dot Grid Overlay */}
-        <div className="absolute inset-0 dot-grid-bg" />
+        {/* Dot Grid Overlay - smoothly masked at top so there is no hard cut */}
+        <div 
+          className="absolute inset-0 dot-grid-bg" 
+          style={{
+            WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100px, rgba(0,0,0,1) 240px)',
+            maskImage: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100px, rgba(0,0,0,1) 240px)'
+          }}
+        />
       </div>
 
       <div className="relative z-10 max-w-[1100px] mx-auto">
@@ -452,10 +460,10 @@ export default function Testimonials() {
 
         {/* CTA Block */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 2.4, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          viewport={{ once: true, margin: '-20px' }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="mt-16 text-center"
         >
           <p
