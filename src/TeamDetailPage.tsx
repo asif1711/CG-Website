@@ -425,30 +425,36 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
 
       </div>
 
-      {/* Member Detail Drawer Modal */}
+      {/* Member Detail Pop-up Modal */}
       <AnimatePresence>
         {selectedMember && (
-          <>
+          <div className="fixed inset-0 z-[1001] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedMember(null)}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1001]"
+              className="fixed inset-0 bg-slate-900/65 backdrop-blur-md"
             />
 
+            {/* Pop-up Card */}
             <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="fixed top-0 right-0 h-screen w-full max-w-md bg-white border-l border-slate-200 shadow-2xl z-[1002] flex flex-col justify-between overflow-hidden"
+              initial={{ opacity: 0, scale: 0.94, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 16 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+              className="relative w-full max-w-xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden my-auto flex flex-col z-[1002] max-h-[90vh]"
             >
-              {/* Drawer Header: Renamed to About Employee with circular close button */}
-              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <div className="flex items-center gap-2">
-                  <User className="w-5 h-5 text-[#042F61]" />
-                  <span className="text-xs font-extrabold uppercase tracking-widest text-[#042F61]">About Employee</span>
+              {/* Modal Header */}
+              <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#042F61]/10 flex items-center justify-center text-[#042F61]">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-extrabold uppercase tracking-widest text-[#042F61]">
+                    About Employee
+                  </span>
                 </div>
                 <button
                   onClick={() => setSelectedMember(null)}
@@ -459,57 +465,65 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
                 </button>
               </div>
 
-              {/* Drawer Body: Clean layout with Team Pill, Bio, Motto, and Contact */}
-              <div className="p-6 flex-1 overflow-y-auto space-y-6">
-                <div className="flex flex-col gap-2 pb-2">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100/90 border border-slate-200/80 w-fit text-[#042F61]">
-                    <TeamIcon className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-xs font-extrabold tracking-wide">{selectedMember.team}</span>
+              {/* Modal Body */}
+              <div className="p-6 sm:p-7 overflow-y-auto space-y-6">
+                {/* Profile Overview */}
+                <div className="flex flex-col gap-2 pb-1">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200/80 w-fit text-[#042F61] mb-1">
+                    <TeamIcon className="w-3.5 h-3.5 text-accent shrink-0" />
+                    <span className="text-[11px] font-extrabold tracking-wide">{selectedMember.team}</span>
                   </div>
                   <div>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-[#042F61] leading-tight tracking-tight mt-1">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-[#042F61] leading-tight tracking-tight">
                       {selectedMember.name}
                     </h2>
-                    <p className="text-xs sm:text-sm font-extrabold text-[#FDB913] uppercase tracking-widest mt-1">
+                    <p className="text-xs sm:text-sm font-extrabold text-[#FDB913] uppercase tracking-wider mt-1">
                       {selectedMember.position}
                     </p>
                   </div>
                 </div>
 
+                {/* Motto */}
                 {selectedMember.motto && (
                   <div className="space-y-1.5">
                     <h3 className="text-[11px] uppercase tracking-wider font-extrabold text-slate-400 flex items-center gap-1.5">
                       <Quote className="w-3.5 h-3.5 text-accent" />
                       <span>Motto</span>
                     </h3>
-                    <p className="text-xs italic text-slate-600 bg-amber-50/50 p-3.5 rounded-xl border border-amber-200/40">
+                    <p className="text-xs sm:text-[13px] italic text-slate-700 bg-amber-50/60 p-4 rounded-xl border border-amber-200/50 leading-relaxed">
                       "{selectedMember.motto}"
                     </p>
                   </div>
                 )}
 
+                {/* About Me */}
                 <div className="space-y-2">
-                  <h3 className="text-[11px] uppercase tracking-wider font-extrabold text-slate-400">Professional Bio</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed font-medium bg-slate-50/40 p-4 rounded-xl border border-slate-100">
+                  <h3 className="text-[11px] uppercase tracking-wider font-extrabold text-slate-400">
+                    About Me
+                  </h3>
+                  <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed font-medium bg-slate-50/70 p-4 rounded-xl border border-slate-100">
                     {selectedMember.bio || "Dedicated specialist contributing to high-tier academic and quality assurance structures."}
                   </p>
                 </div>
 
+                {/* Contact */}
                 {selectedMember.email && (
                   <div className="space-y-2">
-                    <h3 className="text-[11px] uppercase tracking-wider font-extrabold text-slate-400">Contact</h3>
+                    <h3 className="text-[11px] uppercase tracking-wider font-extrabold text-slate-400">
+                      Contact
+                    </h3>
                     <a
                       href={`mailto:${selectedMember.email}`}
-                      className="flex items-center gap-2 p-3 border border-slate-100 rounded-xl hover:bg-slate-50 text-xs text-[#042F61] font-semibold"
+                      className="flex items-center gap-2.5 p-3.5 border border-slate-200/80 rounded-xl hover:bg-slate-50 text-xs sm:text-[13px] text-[#042F61] font-semibold transition-colors group"
                     >
-                      <Mail className="w-4 h-4 text-slate-400" />
+                      <Mail className="w-4 h-4 text-slate-400 group-hover:text-[#042F61] transition-colors" />
                       <span>{selectedMember.email}</span>
                     </a>
                   </div>
                 )}
               </div>
             </motion.div>
-          </>
+          </div>
         )}
       </AnimatePresence>
     </div>

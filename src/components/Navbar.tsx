@@ -15,6 +15,7 @@ import {
   LOGO_URL, 
   LOGO_WHITE_URL 
 } from '../constants';
+import { TopAnnouncementBanner } from './TopAnnouncementBanner';
 
 const LANGUAGES = [
   { name: 'Arabic', code: 'AR', english: 'Arabic', native: 'عربي' },
@@ -314,7 +315,8 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${activeScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${activeScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
+      <TopAnnouncementBanner isScrolled={activeScrolled} />
       <div className="max-w-full mx-auto w-full px-4 md:px-8 lg:px-10 xl:px-12 2xl:px-[4%] h-[120px] lg:h-[100px] xl:h-[120px] 2xl:h-[140px] flex items-center justify-between gap-4">
         {/* Left: Logo */}
         <div className="flex-shrink-0">

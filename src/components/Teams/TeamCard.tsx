@@ -86,21 +86,31 @@ export const TeamCard: React.FC<TeamCardProps> = ({
       role="link"
       aria-label={`View ${team.name}`}
     >
-      {/* Background Image with smooth zoom on hover */}
+      {/* Background Image with smooth zoom and grayscale -> natural full-color on hover */}
       <img
         src={team.image}
         alt={team.imageAlt || team.name}
-        className={`absolute inset-0 w-full h-full object-cover ${getImagePositionClass()} filter saturate-[1.05] transition-transform duration-700 ease-out transform-gpu ${
-          isActive ? 'scale-105' : 'scale-100'
+        className={`absolute inset-0 w-full h-full object-cover ${getImagePositionClass()} transition-all duration-500 ease-out transform-gpu ${
+          isActive 
+            ? 'grayscale-0 scale-105' 
+            : 'grayscale contrast-[1.05] scale-100'
         }`}
         loading="lazy"
         decoding="async"
         referrerPolicy="no-referrer"
       />
 
-      {/* Dark Scrim / Multi-stop Gradient Overlay for high-contrast legibility */}
-      <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/95 via-primary-dark/65 via-50% to-black/15 transition-opacity duration-300" />
-      <div className={`absolute inset-0 bg-primary/20 transition-opacity duration-300 ${isActive ? 'opacity-30' : 'opacity-0'}`} />
+      {/* Neutral dark bottom scrim for clean, crisp text legibility (no blue gradient overlay) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 via-35% to-transparent pointer-events-none transition-opacity duration-300" />
+
+      {/* Brand Premium Blue Border on Hover/Active */}
+      <div 
+        className={`absolute inset-0 rounded-2xl xl:rounded-3xl pointer-events-none transition-all duration-500 z-[5] ${
+          isActive 
+            ? 'opacity-100 border-2 border-primary' 
+            : 'opacity-0 border-2 border-transparent'
+        }`}
+      />
 
       {/* Overlaid Content Container */}
       <div className="absolute inset-0 p-5 sm:p-6 xl:p-7 flex flex-col justify-between z-10 text-white select-none pointer-events-none">
@@ -149,9 +159,6 @@ export const TeamCard: React.FC<TeamCardProps> = ({
           </div>
         </div>
       </div>
-
-      {/* Active outline highlight */}
-      <div className={`absolute inset-0 rounded-2xl xl:rounded-3xl border-2 pointer-events-none transition-colors duration-300 ${isActive ? 'border-accent/80' : 'border-transparent'}`} />
     </div>
   );
 };

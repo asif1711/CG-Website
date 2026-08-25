@@ -1,8 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-accent: "Space Grotesk", "Montserrat", ui-sans-serif, sans-serif;
+  --font-space: "Space Grotesk", "Montserrat", ui-sans-serif, sans-serif;
   
   --color-primary: #042F61;
   --color-accent: #FFB800;
@@ -13,6 +15,14 @@
   --radius-xl: 1.5rem;
   --radius-2xl: 2rem;
   --radius-3xl: 3rem;
+}
+
+@utility font-accent {
+  font-family: 'Space Grotesk', 'Montserrat', ui-sans-serif, sans-serif;
+}
+
+@utility font-space {
+  font-family: 'Space Grotesk', 'Montserrat', ui-sans-serif, sans-serif;
 }
 
 @layer base {

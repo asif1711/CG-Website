@@ -40,6 +40,7 @@ import OurPeoplePage from "./OurPeoplePage";
 import TeamDetailPage from "./TeamDetailPage";
 import WorldMapGraphic from "./components/WorldMapGraphic";
 import Testimonials from "./components/Testimonials";
+import { PDAnnouncement } from "./components/PDAnnouncement";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -1835,6 +1836,7 @@ export default function App() {
               <Hero />
               <About />
               <Logos />
+              <PDAnnouncement />
               <Capabilities />
               <Portfolio />
               <Principles />
