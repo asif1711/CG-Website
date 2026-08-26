@@ -215,7 +215,7 @@ export const PDAnnouncement: React.FC = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.7, delay: 0.2 }}
-                src={`https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/PD%20custom%20icon.svg?v=${Date.now()}`}
+                src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/logos/PD%20custom%20icon.svg?v=1"
                 alt="PD custom icon"
                 className="w-20 h-20 sm:w-24 sm:h-24 object-contain select-none pointer-events-none"
                 referrerPolicy="no-referrer"

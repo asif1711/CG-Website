@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "meta": {
+    "version": "1.0",
+    "updatedAt": "2026-08-26T00:00:00Z",
+    "description": "External asset manifest for Chelson Gordon Our People section and employee profiles. Allows updating GCP assets and incrementing versions without rebuilding React."
+  },
+  "base_url": "https://storage.googleapis.com/chelsongordon/com.chelsongordon/",
+  "teams": {
+    "learning-academic-team": {
+      "image": "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/our-people/learning_2.webp?v=1"
+    },
+    "consultant-team": {
+      "image": "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/our-people/consulting.webp?v=1"
+    },
+    "human-strategy-team": {
+      "image": "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/our-people/HR.webp?v=1"
+    },
+    "executive-assistant-team": {
+      "image": "https://chelsongordon.com/wp-content/uploads/2026/05/assistant.webp?v=1"
+    },
+    "operational-support-team": {
+      "image": "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/our-people/operations_2.webp?v=1"
+    },
+    "marketing-team": {
+      "image": "https://chelsongordon.com/wp-content/uploads/2026/05/marketing.webp?v=1"
+    }
+  },
+  "employees": {
+    "charles-dejsakultorn": {
+      "photo": "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/our-people/charles-dejsakultorn.webp?v=1"
+    },
+    "fiona-kee": {
+      "photo": "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/our-people/fiona-kee.webp?v=1"
+    },
+    "boss-arkkarametyingyod": {
+      "photo": "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/our-people/boss-arkkarametyingyod.webp?v=1"
+    },
+    "rajneesh-sharma": {
+      "photo": "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/our-people/rajneesh-sharma.webp?v=1"
+    }
+  },
+  "versions": {
+    "learning_2.webp": "1",
+    "consulting.webp": "1",
+    "HR.webp": "1",
+    "operations_2.webp": "1",
+    "assistant.webp": "1",
+    "marketing.webp": "1"
+  }
+}

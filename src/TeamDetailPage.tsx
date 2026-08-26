@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TEAMS_DATA } from './components/Teams/teamData';
 import { getTeamIcon } from './components/Teams/TeamCard';
+import { useAssetUrl } from './utils/assetManager';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -88,6 +89,99 @@ interface TeamMemberDisplay {
   phone?: string;
   show?: boolean;
 }
+
+interface TeamMemberCardProps {
+  emp: TeamMemberDisplay;
+  index: number;
+  onSelect: (emp: TeamMemberDisplay) => void;
+}
+
+const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ emp, index, onSelect }) => {
+  const RoleIcon = getRoleIcon(emp.position, emp.team);
+  const resolvedPhotoUrl = useAssetUrl(emp.image_url || '', undefined, emp.employee_id || String(emp.id));
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.96, y: 15 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9, y: -10 }}
+      transition={{ delay: index * 0.03, duration: 0.35, ease: 'easeOut' }}
+      key={emp.id}
+      onClick={() => onSelect(emp)}
+      className="group flex flex-col cursor-pointer"
+    >
+      {/* Card Container with headroom for cut-out image pop-out */}
+      <div className="relative pt-12 sm:pt-16">
+        {/* Heavy Reflective Glass Dark Brand Blue Box without passive shadow & no yellow border */}
+        <div className="relative bg-[#042F61]/75 backdrop-blur-2xl rounded-2xl aspect-[4/3.2] sm:aspect-[4/3.3] flex flex-col justify-between p-4 sm:p-5 overflow-visible group-hover:-translate-y-1 transition-all duration-300 shadow-none group-hover:shadow-[0_20px_40px_-8px_rgba(4,47,97,0.35)] border-0">
+          
+          {/* Inner Clipped Glass Background Container */}
+          <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+            {/* Heavy Glass Reflective Overlays */}
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.38)_0%,rgba(255,255,255,0.12)_25%,rgba(255,255,255,0.02)_45%,transparent_65%)]" />
+            <div className="absolute bottom-0 inset-x-0 h-1/3 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          </div>
+
+          {/* Top Left: Role / Browser Icon based on job position */}
+          <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/90 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#042F61] shadow-sm group-hover:bg-[#FDB913] group-hover:text-[#042F61] group-hover:border-[#FDB913]/50 transition-all duration-300">
+              <RoleIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
+            </div>
+          </div>
+
+          {/* Foreground Overlaid Cut-Out Image / Avatar */}
+          <div className="absolute inset-x-0 bottom-0 top-[-25%] z-10 flex items-end justify-center pointer-events-none overflow-visible">
+            {resolvedPhotoUrl ? (
+              <img
+                src={resolvedPhotoUrl}
+                alt={emp.name}
+                className="h-[125%] w-auto max-w-[85%] sm:max-w-[80%] object-contain object-bottom filter drop-shadow-2xl"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              /* Fallback Cut-out Silhouette / Stylized Avatar when no photo */
+              <div className="relative h-[120%] w-[75%] sm:w-[70%] flex items-end justify-center pb-1">
+                <div className="w-full h-full flex flex-col items-center justify-center bg-white/20 backdrop-blur-md rounded-t-2xl text-white shadow-inner">
+                  <span className="text-3xl sm:text-4xl font-black text-white/90 tracking-wider drop-shadow-md">
+                    {emp.avatar || getInitials(emp.name)}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* On hover on the card: "Hear what they got to say ->" */}
+          <div className="absolute inset-x-3.5 bottom-3.5 z-30 opacity-0 group-hover:opacity-100 translate-y-1.5 group-hover:translate-y-0 transition-all duration-300 pointer-events-none flex items-center justify-between bg-[#042F61]/90 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-white/25 shadow-xl">
+            <span className="text-xs sm:text-[13px] font-bold text-white tracking-wide">
+              Hear what they got to say
+            </span>
+            <ArrowRight className="w-4 h-4 text-[#FDB913] group-hover:translate-x-1 transition-transform duration-200" />
+          </div>
+        </div>
+      </div>
+
+      {/* Employee Details Below Card (Left-Aligned, 24px font size for name) */}
+      <div className="mt-4 px-1 flex items-center justify-between text-left">
+        <div>
+          <h3 className="text-[#042F61] font-extrabold text-[24px] leading-tight tracking-tight group-hover:text-primary-light transition-colors duration-200">
+            {emp.name}
+          </h3>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium mt-1 leading-snug">
+            {emp.position}
+          </p>
+          {emp.subteam && emp.subteam !== emp.team && (
+            <span className="inline-block text-[11px] text-slate-400 font-medium uppercase tracking-wider mt-1">
+              {emp.subteam}
+            </span>
+          )}
+        </div>
+        <ChevronRight className="w-8 h-8 text-slate-300 group-hover:text-[#042F61] group-hover:translate-x-1 transition-all duration-200 shrink-0 stroke-[2.5]" />
+      </div>
+    </motion.div>
+  );
+};
 
 interface TeamDetailPageProps {
   slug: string;
@@ -215,6 +309,8 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
+  const heroTeamImage = useAssetUrl(team.image, undefined, team.id);
+
   return (
     <div className="min-h-screen bg-[#FAFAFA] font-sans pt-[135px] sm:pt-[140px] md:pt-[145px] lg:pt-[125px] xl:pt-[145px] 2xl:pt-[165px] pb-20 selection:bg-primary selection:text-white">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mt-[40px]">
@@ -234,7 +330,7 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
         <div className="relative rounded-3xl overflow-hidden bg-primary-dark text-white border border-slate-200/80 shadow-md mb-8">
           <div className="absolute inset-0 z-0">
             <img
-              src={team.image}
+              src={heroTeamImage}
               alt={team.imageAlt || team.name}
               className="w-full h-full object-cover object-center filter saturate-[1.05] opacity-75"
             />
@@ -299,93 +395,14 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
             <>
               {teamMembers.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
-                  {teamMembers.map((emp, index) => {
-                    const RoleIcon = getRoleIcon(emp.position, emp.team);
-                    return (
-                      <motion.div
-                        layout
-                        initial={{ opacity: 0, scale: 0.96, y: 15 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: -10 }}
-                        transition={{ delay: index * 0.03, duration: 0.35, ease: 'easeOut' }}
-                        key={emp.id}
-                        onClick={() => setSelectedMember(emp)}
-                        className="group flex flex-col cursor-pointer"
-                      >
-                        {/* Card Container with headroom for cut-out image pop-out */}
-                        <div className="relative pt-12 sm:pt-16">
-                          {/* Heavy Reflective Glass Dark Brand Blue Box without passive shadow & no yellow border */}
-                          <div className="relative bg-[#042F61]/75 backdrop-blur-2xl rounded-2xl aspect-[4/3.2] sm:aspect-[4/3.3] flex flex-col justify-between p-4 sm:p-5 overflow-visible group-hover:-translate-y-1 transition-all duration-300 shadow-none group-hover:shadow-[0_20px_40px_-8px_rgba(4,47,97,0.35)] border-0">
-                            
-                            {/* Inner Clipped Glass Background Container */}
-                            <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-                              {/* Heavy Glass Reflective Overlays */}
-                              {/* 1. Diagonal specular reflection sheet */}
-                              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.38)_0%,rgba(255,255,255,0.12)_25%,rgba(255,255,255,0.02)_45%,transparent_65%)]" />
-                              
-                              {/* 2. Soft bottom ambient depth shadow */}
-                              <div className="absolute bottom-0 inset-x-0 h-1/3 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                            </div>
-
-                            {/* Top Left: Role / Browser Icon based on job position (Brand blue icon in passive mode on frosted white badge, hover stays yellow) */}
-                            <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none">
-                              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/90 backdrop-blur-md border border-white/50 flex items-center justify-center text-[#042F61] shadow-sm group-hover:bg-[#FDB913] group-hover:text-[#042F61] group-hover:border-[#FDB913]/50 transition-all duration-300">
-                                <RoleIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
-                              </div>
-                            </div>
-
-                            {/* Foreground Overlaid Cut-Out Image / Avatar (100% height where blue box is 80%, top 20% sticks out smoothly) */}
-                            <div className="absolute inset-x-0 bottom-0 top-[-25%] z-10 flex items-end justify-center pointer-events-none overflow-visible">
-                              {emp.image_url ? (
-                                <img
-                                  src={emp.image_url}
-                                  alt={emp.name}
-                                  className="h-[125%] w-auto max-w-[85%] sm:max-w-[80%] object-contain object-bottom filter drop-shadow-2xl"
-                                  loading="lazy"
-                                  referrerPolicy="no-referrer"
-                                />
-                              ) : (
-                                /* Fallback Cut-out Silhouette / Stylized Avatar when no image_url */
-                                <div className="relative h-[120%] w-[75%] sm:w-[70%] flex items-end justify-center pb-1">
-                                  <div className="w-full h-full flex flex-col items-center justify-center bg-white/20 backdrop-blur-md rounded-t-2xl text-white shadow-inner">
-                                    <span className="text-3xl sm:text-4xl font-black text-white/90 tracking-wider drop-shadow-md">
-                                      {emp.avatar || getInitials(emp.name)}
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* On hover on the card: "Hear what they got to say ->" */}
-                            <div className="absolute inset-x-3.5 bottom-3.5 z-30 opacity-0 group-hover:opacity-100 translate-y-1.5 group-hover:translate-y-0 transition-all duration-300 pointer-events-none flex items-center justify-between bg-[#042F61]/90 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-white/25 shadow-xl">
-                              <span className="text-xs sm:text-[13px] font-bold text-white tracking-wide">
-                                Hear what they got to say
-                              </span>
-                              <ArrowRight className="w-4 h-4 text-[#FDB913] group-hover:translate-x-1 transition-transform duration-200" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Employee Details Below Card (Left-Aligned, 24px font size for name) */}
-                        <div className="mt-4 px-1 flex items-center justify-between text-left">
-                          <div>
-                            <h3 className="text-[#042F61] font-extrabold text-[24px] leading-tight tracking-tight group-hover:text-primary-light transition-colors duration-200">
-                              {emp.name}
-                            </h3>
-                            <p className="text-slate-500 text-xs sm:text-sm font-medium mt-1 leading-snug">
-                              {emp.position}
-                            </p>
-                            {emp.subteam && emp.subteam !== emp.team && (
-                              <span className="inline-block text-[11px] text-slate-400 font-medium uppercase tracking-wider mt-1">
-                                {emp.subteam}
-                              </span>
-                            )}
-                          </div>
-                          <ChevronRight className="w-8 h-8 text-slate-300 group-hover:text-[#042F61] group-hover:translate-x-1 transition-all duration-200 shrink-0 stroke-[2.5]" />
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                  {teamMembers.map((emp, index) => (
+                    <TeamMemberCard
+                      key={emp.id}
+                      emp={emp}
+                      index={index}
+                      onSelect={setSelectedMember}
+                    />
+                  ))}
                 </div>
               ) : (
                 <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center max-w-lg mx-auto shadow-sm">
