@@ -1,6 +1,5 @@
 import React from 'react';
 import { TeamInfo } from './types';
-import { useAssetUrl } from '../../utils/assetManager';
 import { 
   BookOpen, 
   Compass, 
@@ -66,8 +65,6 @@ export const TeamCard: React.FC<TeamCardProps> = ({
     return 'object-center';
   };
 
-  const resolvedImageUrl = useAssetUrl(team.image, undefined, team.id);
-
   return (
     <div
       style={{
@@ -91,7 +88,7 @@ export const TeamCard: React.FC<TeamCardProps> = ({
     >
       {/* Background Image with smooth zoom and grayscale -> natural full-color on hover */}
       <img
-        src={resolvedImageUrl}
+        src={team.image}
         alt={team.imageAlt || team.name}
         className={`absolute inset-0 w-full h-full object-cover ${getImagePositionClass()} transition-all duration-500 ease-out transform-gpu ${
           isActive 

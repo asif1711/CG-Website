@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TEAMS_DATA } from './components/Teams/teamData';
 import { getTeamIcon } from './components/Teams/TeamCard';
-import { useAssetUrl } from './utils/assetManager';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -98,7 +97,6 @@ interface TeamMemberCardProps {
 
 const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ emp, index, onSelect }) => {
   const RoleIcon = getRoleIcon(emp.position, emp.team);
-  const resolvedPhotoUrl = useAssetUrl(emp.image_url || '', undefined, emp.employee_id || String(emp.id));
 
   return (
     <motion.div
@@ -132,9 +130,9 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ emp, index, onSelect })
 
           {/* Foreground Overlaid Cut-Out Image / Avatar */}
           <div className="absolute inset-x-0 bottom-0 top-[-25%] z-10 flex items-end justify-center pointer-events-none overflow-visible">
-            {resolvedPhotoUrl ? (
+            {emp.image_url ? (
               <img
-                src={resolvedPhotoUrl}
+                src={emp.image_url}
                 alt={emp.name}
                 className="h-[125%] w-auto max-w-[85%] sm:max-w-[80%] object-contain object-bottom filter drop-shadow-2xl"
                 loading="lazy"
@@ -309,8 +307,6 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
-  const heroTeamImage = useAssetUrl(team.image, undefined, team.id);
-
   return (
     <div className="min-h-screen bg-[#FAFAFA] font-sans pt-[135px] sm:pt-[140px] md:pt-[145px] lg:pt-[125px] xl:pt-[145px] 2xl:pt-[165px] pb-20 selection:bg-primary selection:text-white">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mt-[40px]">
@@ -330,7 +326,7 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
         <div className="relative rounded-3xl overflow-hidden bg-primary-dark text-white border border-slate-200/80 shadow-md mb-8">
           <div className="absolute inset-0 z-0">
             <img
-              src={heroTeamImage}
+              src={team.image}
               alt={team.imageAlt || team.name}
               className="w-full h-full object-cover object-center filter saturate-[1.05] opacity-75"
             />

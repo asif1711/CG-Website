@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { TEAMS_DATA } from './teamData';
 import { TeamCard, getTeamIcon } from './TeamCard';
+import { TeamInfo } from './types';
 import { ArrowRight, UserCheck, ArrowUpRight } from 'lucide-react';
 
 interface DotGridProps {
@@ -49,6 +50,74 @@ const DotGrid: React.FC<DotGridProps> = ({
         ))
       )}
     </svg>
+  );
+};
+
+interface MobileTeamCardProps {
+  team: TeamInfo;
+  onClick: (slug: string) => void;
+}
+
+const MobileTeamCard: React.FC<MobileTeamCardProps> = ({ team, onClick }) => {
+  const TeamIcon = getTeamIcon(team.id);
+  const imagePositionClass = 
+    team.id === 'consultant-team' 
+      ? 'object-right' 
+      : team.id === 'human-strategy-team' 
+      ? 'object-left' 
+      : 'object-center';
+
+  return (
+    <div
+      onClick={() => onClick(team.slug)}
+      className="relative h-[320px] sm:h-[350px] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer shadow-sm border border-slate-200/80 transition-all duration-300 group hover:border-primary hover:shadow-lg"
+      role="link"
+      aria-label={`View ${team.name}`}
+    >
+      {/* Background Image with grayscale -> natural full-color on hover */}
+      <img
+        src={team.image}
+        alt={team.imageAlt || team.name}
+        className={`absolute inset-0 w-full h-full object-cover ${imagePositionClass} filter grayscale contrast-[1.05] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500`}
+        loading="lazy"
+        decoding="async"
+      />
+
+      {/* Neutral bottom scrim for clean, crisp text legibility (no blue gradient overlay) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 via-35% to-transparent pointer-events-none" />
+
+      {/* Brand Premium Blue Border on Hover */}
+      <div 
+        className="absolute inset-0 rounded-2xl sm:rounded-3xl pointer-events-none transition-all duration-500 opacity-0 group-hover:opacity-100 border-2 border-primary z-[5]"
+      />
+
+      {/* Overlaid Content */}
+      <div className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between z-10 text-white">
+        {/* Top: Custom SVG Team Icon Badge + Tooltip helper */}
+        <div className="flex items-center justify-between gap-2">
+          <div 
+            className="inline-flex items-center justify-center w-8 h-8 rounded-full shadow-sm transition-all duration-300 border flex-shrink-0 bg-primary text-white border-white/20 group-hover:bg-accent group-hover:text-primary group-hover:border-accent/40"
+            title={team.category}
+          >
+            <TeamIcon className="w-4 h-4" />
+          </div>
+
+          <div className="inline-flex items-center gap-1 text-white/80 text-[11px] font-medium tracking-wide">
+            <span>Click to view team</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-accent" />
+          </div>
+        </div>
+
+        <div>
+          <h3 className="font-bold text-lg sm:text-xl text-white leading-tight tracking-tight drop-shadow-sm mb-1.5 group-hover:text-accent transition-colors">
+            {team.name}
+          </h3>
+          <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-normal line-clamp-3 drop-shadow-sm mt-1">
+            {team.description}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -243,69 +312,13 @@ export const TeamsSection: React.FC = () => {
 
           {/* MOBILE / TABLET ADAPTIVE GALLERY (Single Overlay Cards) */}
           <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 relative z-[1]">
-            {TEAMS_DATA.map((team) => {
-              const TeamIcon = getTeamIcon(team.id);
-              const imagePositionClass = 
-                team.id === 'consultant-team' 
-                  ? 'object-right' 
-                  : team.id === 'human-strategy-team' 
-                  ? 'object-left' 
-                  : 'object-center';
-
-              return (
-                <div
-                  key={team.id}
-                  onClick={() => handleCardClick(team.slug)}
-                  className="relative h-[320px] sm:h-[350px] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer shadow-sm border border-slate-200/80 transition-all duration-300 group hover:border-primary hover:shadow-lg"
-                  role="link"
-                  aria-label={`View ${team.name}`}
-                >
-                  {/* Background Image with grayscale -> natural full-color on hover */}
-                  <img
-                    src={team.image}
-                    alt={team.imageAlt || team.name}
-                    className={`absolute inset-0 w-full h-full object-cover ${imagePositionClass} filter grayscale contrast-[1.05] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500`}
-                    loading="lazy"
-                    decoding="async"
-                  />
-
-                  {/* Neutral bottom scrim for clean, crisp text legibility (no blue gradient overlay) */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 via-35% to-transparent pointer-events-none" />
-
-                  {/* Brand Premium Blue Border on Hover */}
-                  <div 
-                    className="absolute inset-0 rounded-2xl sm:rounded-3xl pointer-events-none transition-all duration-500 opacity-0 group-hover:opacity-100 border-2 border-primary z-[5]"
-                  />
-
-                  {/* Overlaid Content */}
-                  <div className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between z-10 text-white">
-                    {/* Top: Custom SVG Team Icon Badge + Tooltip helper */}
-                    <div className="flex items-center justify-between gap-2">
-                      <div 
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-full shadow-sm transition-all duration-300 border flex-shrink-0 bg-primary text-white border-white/20 group-hover:bg-accent group-hover:text-primary group-hover:border-accent/40"
-                        title={team.category}
-                      >
-                        <TeamIcon className="w-4 h-4" />
-                      </div>
-
-                      <div className="inline-flex items-center gap-1 text-white/80 text-[11px] font-medium tracking-wide">
-                        <span>Click to view team</span>
-                        <ArrowUpRight className="w-3.5 h-3.5 text-accent" />
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-bold text-lg sm:text-xl text-white leading-tight tracking-tight drop-shadow-sm mb-1.5 group-hover:text-accent transition-colors">
-                        {team.name}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-normal line-clamp-3 drop-shadow-sm mt-1">
-                        {team.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {TEAMS_DATA.map((team) => (
+              <MobileTeamCard
+                key={team.id}
+                team={team}
+                onClick={handleCardClick}
+              />
+            ))}
           </div>
         </div>
 
