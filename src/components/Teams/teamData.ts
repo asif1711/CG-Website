@@ -89,7 +89,7 @@ export const TEAMS_DATA: TeamInfo[] = [
     slug: '/our-people/marketing-team',
     category: 'MARKETING TEAM',
     name: 'Marketing Team',
-    description: 'Telling our story, connecting with our audience, and creating campaigns that inspire action.',
+    description: 'Building our brand, engaging our audience, and creating meaningful connections.',
     image: 'https://chelsongordon.com/wp-content/uploads/2026/05/marketing.webp',
     imageAlt: 'Marketing Strategist',
     row: 2,

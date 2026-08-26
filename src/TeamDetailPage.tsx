@@ -21,42 +21,69 @@ import {
   Megaphone,
   Video,
   Camera,
+  Film,
+  Clapperboard,
   PenTool,
   LineChart,
   Briefcase
 } from 'lucide-react';
 import { EMPLOYEES_FLAT_DATA, getInitials } from './orgData';
 
-// Helper to determine role-based icon (e.g. Browser/Globe for Web Designers/Developers)
+// Helper to determine role-based icon (e.g. Clapperboard/Film for Media Production, Globe for Web Designers/Developers)
 const getRoleIcon = (position: string, team?: string) => {
   const p = (position || '').toLowerCase();
   const t = (team || '').toLowerCase();
 
-  if (p.includes('web') || p.includes('design') || p.includes('ui') || p.includes('ux') || p.includes('frontend') || p.includes('front-end') || p.includes('site')) {
+  // 1. Media Production / Video / Film / Editor / Motion
+  if (
+    p.includes('media') ||
+    p.includes('production') ||
+    p.includes('video') ||
+    p.includes('film') ||
+    p.includes('movie') ||
+    p.includes('editor') ||
+    p.includes('motion') ||
+    p.includes('animation')
+  ) {
+    return Clapperboard; // Movie / Editor / Media Production icon
+  }
+
+  // 2. Web & UI/UX Design / Development
+  if (p.includes('web') || p.includes('ui') || p.includes('ux') || p.includes('frontend') || p.includes('front-end') || p.includes('site')) {
     return Globe; // Browser / Web icon
   }
+
+  // 3. Software & Tech Development
   if (p.includes('code') || p.includes('dev') || p.includes('engineer') || p.includes('software') || p.includes('tech')) {
     return Code;
   }
-  if (p.includes('market') || p.includes('seo') || p.includes('social') || p.includes('brand') || p.includes('growth') || t.includes('marketing')) {
-    return Megaphone;
-  }
-  if (p.includes('video') || p.includes('film') || p.includes('animation') || p.includes('motion')) {
-    return Video;
-  }
-  if (p.includes('photo') || p.includes('camera') || p.includes('media')) {
+
+  // 4. Photography
+  if (p.includes('photo') || p.includes('camera')) {
     return Camera;
   }
-  if (p.includes('content') || p.includes('writer') || p.includes('copy') || p.includes('editor')) {
+
+  // 5. Visual / Graphic Design
+  if (p.includes('art') || p.includes('design') || p.includes('graphic') || p.includes('creative') || p.includes('illustrat')) {
+    return Palette;
+  }
+
+  // 6. Content & Copywriting
+  if (p.includes('content') || p.includes('writer') || p.includes('copy')) {
     return PenTool;
   }
+
+  // 7. Data Analytics & Research
   if (p.includes('data') || p.includes('analyst') || p.includes('research') || p.includes('metric')) {
     return LineChart;
   }
-  if (p.includes('art') || p.includes('graphic') || p.includes('creative') || p.includes('illustrat')) {
-    return Palette;
+
+  // 8. Marketing, Social Media, SEO, Growth (or team fallback)
+  if (p.includes('market') || p.includes('seo') || p.includes('social') || p.includes('brand') || p.includes('growth') || t.includes('marketing')) {
+    return Megaphone;
   }
-  return Globe; // Default browser / web icon
+
+  return Globe; // Default icon
 };
 
 interface WordPressTeamMember {
@@ -92,11 +119,31 @@ interface TeamMemberDisplay {
 interface TeamMemberCardProps {
   emp: TeamMemberDisplay;
   index: number;
-  onSelect: (emp: TeamMemberDisplay) => void;
+  onSelect: (emp: TeamMemberDisplay, origin: 'left' | 'center' | 'right') => void;
 }
 
 const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ emp, index, onSelect }) => {
   const RoleIcon = getRoleIcon(emp.position, emp.team);
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    let origin: 'left' | 'center' | 'right' = 'center';
+    
+    // In desktop mode (>= 1024px), determine relative position on screen
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const cardCenter = rect.left + rect.width / 2;
+      const screenThird = window.innerWidth / 3;
+
+      if (cardCenter < screenThird) {
+        origin = 'left';
+      } else if (cardCenter > screenThird * 2) {
+        origin = 'right';
+      } else {
+        origin = 'center';
+      }
+    }
+    onSelect(emp, origin);
+  };
 
   return (
     <motion.div
@@ -106,7 +153,7 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ emp, index, onSelect })
       exit={{ opacity: 0, scale: 0.9, y: -10 }}
       transition={{ delay: index * 0.03, duration: 0.35, ease: 'easeOut' }}
       key={emp.id}
-      onClick={() => onSelect(emp)}
+      onClick={handleClick}
       className="group flex flex-col cursor-pointer"
     >
       {/* Card Container with headroom for cut-out image pop-out */}
@@ -155,7 +202,11 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ emp, index, onSelect })
             <span className="text-xs sm:text-[13px] font-bold text-white tracking-wide">
               Hear what they got to say
             </span>
-            <ArrowRight className="w-4 h-4 text-[#FDB913] group-hover:translate-x-1 transition-transform duration-200" />
+            <ArrowRight 
+              className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform duration-200" 
+              stroke="#ffffff" 
+              strokeWidth={3} 
+            />
           </div>
         </div>
       </div>
@@ -197,6 +248,12 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [selectedMember, setSelectedMember] = useState<TeamMemberDisplay | null>(null);
+  const [modalOrigin, setModalOrigin] = useState<'left' | 'center' | 'right'>('center');
+
+  const handleSelectMember = (emp: TeamMemberDisplay, origin: 'left' | 'center' | 'right') => {
+    setModalOrigin(origin);
+    setSelectedMember(emp);
+  };
 
   useEffect(() => {
     const originalTitle = document.title;
@@ -350,7 +407,9 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
               Team Members
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm font-medium mt-1">
-              Meet the specialists driving excellence in this division.
+              {team.id === 'marketing-team' || team.id.includes('marketing')
+                ? 'Meet the creative minds shaping our brand and connecting us with our audience.'
+                : 'Meet the specialists driving excellence in this division.'}
             </p>
           </div>
 
@@ -396,7 +455,7 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
                       key={emp.id}
                       emp={emp}
                       index={index}
-                      onSelect={setSelectedMember}
+                      onSelect={handleSelectMember}
                     />
                   ))}
                 </div>
@@ -453,9 +512,24 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
 
             {/* Pop-up Card */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 16 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 16 }}
+              initial={{
+                opacity: 0,
+                scale: 0.94,
+                y: 16,
+                x: modalOrigin === 'left' ? -60 : modalOrigin === 'right' ? 60 : 0
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                x: 0
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.94,
+                y: 16,
+                x: modalOrigin === 'left' ? -40 : modalOrigin === 'right' ? 40 : 0
+              }}
               transition={{ type: 'spring', damping: 26, stiffness: 280 }}
               className="relative w-full max-w-xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden my-auto flex flex-col z-[1002] max-h-[90vh]"
             >
