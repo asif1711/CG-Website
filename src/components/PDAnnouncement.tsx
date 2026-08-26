@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Info } from 'lucide-react';
 
 interface PDPoint {
   id: string;
@@ -176,7 +176,7 @@ export const PDAnnouncement: React.FC = () => {
                 Build <span className="font-accent font-bold text-[#042F61]">skills</span>, grow your <span className="font-accent font-bold text-[#042F61]">expertise</span>, and advance your <span className="font-accent font-bold text-[#042F61]">career</span>.
               </p>
 
-              {/* Action Button with matching text & SVG colors and uppercase label */}
+              {/* Action Buttons with matching text & SVG colors and uppercase label */}
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <motion.a
                   href="https://chelsongordon.com/book-a-pd-session/"
@@ -188,6 +188,16 @@ export const PDAnnouncement: React.FC = () => {
                 >
                   <span>JOIN NOW</span>
                   <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
+                </motion.a>
+
+                <motion.a
+                  href="mailto:professionaldevelopment@chelsongordon.com?subject=Enquiry%20about%20"
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-full bg-white hover:bg-slate-50 text-[#042F61] hover:text-[#0072CE] font-bold text-sm uppercase tracking-wider border border-slate-300 shadow-sm transition-all duration-200 group"
+                >
+                  <Info className="w-4 h-4 text-[#042F61] group-hover:text-[#0072CE] transition-colors" />
+                  <span>GET MORE INFO</span>
                 </motion.a>
               </div>
             </motion.div>
