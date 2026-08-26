@@ -217,7 +217,7 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] font-sans pt-[135px] sm:pt-[140px] md:pt-[145px] lg:pt-[125px] xl:pt-[145px] 2xl:pt-[165px] pb-20 selection:bg-primary selection:text-white">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mt-[40px]">
         
         {/* Navigation Breadcrumb */}
         <div className="mb-6 pt-2 flex items-center justify-start">

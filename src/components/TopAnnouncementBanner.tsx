@@ -25,7 +25,7 @@ export const TopAnnouncementBanner: React.FC<TopAnnouncementBannerProps> = ({ is
   return (
     <aside 
       aria-label="Professional Development Announcement"
-      className={`w-full relative z-50 transition-colors duration-500 overflow-hidden select-none border-b ${
+      className={`w-full group relative z-50 transition-colors duration-500 overflow-hidden select-none border-b ${
         isScrolled 
           ? 'bg-[#021A38] border-white/10' 
           : 'bg-[#01142B]/90 border-white/10 backdrop-blur-md'
@@ -44,6 +44,15 @@ export const TopAnnouncementBanner: React.FC<TopAnnouncementBannerProps> = ({ is
         className="absolute inset-0 bg-[radial-gradient(ellipse_70%_120%_at_50%_0%,rgba(56,189,248,0.08),transparent_80%)] pointer-events-none" 
       />
 
+      {/* Hover Shine Sweep Effect from Left to Right */}
+      <div 
+        className="absolute inset-y-0 -left-[100%] w-[100%] bg-gradient-to-r from-transparent via-white/20 via-cyan-200/25 to-transparent -skew-x-[25deg] pointer-events-none transition-transform duration-1000 ease-out group-hover:translate-x-[300%]" 
+      />
+      {/* Secondary Crisp Core Specular Beam */}
+      <div 
+        className="absolute inset-y-0 -left-[100%] w-[40%] bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-[25deg] pointer-events-none transition-transform duration-1000 ease-out delay-75 group-hover:translate-x-[500%]" 
+      />
+
       <a
         href="#pd-announcement"
         onClick={handleClick}
@@ -55,7 +64,7 @@ export const TopAnnouncementBanner: React.FC<TopAnnouncementBannerProps> = ({ is
         </span>
 
         <motion.span 
-          className="inline-flex items-center text-sky-400 group-hover:text-sky-300 transition-colors"
+          className="inline-flex items-center text-white/90 group-hover:text-white transition-colors"
           initial={{ x: 0 }}
           whileHover={{ x: 3 }}
         >
