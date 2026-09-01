@@ -92,18 +92,64 @@ export default function HrDashboardPage({ initialRole, onNavigateHome }: HrDashb
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
 
-  // Role Detection: Check WordPress body classes or window context with preview toggle
-  const [userRole, setUserRole] = useState<'admin' | 'hr'>(() => {
+  // Role Detection: Automatically detect role from WordPress environment (window.cgHRDashboard, body classes, or window.CG_USER_ROLE)
+  const detectUserRole = (): 'admin' | 'hr' => {
     if (initialRole) return initialRole;
+
+    if (typeof window !== 'undefined') {
+      const wpConfig = (window as any).cgHRDashboard;
+      if (wpConfig) {
+        if (
+          wpConfig.isAdmin === true || 
+          wpConfig.role === 'admin' || 
+          wpConfig.role === 'administrator' || 
+          wpConfig.userRole === 'admin' || 
+          wpConfig.userRole === 'administrator'
+        ) {
+          return 'admin';
+        }
+        if (
+          wpConfig.role === 'hr' || 
+          wpConfig.role === 'human_resources' || 
+          wpConfig.userRole === 'hr' || 
+          wpConfig.userRole === 'human_resources'
+        ) {
+          return 'hr';
+        }
+      }
+
+      if ((window as any).CG_USER_ROLE) {
+        const role = String((window as any).CG_USER_ROLE).toLowerCase();
+        return (role === 'admin' || role === 'administrator') ? 'admin' : 'hr';
+      }
+    }
+
     if (typeof document !== 'undefined') {
-      if (document.body.classList.contains('cg-user-admin')) return 'admin';
-      if (document.body.classList.contains('cg-user-hr')) return 'hr';
+      if (
+        document.body.classList.contains('cg-user-admin') ||
+        document.body.classList.contains('administrator') ||
+        document.body.classList.contains('role-administrator')
+      ) {
+        return 'admin';
+      }
+      if (
+        document.body.classList.contains('cg-user-hr') ||
+        document.body.classList.contains('role-hr') ||
+        document.body.classList.contains('hr')
+      ) {
+        return 'hr';
+      }
     }
-    if (typeof window !== 'undefined' && (window as any).CG_USER_ROLE) {
-      return (window as any).CG_USER_ROLE === 'admin' ? 'admin' : 'hr';
-    }
-    return 'admin'; // Default for sandbox preview
-  });
+
+    return 'hr'; // Default role for standard HR portal
+  };
+
+  const [userRole, setUserRole] = useState<'admin' | 'hr'>(() => detectUserRole());
+
+  // Re-evaluate role if initialRole or window globals update
+  useEffect(() => {
+    setUserRole(detectUserRole());
+  }, [initialRole]);
 
   const selectAllCheckboxRef = useRef<HTMLInputElement>(null);
 
@@ -395,42 +441,8 @@ export default function HrDashboardPage({ initialRole, onNavigateHome }: HrDashb
               </a>
             </div>
 
-            {/* Right Controls: Role Preview Toggle & Logout */}
+            {/* Right Controls: Refresh & Logout */}
             <div className="flex items-center gap-3 sm:gap-4">
-              {/* Preview Role Switcher (Allows testing Admin vs HR capabilities easily) */}
-              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setUserRole('hr')}
-                  className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                    userRole === 'hr'
-                      ? 'bg-white text-[#042F61] shadow-xs font-bold'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                  title="View as Human Resources (Standard 5-column table)"
-                >
-                  <span className="flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5" />
-                    HR View
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUserRole('admin')}
-                  className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                    userRole === 'admin'
-                      ? 'bg-white text-[#042F61] shadow-xs font-bold'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                  title="View as Administrator (Includes Admin-only Website column)"
-                >
-                  <span className="flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#042F61]" />
-                    Admin View
-                  </span>
-                </button>
-              </div>
-
               {/* Refresh data button */}
               <button
                 type="button"
