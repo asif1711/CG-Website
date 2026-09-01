@@ -38,6 +38,7 @@ const OrgChart = ((import.meta as any).env?.DEV)
 import OurTeamsPage from "./OurTeamsPage";
 import OurPeoplePage from "./OurPeoplePage";
 import TeamDetailPage from "./TeamDetailPage";
+import HrDashboardPage from "./components/HRDashboard/HrDashboardPage";
 import WorldMapGraphic from "./components/WorldMapGraphic";
 import Testimonials from "./components/Testimonials";
 import { PDAnnouncement } from "./components/PDAnnouncement";
@@ -1770,8 +1771,11 @@ export default function App() {
   );
 
   const isOrgChartPage = ((import.meta as any).env?.DEV) && currentHash === '#org-chart';
+  const isHrDashboardPage = 
+    normalizedCurrentPath === '/hr-dashboard' ||
+    currentHash === '#hr-dashboard';
   const isOurPeoplePage = 
-    !isTeamDetailPage && (
+    !isTeamDetailPage && !isHrDashboardPage && (
       normalizedCurrentPath === '/our-people' || 
       normalizedCurrentPath === '/our-teams' || 
       [
@@ -1783,10 +1787,28 @@ export default function App() {
 
   return (
     <div className="font-sans">
-      <Navbar forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage} />
+      {!isHrDashboardPage && (
+        <Navbar forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage} />
+      )}
       <main>
         <AnimatePresence mode="wait">
-          {isOrgChartPage ? (
+          {isHrDashboardPage ? (
+            <motion.div
+              key="hr-dashboard-page"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <HrDashboardPage 
+                onNavigateHome={() => {
+                  window.history.pushState({}, '', '/');
+                  window.dispatchEvent(new Event('popstate'));
+                  window.scrollTo({ top: 0, behavior: 'instant' });
+                }}
+              />
+            </motion.div>
+          ) : isOrgChartPage ? (
             <motion.div
               key="org-chart-page"
               initial={{ opacity: 0, y: 15 }}
@@ -1848,7 +1870,7 @@ export default function App() {
           )}
         </AnimatePresence>
       </main>
-      <Footer />
+      {!isHrDashboardPage && <Footer />}
 
       {/* Secret Signature Easter Egg Modal */}
       <AnimatePresence>
