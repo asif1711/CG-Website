@@ -92,19 +92,41 @@ export default function HrDashboardPage({ initialRole, onNavigateHome }: HrDashb
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
 
-  // Role Detection: Automatically detect role from WordPress environment (window.cgHRDashboard, body classes, or window.CG_USER_ROLE)
+  // Role Detection: Automatically detect role from WordPress environment
   const detectUserRole = (): 'admin' | 'hr' => {
     if (initialRole) return initialRole;
 
     if (typeof window !== 'undefined') {
+      // 1. Check URL query params for testing / preview override
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const roleParam = params.get('role') || params.get('user_role') || params.get('cg_role');
+        if (roleParam) {
+          const lower = roleParam.toLowerCase();
+          if (lower === 'admin' || lower === 'administrator') return 'admin';
+          if (lower === 'hr' || lower === 'human_resources') return 'hr';
+        }
+      } catch {
+        // ignore search params error
+      }
+
+      // 2. Check window.cgHRDashboard localized object
       const wpConfig = (window as any).cgHRDashboard;
       if (wpConfig) {
         if (
           wpConfig.isAdmin === true || 
+          wpConfig.isAdmin === 'true' ||
+          wpConfig.isAdmin === 1 ||
+          wpConfig.is_admin === true ||
+          wpConfig.is_admin === 'true' ||
+          wpConfig.is_admin === 1 ||
+          wpConfig.canManageOptions === true ||
+          wpConfig.can_manage_options === true ||
           wpConfig.role === 'admin' || 
           wpConfig.role === 'administrator' || 
           wpConfig.userRole === 'admin' || 
-          wpConfig.userRole === 'administrator'
+          wpConfig.userRole === 'administrator' ||
+          (Array.isArray(wpConfig.roles) && (wpConfig.roles.includes('administrator') || wpConfig.roles.includes('admin')))
         ) {
           return 'admin';
         }
@@ -112,26 +134,56 @@ export default function HrDashboardPage({ initialRole, onNavigateHome }: HrDashb
           wpConfig.role === 'hr' || 
           wpConfig.role === 'human_resources' || 
           wpConfig.userRole === 'hr' || 
-          wpConfig.userRole === 'human_resources'
+          wpConfig.userRole === 'human_resources' ||
+          (Array.isArray(wpConfig.roles) && (wpConfig.roles.includes('hr') || wpConfig.roles.includes('human_resources')))
         ) {
           return 'hr';
         }
       }
 
+      // 3. Check window.CG_USER_ROLE or window.wpApiSettings
       if ((window as any).CG_USER_ROLE) {
         const role = String((window as any).CG_USER_ROLE).toLowerCase();
         return (role === 'admin' || role === 'administrator') ? 'admin' : 'hr';
       }
+      if ((window as any).wpApiSettings?.isAdmin || (window as any).wpApiSettings?.is_admin) {
+        return 'admin';
+      }
     }
 
     if (typeof document !== 'undefined') {
+      // 4. Check mount container data attributes (e.g. data-role="admin", data-is-admin="true")
+      const container = document.querySelector('#cg-employee-dashboard, #hr-dashboard-app, #hr-dashboard-root, #root');
+      if (container instanceof HTMLElement) {
+        const dsRole = container.dataset.role || container.dataset.userRole;
+        if (dsRole && (dsRole.toLowerCase() === 'admin' || dsRole.toLowerCase() === 'administrator')) {
+          return 'admin';
+        }
+        if (container.dataset.isAdmin === 'true' || container.dataset.admin === 'true') {
+          return 'admin';
+        }
+      }
+
+      // 5. Check body classes
+      const bClass = document.body.className || '';
       if (
         document.body.classList.contains('cg-user-admin') ||
         document.body.classList.contains('administrator') ||
-        document.body.classList.contains('role-administrator')
+        document.body.classList.contains('role-administrator') ||
+        document.body.classList.contains('role-admin') ||
+        bClass.includes('administrator') ||
+        bClass.includes('cg-user-admin')
       ) {
         return 'admin';
       }
+
+      // 6. Check if WordPress admin bar is present for logged in administrator
+      const wpAdminBar = document.getElementById('wpadminbar');
+      const hasAdminBar = document.body.classList.contains('admin-bar') || !!wpAdminBar;
+      if (hasAdminBar && !document.body.classList.contains('cg-user-hr') && !document.body.classList.contains('role-hr')) {
+        return 'admin';
+      }
+
       if (
         document.body.classList.contains('cg-user-hr') ||
         document.body.classList.contains('role-hr') ||
@@ -141,7 +193,7 @@ export default function HrDashboardPage({ initialRole, onNavigateHome }: HrDashb
       }
     }
 
-    return 'hr'; // Default role for standard HR portal
+    return 'hr'; // Default fallback
   };
 
   const [userRole, setUserRole] = useState<'admin' | 'hr'>(() => detectUserRole());
@@ -200,8 +252,50 @@ export default function HrDashboardPage({ initialRole, onNavigateHome }: HrDashb
     setIsRefreshing(false);
   };
 
+  // Fetch pending offboarding employees from WordPress REST API
+  const fetchPendingOffboarding = async () => {
+    const wpConfig = typeof window !== 'undefined' ? (window as any).cgHRDashboard : null;
+    if (!wpConfig || !wpConfig.restUrl || !wpConfig.nonce) {
+      return;
+    }
+
+    const baseUrl = wpConfig.restUrl.endsWith('/') 
+      ? wpConfig.restUrl 
+      : `${wpConfig.restUrl}/`;
+    const endpoint = `${baseUrl}offboarding-requests`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+          'X-WP-Nonce': wpConfig.nonce
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned status ${response.status} (${response.statusText})`);
+      }
+
+      const data = await response.json();
+
+      if (data && data.success && Array.isArray(data.pending_employees)) {
+        const uniquePendingIds = new Set<string | number>();
+        data.pending_employees.forEach((emp: { id?: number | string }) => {
+          if (emp && emp.id !== undefined && emp.id !== null) {
+            uniquePendingIds.add(emp.id);
+          }
+        });
+        setPendingOffboardingIds(uniquePendingIds);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch pending offboarding requests:', err);
+    }
+  };
+
   useEffect(() => {
     fetchEmployees();
+    fetchPendingOffboarding();
   }, []);
 
   // Update page title dynamically
@@ -446,7 +540,10 @@ export default function HrDashboardPage({ initialRole, onNavigateHome }: HrDashb
               {/* Refresh data button */}
               <button
                 type="button"
-                onClick={() => fetchEmployees(false)}
+                onClick={() => {
+                  fetchEmployees(false);
+                  fetchPendingOffboarding();
+                }}
                 disabled={isRefreshing}
                 className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                 title="Refresh Employee Data from WordPress REST API"

@@ -63,10 +63,15 @@ function initHrDashboard() {
 
   mountElement.dataset.cgInitialized = 'true';
 
+  const roleAttr = mountElement.dataset.role || mountElement.dataset.userRole;
+  const initialRole = (roleAttr === 'admin' || roleAttr === 'administrator' || mountElement.dataset.isAdmin === 'true')
+    ? 'admin'
+    : (roleAttr === 'hr' ? 'hr' : undefined);
+
   const root = createRoot(mountElement);
   root.render(
     <StrictMode>
-      <HrDashboardPage />
+      <HrDashboardPage initialRole={initialRole} />
     </StrictMode>
   );
 }
