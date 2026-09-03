@@ -8,23 +8,16 @@ import {
   Sparkles, 
   Calendar, 
   Clock, 
-  CheckCircle2, 
-  Award, 
   X, 
   ExternalLink, 
   ChevronRight, 
   ChevronLeft,
-  TrendingUp,
-  BookOpen, 
-  GraduationCap,
-  Send,
-  Building,
-  User,
-  Mail,
-  Phone,
-  FileText
+  ChevronDown,
+  MessageSquare,
+  Globe
 } from 'lucide-react';
 import { WordPressPDSession } from '../PDAnnouncement';
+import { CertificateVerificationCard } from './CertificateVerificationCard';
 
 /**
  * Custom Mail Arrow icon representing an outgoing email message (Envelope + Arrow Up Right)
@@ -108,6 +101,37 @@ const getTodayDateString = (): string => {
   return `${year}-${month}-${day}`;
 };
 
+/**
+ * Render topic title with clean line break after dash if present
+ */
+const renderTopicTitle = (title: string) => {
+  const decoded = decodeHtmlEntities(title);
+  const dashMatch = decoded.match(/^(.*?)\s*[-–—]\s*(.*)$/);
+
+  if (dashMatch) {
+    const before = dashMatch[1].trim();
+    const after = dashMatch[2].trim();
+    return (
+      <div className="font-sans leading-snug">
+        <span className="text-xs sm:text-[13px] font-bold text-white group-hover:text-[#FDB913] transition-colors block leading-tight">
+          {before}
+        </span>
+        <span className="text-[11px] sm:text-xs font-medium text-sky-100/90 group-hover:text-white transition-colors block mt-0.5 leading-snug">
+          {after}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="font-sans leading-snug">
+      <span className="text-xs sm:text-[13px] font-bold text-white group-hover:text-[#FDB913] transition-colors block leading-tight">
+        {decoded}
+      </span>
+    </div>
+  );
+};
+
 // Fallback Upcoming Sessions (> current date)
 const FALLBACK_UPCOMING_SESSIONS: WordPressPDSession[] = [
   {
@@ -185,61 +209,38 @@ const FALLBACK_PAST_SESSIONS: WordPressPDSession[] = [
     date: "2026-07-17",
     time: "03:00 PM AEST",
     url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  }
-];
-
-// Dummy comparative engagement metrics per past session
-interface PastSessionComparisonData {
-  thisAttendance: number;
-  prevAttendance: number;
-  growthPct: string;
-  engagementRate: string;
-  satisfactionRate: string;
-  qaInteractions: number;
-  thisCurve: number[];
-  prevCurve: number[];
-}
-
-const PAST_COMPARISONS: PastSessionComparisonData[] = [
-  {
-    thisAttendance: 148,
-    prevAttendance: 124,
-    growthPct: '+19.4%',
-    engagementRate: '97.4%',
-    satisfactionRate: '98.6%',
-    qaInteractions: 84,
-    thisCurve: [62, 118, 142, 148, 145, 142],
-    prevCurve: [45, 92, 118, 124, 120, 116]
   },
   {
-    thisAttendance: 136,
-    prevAttendance: 112,
-    growthPct: '+21.4%',
-    engagementRate: '96.2%',
-    satisfactionRate: '97.8%',
-    qaInteractions: 76,
-    thisCurve: [55, 104, 130, 136, 134, 131],
-    prevCurve: [42, 85, 108, 112, 109, 105]
+    id: 22267,
+    title: "RPL Evidence Gathering & Competency Conversation Strategies",
+    description: "Advanced masterclass on streamlining Recognition of Prior Learning workflows and audit-tested candidate interview techniques.",
+    date: "2026-07-03",
+    time: "04:00 PM AEST",
+    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
   },
   {
-    thisAttendance: 155,
-    prevAttendance: 128,
-    growthPct: '+21.1%',
-    engagementRate: '98.1%',
-    satisfactionRate: '99.0%',
-    qaInteractions: 92,
-    thisCurve: [68, 122, 148, 155, 153, 150],
-    prevCurve: [50, 98, 122, 128, 125, 120]
+    id: 22266,
+    title: "Industry Consultation Frameworks & Trainer Currency Evidence",
+    description: "Robust methodologies for documenting authentic industry engagement and vocational currency in alignment with ASQA standards.",
+    date: "2026-06-19",
+    time: "03:30 PM AEST",
+    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
   },
   {
-    thisAttendance: 128,
-    prevAttendance: 105,
-    growthPct: '+21.9%',
-    engagementRate: '95.8%',
-    satisfactionRate: '97.2%',
-    qaInteractions: 68,
-    thisCurve: [48, 96, 122, 128, 126, 122],
-    prevCurve: [38, 80, 100, 105, 102, 98]
+    id: 22265,
+    title: "Assessment Validation Workflows – Pre & Post Delivery",
+    description: "Step-by-step guidance on establishing statistically valid sampling and collaborative validation panels across RTO faculties.",
+    date: "2026-06-05",
+    time: "04:00 PM AEST",
+    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
+  },
+  {
+    id: 22264,
+    title: "Training & Assessment Strategy (TAS) Design for Audit Scrutiny",
+    description: "Comprehensive blueprint for structuring compliant TAS documents reflecting real learner cohorts and delivery modes.",
+    date: "2026-05-22",
+    time: "04:00 PM AEST",
+    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
   }
 ];
 
@@ -250,23 +251,14 @@ export const BookPDSessionPage: React.FC = () => {
   
   // Carousel Indices
   const [upcomingIndex, setUpcomingIndex] = useState(0);
-  const [pastIndex, setPastIndex] = useState(0);
+
+  // Scroll state for previous sessions section (matching homepage PD announcement behavior)
+  const [isPastScrolling, setIsPastScrolling] = useState(false);
+  const [isPastScrolledDown, setIsPastScrolledDown] = useState(false);
+  const pastScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pastScrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [selectedSession, setSelectedSession] = useState<WordPressPDSession | null>(null);
-  
-  // State for the default Gravity Form fields
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    organization: '',
-    jobTitle: '',
-    attendeesCount: '1',
-    sessionChoice: FALLBACK_UPCOMING_SESSIONS[0].title,
-    notes: ''
-  });
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const gravityFormMountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -304,7 +296,6 @@ export const BookPDSessionPage: React.FC = () => {
 
             if (upcoming.length > 0) {
               setUpcomingSessions(upcoming);
-              setFormData(prev => ({ ...prev, sessionChoice: upcoming[0].title }));
             }
 
             // If past sessions exist from API, complement with fallback past data if needed so carousel is rich
@@ -338,9 +329,6 @@ export const BookPDSessionPage: React.FC = () => {
   }, []);
 
   const currentUpcomingSession = upcomingSessions[upcomingIndex] || upcomingSessions[0] || FALLBACK_UPCOMING_SESSIONS[0];
-  const primarySession = currentUpcomingSession;
-  const currentPastSession = pastSessions[pastIndex] || pastSessions[0] || FALLBACK_PAST_SESSIONS[0];
-  const currentComparison = PAST_COMPARISONS[pastIndex % PAST_COMPARISONS.length];
 
   const handlePrevUpcoming = () => {
     setUpcomingIndex(prev => (prev - 1 + upcomingSessions.length) % upcomingSessions.length);
@@ -350,31 +338,93 @@ export const BookPDSessionPage: React.FC = () => {
     setUpcomingIndex(prev => (prev + 1) % upcomingSessions.length);
   };
 
-  const handlePrevPast = () => {
-    setPastIndex(prev => (prev - 1 + pastSessions.length) % pastSessions.length);
+  const handlePastScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const currentScrollTop = e.currentTarget.scrollTop;
+    setIsPastScrolledDown(currentScrollTop > 15);
+
+    setIsPastScrolling(true);
+    if (pastScrollTimeoutRef.current) {
+      clearTimeout(pastScrollTimeoutRef.current);
+    }
+    pastScrollTimeoutRef.current = setTimeout(() => {
+      setIsPastScrolling(false);
+    }, 900);
   };
 
-  const handleNextPast = () => {
-    setPastIndex(prev => (prev + 1) % pastSessions.length);
+  const handleScrollToMorePast = () => {
+    if (pastScrollContainerRef.current) {
+      pastScrollContainerRef.current.scrollBy({ top: 120, behavior: 'smooth' });
+    }
   };
+
+  useEffect(() => {
+    return () => {
+      if (pastScrollTimeoutRef.current) {
+        clearTimeout(pastScrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const scrollToGravityFormMount = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const target = 
+      document.getElementById('wp-gravity-form-mount') ||
+      gravityFormMountRef.current ||
+      document.getElementById('booking-registration-section');
+
+    if (target) {
+      // Calculate clearance offset taking sticky navigation headers and WP admin bar into account
+      const headerOffset = 120;
+      const elementPosition = target.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      // 1. Primary smooth window scroll
+      try {
+        window.scrollTo({
+          top: Math.max(0, offsetPosition),
+          behavior: 'smooth'
+        });
+      } catch {
+        window.scrollTo(0, Math.max(0, offsetPosition));
+      }
+
+      // 2. Element scrollIntoView fallback for nested containers on WordPress full canvas
+      try {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      } catch {
+        target.scrollIntoView();
+      }
+
+      // 3. Update hash in address bar without abrupt jump
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, '', '#wp-gravity-form-mount');
+      } else {
+        window.location.hash = 'wp-gravity-form-mount';
+      }
+    } else {
+      window.location.hash = 'wp-gravity-form-mount';
+    }
+  };
+
+  // Check URL hash on load to handle direct deep links to the registration form
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window.location.hash === '#wp-gravity-form-mount' || window.location.hash === '#booking-registration-section')) {
+      const timer = setTimeout(() => {
+        scrollToGravityFormMount();
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const handleOpenBooking = (sessionToBook?: WordPressPDSession) => {
     const target = sessionToBook || currentUpcomingSession;
     setSelectedSession(target);
-  };
-
-  const handleDirectStripe = (url?: string) => {
-    const targetUrl = url || currentUpcomingSession.url || "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e";
-    window.open(targetUrl, '_blank', 'noopener,noreferrer');
-  };
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setFormSubmitted(true);
-    }, 800);
   };
 
   return (
@@ -385,17 +435,9 @@ export const BookPDSessionPage: React.FC = () => {
         className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0"
         aria-hidden="true"
       >
-        {/* Top Header Watermark */}
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-full text-center whitespace-nowrap text-[120px] sm:text-[170px] lg:text-[220px] font-black tracking-widest text-[#042F61]/[0.025] uppercase leading-none select-none">
-          CHELSON GORDON
-        </div>
-        {/* Right Side Vertical Watermark Column */}
-        <div className="absolute top-1/3 -right-20 transform rotate-90 text-[100px] sm:text-[140px] font-black tracking-widest text-[#0072CE]/[0.02] uppercase leading-none whitespace-nowrap select-none">
+        {/* Right Side Vertical Watermark Column (positioned directly below header ending, right-[120px]) */}
+        <div className="absolute top-[165px] sm:top-[180px] lg:top-[170px] xl:top-[190px] 2xl:top-[205px] right-[120px] w-0 h-0 overflow-visible origin-top-left transform rotate-90 text-[52px] sm:text-[64px] lg:text-[72px] xl:text-[80px] font-black tracking-widest text-[#042F61]/[0.07] uppercase leading-none whitespace-nowrap select-none">
           PROFESSIONAL DEVELOPMENT
-        </div>
-        {/* Bottom Ambient Watermark */}
-        <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-full text-center whitespace-nowrap text-[120px] sm:text-[170px] lg:text-[220px] font-black tracking-widest text-[#042F61]/[0.02] uppercase leading-none select-none">
-          CHELSON GORDON
         </div>
         {/* Ambient Gradient Halos */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(ellipse_at_center,rgba(0,114,206,0.06)_0%,transparent_70%)] blur-3xl pointer-events-none" />
@@ -405,12 +447,9 @@ export const BookPDSessionPage: React.FC = () => {
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* ====================================================================
-            OUTER BENTO FRAME CONTAINER
+            MAIN CONTENT CONTAINER (SAME AS PAGE CANVAS)
             ==================================================================== */}
-        <div className="bg-transparent border border-[#042F61]/80 rounded-[32px] sm:rounded-[36px] p-3.5 sm:p-5 md:p-6 shadow-[0_25px_60px_-15px_rgba(4,47,97,0.35)] relative overflow-hidden">
-          
-          {/* Top Rim Sheen */}
-          <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#0072CE]/50 via-sky-300/40 to-transparent pointer-events-none" />
+        <div className="relative">
 
           {/* ====================================================================
               TOP HERO SECTION (UPCOMING SESSIONS CAROUSEL)
@@ -420,18 +459,18 @@ export const BookPDSessionPage: React.FC = () => {
           <div className="relative mb-3.5 sm:mb-5">
             
             {/* The Light Hero Card with Carved-Out Inverted Corner at Bottom Right */}
-            <div className="bg-gradient-to-br from-[#EAF3FA] via-[#F4F9FD] to-[#DFEDFB] border border-white/70 rounded-[26px] sm:rounded-[28px] p-6 sm:p-8 lg:p-12 relative overflow-hidden shadow-sm">
+            <div className="bg-gradient-to-br from-[#CDE4F9] via-[#E2F0FD] to-[#BEE0F8] border border-white/80 rounded-[26px] sm:rounded-[28px] p-6 sm:p-8 lg:p-12 relative overflow-hidden">
               
               {/* Organic Soft Ambient Blobs */}
-              <div className="absolute -left-12 -top-12 w-80 sm:w-96 h-80 sm:h-96 bg-[#0072CE]/12 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute left-40 top-20 w-72 h-72 bg-[#FDB913]/15 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-[#0072CE]/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -left-12 -top-12 w-80 sm:w-96 h-80 sm:h-96 bg-[#0072CE]/18 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute left-40 top-20 w-72 h-72 bg-[#FDB913]/20 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-[#0072CE]/16 rounded-full blur-3xl pointer-events-none" />
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center relative z-10">
                 
                 {/* Left Column: Facilitator Portrait */}
                 <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
-                  <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-[4/5] flex items-center justify-center">
+                  <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-[4/3.4] flex items-center justify-center">
                     
                     {/* Organic Floating Blob SVG */}
                     <svg 
@@ -530,88 +569,85 @@ export const BookPDSessionPage: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Key Session Value Highlights: Format, Date, Time */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 border border-slate-200/60 shadow-xs">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Format</span>
-                      <span className="text-xs sm:text-sm font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
-                        <GraduationCap className="w-4 h-4 text-[#0072CE]" />
-                        Live Masterclass
-                      </span>
-                    </div>
-                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 border border-slate-200/60 shadow-xs">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Session Date</span>
-                      <span className="text-xs sm:text-sm font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
-                        <Calendar className="w-4 h-4 text-[#0072CE]" />
-                        {formatDisplayDate(currentUpcomingSession.date)}
-                      </span>
-                    </div>
-                    <div className="col-span-2 sm:col-span-1 bg-white/80 backdrop-blur-sm rounded-xl p-3 border border-slate-200/60 shadow-xs">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Session Time</span>
-                      <span className="text-xs sm:text-sm font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
-                        <Clock className="w-4 h-4 text-[#0072CE]" />
-                        {currentUpcomingSession.time || '04:00 PM AEST'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Mobile-only button placement (< sm screens) */}
-                  <div className="sm:hidden pt-3 border-t border-slate-300/40 flex justify-end">
-                    <button
-                      onClick={() => handleOpenBooking(currentUpcomingSession)}
-                      className="w-full bg-[#FDB913] hover:bg-[#042F61] text-[#042F61] hover:text-[#FDB913] text-sm font-black tracking-wider uppercase py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <span>Join Now</span>
-                      <ArrowUpRight className="w-4 h-4" />
-                    </button>
-                  </div>
-
                 </div>
 
+              </div>
+
+              {/* Key Session Value Highlights: Mode, Date, Time (Full width below image section + para section, ending just to the left of the carved-out SVG notch) */}
+              <div className="relative z-10 mt-6 sm:mt-7 w-full sm:max-w-[calc(100%-245px)] lg:max-w-[calc(100%-230px)]">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2.5 sm:p-3 border border-slate-200/70 shadow-xs">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Mode</span>
+                    <span className="text-xs sm:text-[13px] md:text-sm font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
+                      <Globe className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
+                      <span className="truncate">Online Session</span>
+                    </span>
+                  </div>
+                  <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2.5 sm:p-3 border border-slate-200/70 shadow-xs">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Session Date</span>
+                    <span className="text-xs sm:text-[13px] md:text-sm font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
+                      <Calendar className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
+                      <span className="truncate">{formatDisplayDate(currentUpcomingSession.date)}</span>
+                    </span>
+                  </div>
+                  <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2.5 border border-slate-200/70 shadow-xs">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Session Time</span>
+                    <span className="text-xs sm:text-[13px] md:text-sm font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
+                      <Clock className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
+                      <span className="truncate">{currentUpcomingSession.time || '04:00 PM AEST'}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Mobile-only button placement (< sm screens) */}
+                <div className="sm:hidden pt-3 mt-3 border-t border-slate-300/40 flex justify-end">
+                  <a
+                    href="#wp-gravity-form-mount"
+                    onClick={scrollToGravityFormMount}
+                    className="w-full bg-[#FDB913] hover:bg-[#042F61] text-[#042F61] hover:text-[#FDB913] text-sm font-black tracking-wider uppercase py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer select-none"
+                  >
+                    <span>Join Now</span>
+                    <ArrowUpRight className="w-4 h-4" />
+                  </a>
+                </div>
               </div>
 
             </div>
 
             {/* ================================================================
                 CARVED-OUT BOTTOM-RIGHT CORNER NOTCH (Desktop/Tablet: sm and up)
-                Precisely carved corner with C1-continuous concave fillets
-                Seamlessly filling with #F4F7FB to match the page background
+                Precisely carved corner matching page canvas (#F4F7FB) with no border
                 ================================================================ */}
             <svg 
-              className="hidden sm:block absolute bottom-0 right-0 w-[264px] h-[100px] pointer-events-none z-10" 
+              className="hidden sm:block absolute -bottom-px -right-px w-[265px] h-[101px] pointer-events-none z-10" 
               viewBox="0 0 264 100" 
+              preserveAspectRatio="none"
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true"
             >
-              {/* Cutout Polygon matching page background */}
+              {/* Cutout Polygon matching page canvas with no border */}
               <path 
                 d="M 264,0 A 24,24 0 0,1 240,24 L 48,24 A 24,24 0 0,0 24,48 L 24,76 A 24,24 0 0,1 0,100 L 264,100 Z" 
                 fill="#F4F7FB" 
-              />
-              {/* Continuous Matching Border Stroke along the Carved Contour */}
-              <path 
-                d="M 264,0 A 24,24 0 0,1 240,24 L 48,24 A 24,24 0 0,0 24,48 L 24,76 A 24,24 0 0,1 0,100" 
-                stroke="rgba(255, 255, 255, 0.85)" 
-                strokeWidth="1.5" 
-                fill="none" 
               />
             </svg>
 
             {/* ================================================================
                 "JOIN NOW" BUTTON SITTING OUTSIDE THE WHITE CARD IN THE CARVED CORNER
                 ================================================================ */}
-            <div className="hidden sm:flex absolute bottom-3.5 right-3.5 z-20">
-              <button
-                onClick={() => handleOpenBooking(currentUpcomingSession)}
-                className="relative group overflow-hidden bg-[#FDB913] hover:bg-[#0072CE] text-[#042F61] hover:text-white text-sm font-black tracking-wider uppercase px-8 py-3.5 rounded-full shadow-lg border border-[#FDB913]/60 hover:border-[#0072CE] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer select-none"
+            <div className="hidden sm:flex absolute bottom-3.5 right-[1px] z-20">
+              <a
+                href="#wp-gravity-form-mount"
+                onClick={scrollToGravityFormMount}
+                className="relative group overflow-hidden bg-[#FDB913] hover:bg-[#0072CE] text-[#042F61] hover:text-white text-sm font-black tracking-wider uppercase px-[55px] py-3.5 rounded-full shadow-lg border border-[#FDB913]/60 hover:border-[#0072CE] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer select-none"
               >
                 {/* Ambient Luminous Light Sweep on Hover */}
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none -skew-x-12" />
                 
                 <span className="relative z-10 whitespace-nowrap">JOIN NOW</span>
                 <ArrowUpRight className="w-4.5 h-4.5 relative z-10 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 stroke-[2.5]" />
-              </button>
+              </a>
             </div>
 
           </div>
@@ -623,273 +659,295 @@ export const BookPDSessionPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-5">
             
             {/* ------------------------------------------------------------------
-                CARD 1 (Left, 4 columns): "Our Community"
-                Connected to mailto:professionaldevelopment@chelsongordon.com
-                with Email Arrow Icon
+                LEFT COLUMN (4 columns): 2 Vertical Cards
+                1st: "Our Community"
+                2nd: "Give Feedback" with button to https://chelsongordon.com/feedback/
                 ------------------------------------------------------------------ */}
-            <div className="lg:col-span-4 bg-[#E1EFFB] border border-[#B8DCF8] rounded-[24px] p-6 sm:p-7 flex flex-col justify-between relative shadow-sm hover:shadow-md transition-shadow">
+            <div className="lg:col-span-4 flex flex-col gap-3.5 sm:gap-5 justify-between">
               
-              {/* Card Header with Email Arrow Link */}
-              <div className="flex items-start justify-between gap-4 mb-6">
+              {/* 1st: Our Community Card */}
+              <div className="bg-[#E1EFFB] border border-[#B8DCF8] rounded-[24px] p-5 sm:p-6 flex flex-col justify-between relative shadow-sm hover:shadow-md transition-shadow flex-1">
+                {/* Card Header with Email Arrow Link */}
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <span className="text-[11px] font-bold text-[#0072CE] uppercase tracking-widest block">Our</span>
+                    <h2 className="text-2xl sm:text-[24px] font-black text-[#042F61] tracking-tight leading-tight mt-0.5">
+                      Community
+                    </h2>
+                  </div>
+
+                  <a
+                    href="mailto:professionaldevelopment@chelsongordon.com"
+                    className="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center text-[#042F61] hover:bg-[#FDB913] hover:text-[#042F61] hover:scale-105 active:scale-95 transition-all cursor-pointer group"
+                    aria-label="Email Our Community: professionaldevelopment@chelsongordon.com"
+                    title="Email our community team"
+                  >
+                    <MailArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </a>
+                </div>
+
+                {/* 3 Metric Rows with Circular Badges */}
+                <div className="space-y-3">
+                  {/* Metric 1 */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
+                      <Users className="w-4 h-4 text-[#042F61]" />
+                    </div>
+                    <div>
+                      <span className="text-sm sm:text-base font-black text-[#042F61] block leading-tight">1,200+ Active</span>
+                      <span className="text-[11px] font-semibold text-slate-600 block">Educators & Assessors</span>
+                    </div>
+                  </div>
+
+                  {/* Metric 2 */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
+                      <Play className="w-4 h-4 text-[#042F61] fill-[#042F61]/10" />
+                    </div>
+                    <div>
+                      <span className="text-sm sm:text-base font-black text-[#042F61] block leading-tight">350+ Hours</span>
+                      <span className="text-[11px] font-semibold text-slate-600 block">Of PD Masterclasses</span>
+                    </div>
+                  </div>
+
+                  {/* Metric 3 */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
+                      <ShieldCheck className="w-4 h-4 text-[#042F61]" />
+                    </div>
+                    <div>
+                      <span className="text-sm sm:text-base font-black text-[#042F61] block leading-tight">100% ASQA</span>
+                      <span className="text-[11px] font-semibold text-slate-600 block">Compliant Frameworks</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2nd: Give Feedback Card */}
+              <div className="bg-[#E1EFFB] border border-[#B8DCF8] rounded-[24px] p-5 sm:p-6 flex flex-col justify-between relative shadow-sm hover:shadow-md transition-shadow">
                 <div>
-                  <span className="text-[11px] font-bold text-[#0072CE] uppercase tracking-widest block">Our</span>
-                  <h2 className="text-2xl sm:text-[26px] font-black text-[#042F61] tracking-tight leading-tight mt-0.5">
-                    Community
-                  </h2>
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <div>
+                      <span className="text-[11px] font-bold text-[#0072CE] uppercase tracking-widest block">Share Your Experience</span>
+                      <h2 className="text-2xl sm:text-[24px] font-black text-[#042F61] tracking-tight leading-tight mt-0.5">
+                        Give Feedback
+                      </h2>
+                    </div>
+                    <div className="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center text-[#042F61] shrink-0">
+                      <MessageSquare className="w-4 h-4 text-[#042F61]" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed mt-2 mb-4">
+                    Help us refine future vocational masterclasses and topic compliance coverage.
+                  </p>
                 </div>
 
                 <a
-                  href="mailto:professionaldevelopment@chelsongordon.com"
-                  className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-[#042F61] hover:bg-[#FDB913] hover:text-[#042F61] hover:scale-105 active:scale-95 transition-all cursor-pointer group"
-                  aria-label="Email Our Community: professionaldevelopment@chelsongordon.com"
-                  title="Email our community team"
+                  href="https://chelsongordon.com/feedback/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-[#042F61] hover:bg-[#0072CE] text-white text-xs font-black uppercase tracking-wider px-5 py-3 rounded-xl shadow-xs transition-colors cursor-pointer group select-none"
                 >
-                  <MailArrowUpRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <span>Give Feedback</span>
+                  <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </a>
-              </div>
-
-              {/* 3 Metric Rows with Circular Badges */}
-              <div className="space-y-4">
-                
-                {/* Metric 1 */}
-                <div className="flex items-center gap-3.5">
-                  <div className="w-11 h-11 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
-                    <Users className="w-5 h-5 text-[#042F61]" />
-                  </div>
-                  <div>
-                    <span className="text-base font-black text-[#042F61] block leading-snug">1,200+ Active</span>
-                    <span className="text-xs font-semibold text-slate-600 block">Educators & Assessors</span>
-                  </div>
-                </div>
-
-                {/* Metric 2 */}
-                <div className="flex items-center gap-3.5">
-                  <div className="w-11 h-11 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
-                    <Play className="w-5 h-5 text-[#042F61] fill-[#042F61]/10" />
-                  </div>
-                  <div>
-                    <span className="text-base font-black text-[#042F61] block leading-snug">350+ Hours</span>
-                    <span className="text-xs font-semibold text-slate-600 block">Of PD Masterclasses</span>
-                  </div>
-                </div>
-
-                {/* Metric 3 */}
-                <div className="flex items-center gap-3.5">
-                  <div className="w-11 h-11 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
-                    <ShieldCheck className="w-5 h-5 text-[#042F61]" />
-                  </div>
-                  <div>
-                    <span className="text-base font-black text-[#042F61] block leading-snug">100% ASQA</span>
-                    <span className="text-xs font-semibold text-slate-600 block">Compliant Frameworks</span>
-                  </div>
-                </div>
-
               </div>
 
             </div>
 
             {/* ------------------------------------------------------------------
-                CARD 2 (Right, 8 columns): "Previous Sessions" CAROUSEL
+                CARD 2 (Right, 8 columns): "Previous Sessions" SCROLLABLE LIST
                 Connected to pd-sessions endpoint (< current date)
-                Shows Session Topic and Engagement Graph comparing attendance with previous session
+                Matching homepage PD announcement scrollable section behavior
                 ------------------------------------------------------------------ */}
-            <div className="lg:col-span-8 bg-gradient-to-br from-[#042F61] via-[#073972] to-[#005BA4] text-white border border-white/10 rounded-[24px] p-6 sm:p-7 md:p-8 flex flex-col justify-between relative overflow-hidden shadow-md">
+            <div className="lg:col-span-8 bg-gradient-to-br from-[#123E6E] via-[#1A4E88] to-[#225E9F] text-white border border-white/15 rounded-[24px] p-5 sm:p-6 md:p-7 flex flex-col justify-start relative overflow-hidden shadow-md">
               
-              {/* Card Header with Carousel Controls */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 relative z-10">
+              {/* Ambient Shine Highlights */}
+              <div 
+                className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-white/35 via-50% to-transparent pointer-events-none" 
+                aria-hidden="true" 
+              />
+              <div 
+                className="absolute -top-14 -right-14 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" 
+                aria-hidden="true" 
+              />
+
+              {/* Scoped CSS for active-only scrollbar with stable gutter */}
+              <style>{`
+                .past-pd-scroll-area {
+                  scrollbar-gutter: stable;
+                }
+                .past-pd-scroll-area::-webkit-scrollbar {
+                  width: 5px;
+                }
+                .past-pd-scroll-area::-webkit-scrollbar-track {
+                  background: transparent;
+                }
+                .past-pd-scroll-area::-webkit-scrollbar-thumb {
+                  background-color: transparent;
+                  border-radius: 9999px;
+                  transition: background-color 0.25s ease;
+                }
+                .past-pd-scroll-area.is-scrolling::-webkit-scrollbar-thumb {
+                  background-color: rgba(255, 255, 255, 0.4);
+                }
+              `}</style>
+
+              {/* Card Header (aligned at top, displaying 50+ Completed Masterclasses) */}
+              <div className="flex items-center justify-between pb-3.5 sm:pb-4 border-b border-white/15 mb-3 sm:mb-3.5 relative z-10">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold text-sky-200 uppercase tracking-widest block">Past Cohorts Review</span>
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#FDB913]"></span>
-                    <span className="text-[11px] font-semibold text-sky-300">
-                      {pastSessions.length}+ Completed Masterclasses
-                    </span>
-                  </div>
-                  <h2 className="text-2xl sm:text-[28px] font-black text-white tracking-tight leading-tight mt-0.5">
+                  <span className="text-[11px] font-bold text-sky-200 uppercase tracking-wider block">
+                    50+ Completed Masterclasses
+                  </span>
+                  <h2 className="text-2xl sm:text-[26px] font-black text-white tracking-tight leading-tight mt-0.5">
                     Previous Sessions
                   </h2>
                 </div>
 
-                {/* Carousel Navigation Buttons & Counter */}
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs font-bold text-sky-200/90 bg-white/10 px-3 py-1 rounded-full border border-white/10">
-                    Session {pastIndex + 1} of {pastSessions.length}
-                  </span>
-                  <div className="flex items-center gap-1 bg-white/10 p-1 rounded-full border border-white/15">
-                    <button
-                      onClick={handlePrevPast}
-                      aria-label="Previous completed session"
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-white hover:bg-[#FDB913] hover:text-[#042F61] transition-colors cursor-pointer"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={handleNextPast}
-                      aria-label="Next completed session"
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-white hover:bg-[#FDB913] hover:text-[#042F61] transition-colors cursor-pointer"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+                <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/15 text-white border border-white/25 shadow-2xs font-sans">
+                  {pastSessions.length} Topics
+                </span>
               </div>
 
-              {/* Past Session Topic & Engagement Graph Carousel Slide */}
-              <div className="space-y-4 relative z-10">
-                
-                {/* Topic Headline & Completion Timestamp */}
-                <div className="bg-white/5 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border border-white/10">
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                    <span className="text-[11px] font-bold text-[#FDB913] uppercase tracking-wider flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      Completed Masterclass Topic
-                    </span>
-                    <span className="text-xs font-semibold text-sky-200 flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-sky-300" />
-                      {formatDisplayDate(currentPastSession.date)}
-                      {currentPastSession.time && (
-                        <span className="text-sky-300/80">• {currentPastSession.time}</span>
-                      )}
-                    </span>
-                  </div>
+              {/* Scrollable list of previous session topics with auto-hiding scrollbar & stable gutter */}
+              <div 
+                ref={pastScrollContainerRef}
+                onScroll={handlePastScroll}
+                className={`overflow-y-auto max-h-[310px] sm:max-h-[340px] lg:max-h-[365px] pr-1.5 flex flex-col gap-1.5 sm:gap-2 past-pd-scroll-area relative z-10 ${
+                  isPastScrolling ? 'is-scrolling' : ''
+                }`}
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: isPastScrolling ? 'rgba(255, 255, 255, 0.4) transparent' : 'transparent transparent',
+                }}
+                tabIndex={0}
+                role="region"
+                aria-label="Scrollable list of previous session topics"
+              >
+                {/* First 3 sessions shown upfront so UI hint line is immediately visible on section load */}
+                {(pastSessions.length > 3 ? pastSessions.slice(0, 3) : pastSessions).map((session, index) => {
+                  const decodedTitle = decodeHtmlEntities(session.title);
 
-                  <h3 className="text-lg sm:text-xl font-black text-white tracking-tight leading-snug">
-                    {decodeHtmlEntities(currentPastSession.title)}
-                  </h3>
-                </div>
-
-                {/* Engagement Graph with Comparison to Previous Session User Attendance */}
-                <div className="bg-white/5 backdrop-blur-xs rounded-2xl p-4 sm:p-5 border border-white/10 space-y-3.5">
-                  
-                  {/* Graph Top Header: Metrics & Legend */}
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-[#FDB913]" />
-                      <span className="text-xs font-bold text-sky-100 uppercase tracking-wider">
-                        Engagement & Attendance Comparison
-                      </span>
-                      <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/50 border border-emerald-500/40 px-2 py-0.5 rounded-full">
-                        {currentComparison.growthPct} Surge
-                      </span>
-                    </div>
-
-                    {/* Comparative Legend */}
-                    <div className="flex items-center gap-4 text-xs font-semibold">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#FDB913] shadow-xs"></span>
-                        <span className="text-white/95">This Session ({currentComparison.thisAttendance})</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#38BDF8] shadow-xs"></span>
-                        <span className="text-sky-200/90">Prev Session ({currentComparison.prevAttendance})</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* SVG Comparative Engagement Area & Curve Graph */}
-                  <div className="relative w-full h-[125px] flex items-end select-none bg-black/15 rounded-xl p-2.5 border border-white/10">
-                    <svg className="absolute inset-0 w-full h-full overflow-visible p-3" preserveAspectRatio="none" viewBox="0 0 320 90">
-                      <defs>
-                        {/* Gradient for Current Session Area Fill */}
-                        <linearGradient id="currentAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#FDB913" stopOpacity="0.32" />
-                          <stop offset="100%" stopColor="#FDB913" stopOpacity="0.0" />
-                        </linearGradient>
-
-                        {/* Gradient for Previous Session Area Fill */}
-                        <linearGradient id="prevAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.15" />
-                          <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.0" />
-                        </linearGradient>
-                      </defs>
-
-                      {/* Previous Session Shaded Area */}
-                      <path
-                        d="M 15,68 C 65,58 105,42 155,30 C 205,25 255,27 305,29 L 305,82 L 15,82 Z"
-                        fill="url(#prevAreaGrad)"
-                      />
-
-                      {/* Current Session Shaded Area */}
-                      <path
-                        d="M 15,62 C 65,45 105,24 155,15 C 205,17 255,19 305,21 L 305,82 L 15,82 Z"
-                        fill="url(#currentAreaGrad)"
-                      />
-
-                      {/* Previous Session Comparative Curve (Cyan Dashed) */}
-                      <path
-                        d="M 15,68 C 65,58 105,42 155,30 C 205,25 255,27 305,29"
-                        fill="none"
-                        stroke="#38BDF8"
-                        strokeWidth="2.2"
-                        strokeDasharray="4 3"
-                        strokeLinecap="round"
-                      />
-
-                      {/* Current Session Curve (Solid Gold) */}
-                      <path
-                        d="M 15,62 C 65,45 105,24 155,15 C 205,17 255,19 305,21"
-                        fill="none"
-                        stroke="#FDB913"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                      />
-
-                      {/* Peak Attendance Pulsing Node on This Session Curve */}
-                      <circle cx="155" cy="15" r="5.5" fill="#FDB913" />
-                      <circle cx="155" cy="15" r="2.5" fill="#042F61" />
-                      <circle cx="155" cy="15" r="9" fill="none" stroke="#FDB913" strokeWidth="1" strokeOpacity="0.6" />
-
-                      {/* Peak Node on Previous Session Curve */}
-                      <circle cx="155" cy="30" r="4.5" fill="#38BDF8" />
-                      <circle cx="155" cy="30" r="2" fill="#042F61" />
-                    </svg>
-
-                    {/* X-Axis Milestone Checkpoints */}
-                    <div className="absolute bottom-1 left-3 right-3 flex items-center justify-between text-[10px] font-semibold text-white/50">
-                      <span>Kickoff</span>
-                      <span>Standards Analysis</span>
-                      <span className="text-[#FDB913] font-bold">Peak Engagement</span>
-                      <span>Live Workshop</span>
-                      <span>Wrap-up</span>
-                    </div>
-                  </div>
-
-                  {/* 4 Attendance & Engagement Metric Badges */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-                    <div className="bg-white/5 rounded-xl p-2.5 border border-white/10">
-                      <span className="text-[10px] uppercase font-bold text-sky-300 block">Total Attendance</span>
-                      <span className="text-sm font-black text-white flex items-center gap-1 mt-0.5">
-                        {currentComparison.thisAttendance}
-                        <span className="text-[11px] font-bold text-emerald-300">
-                          +{currentComparison.thisAttendance - currentComparison.prevAttendance}
+                  return (
+                    <div
+                      key={session.id || index}
+                      onClick={() => setSelectedSession(session)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedSession(session);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View details for ${decodedTitle}`}
+                      className="px-2.5 py-0 rounded-xl bg-white/10 border border-white/15 hover:border-white/40 hover:bg-white/20 transition-all duration-200 group flex items-center w-full cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-white/40 select-none"
+                    >
+                      {/* Topic Number */}
+                      <div className="w-[16%] sm:w-[13%] aspect-square flex items-center justify-center shrink-0 -translate-x-[4px]">
+                        <span className="text-lg sm:text-xl font-black text-[#FDB913] font-sans select-none tracking-tight">
+                          {index + 1}
                         </span>
-                      </span>
-                    </div>
-                    
-                    <div className="bg-white/5 rounded-xl p-2.5 border border-white/10">
-                      <span className="text-[10px] uppercase font-bold text-sky-300 block">Prev Attendance</span>
-                      <span className="text-sm font-black text-white/80 mt-0.5 block">
-                        {currentComparison.prevAttendance} Attendees
-                      </span>
-                    </div>
+                      </div>
 
-                    <div className="bg-white/5 rounded-xl p-2.5 border border-white/10">
-                      <span className="text-[10px] uppercase font-bold text-sky-300 block">Live Retention</span>
-                      <span className="text-sm font-black text-white mt-0.5 block">
-                        {currentComparison.engagementRate}
-                      </span>
+                      {/* Topic Details */}
+                      <div className="w-[84%] sm:w-[87%] flex-1 pl-2 sm:pl-3 pr-2 py-0.5 sm:py-1 -translate-x-[4px]">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-[10px] sm:text-[11px] font-semibold text-sky-200 flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-sky-300" />
+                            {formatDisplayDate(session.date)}
+                          </span>
+                          {session.time && (
+                            <span className="text-[10px] text-sky-200/80">• {session.time}</span>
+                          )}
+                        </div>
+                        {renderTopicTitle(decodedTitle)}
+                      </div>
                     </div>
+                  );
+                })}
 
-                    <div className="bg-white/5 rounded-xl p-2.5 border border-white/10">
-                      <span className="text-[10px] uppercase font-bold text-sky-300 block">Satisfaction</span>
-                      <span className="text-sm font-black text-[#FDB913] mt-0.5 block">
-                        {currentComparison.satisfactionRate}
-                      </span>
+                {/* Clean UI line indicator: guaranteed visible on section load right beneath row 3 */}
+                {pastSessions.length > 3 && (
+                  <AnimatePresence initial={false}>
+                    {!isPastScrolledDown && (
+                      <motion.div
+                        key="scroll-more-past-indicator"
+                        initial={{ opacity: 0, height: 0, marginTop: -6 }}
+                        animate={{ opacity: 1, height: 'auto', marginTop: 0 }}
+                        exit={{ opacity: 0, height: 0, marginTop: -6 }}
+                        transition={{ duration: 0.28, ease: 'easeInOut' }}
+                        className="overflow-hidden w-full shrink-0"
+                      >
+                        <div
+                          onClick={handleScrollToMorePast}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleScrollToMorePast();
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Scroll to view ${pastSessions.length - 3} more sessions`}
+                          className="w-full py-1.5 px-2 flex items-center justify-center gap-2 text-white hover:text-[#FDB913] transition-colors cursor-pointer select-none group focus:outline-hidden"
+                        >
+                          <ChevronDown className="w-4 h-4 shrink-0 text-white group-hover:text-[#FDB913] group-hover:translate-y-0.5 transition-transform duration-200" />
+                          <span className="text-xs sm:text-sm font-semibold text-white group-hover:text-[#FDB913] transition-colors tracking-tight whitespace-nowrap">
+                            Scroll to view more sessions
+                          </span>
+                          <span className="inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-bold rounded-full bg-white/15 text-white border border-white/20 group-hover:bg-white/25 group-hover:text-[#FDB913] transition-colors whitespace-nowrap shrink-0">
+                            +{pastSessions.length - 3}
+                          </span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                )}
+
+                {/* Remaining sessions beyond row 3 */}
+                {pastSessions.length > 3 && pastSessions.slice(3).map((session, index) => {
+                  const decodedTitle = decodeHtmlEntities(session.title);
+                  const actualNumber = index + 4;
+
+                  return (
+                    <div
+                      key={session.id || actualNumber}
+                      onClick={() => setSelectedSession(session)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedSession(session);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View details for ${decodedTitle}`}
+                      className="px-2.5 py-0 rounded-xl bg-white/10 border border-white/15 hover:border-white/40 hover:bg-white/20 transition-all duration-200 group flex items-center w-full cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-white/40 select-none"
+                    >
+                      {/* Topic Number */}
+                      <div className="w-[16%] sm:w-[13%] aspect-square flex items-center justify-center shrink-0 -translate-x-[4px]">
+                        <span className="text-lg sm:text-xl font-black text-[#FDB913] font-sans select-none tracking-tight">
+                          {actualNumber}
+                        </span>
+                      </div>
+
+                      {/* Topic Details */}
+                      <div className="w-[84%] sm:w-[87%] flex-1 pl-2 sm:pl-3 pr-2 py-0.5 sm:py-1 -translate-x-[4px]">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-[10px] sm:text-[11px] font-semibold text-sky-200 flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-sky-300" />
+                            {formatDisplayDate(session.date)}
+                          </span>
+                          {session.time && (
+                            <span className="text-[10px] text-sky-200/80">• {session.time}</span>
+                          )}
+                        </div>
+                        {renderTopicTitle(decodedTitle)}
+                      </div>
                     </div>
-                  </div>
-
-                </div>
-
+                  );
+                })}
               </div>
 
             </div>
@@ -899,331 +957,46 @@ export const BookPDSessionPage: React.FC = () => {
         </div>
 
         {/* ====================================================================
-            UPCOMING SESSION RESERVATION & WORDPRESS GRAVITY FORM MOUNT SECTION
-            Contains a designated mount point for any Gravity Form built in WP
+            WORDPRESS GRAVITY FORM MOUNT SECTION
+            Designated mount container for WordPress Gravity Forms
             ==================================================================== */}
-        <div className="mt-12 bg-white rounded-3xl p-6 sm:p-8 lg:p-10 border border-slate-200/80 shadow-sm relative overflow-hidden">
-          
-          {/* Header Row */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-100">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0072CE]/10 text-[#0072CE] text-xs font-bold tracking-wider uppercase mb-3">
-                <BookOpen className="w-3.5 h-3.5" />
-                <span>Next Scheduled Session</span>
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-black text-[#042F61] tracking-tight">
-                Ready to Secure Your Seat?
-              </h3>
-              <p className="text-slate-600 text-sm sm:text-base mt-1 max-w-xl">
-                Seats are strictly limited to ensure interactive case studies, practical tool application, and dedicated live Q&A with our senior consultants.
-              </p>
+        <div 
+          id="booking-registration-section"
+          className="mt-8 sm:mt-12 bg-white rounded-[26px] sm:rounded-[28px] p-6 sm:p-8 lg:p-10 border border-slate-200/80 shadow-sm relative overflow-hidden scroll-mt-28 sm:scroll-mt-36"
+        >
+          {/* Card Header on Top of Gravity Form Mount */}
+          <div className="mb-6 sm:mb-8 pb-5 sm:pb-6 border-b border-slate-100 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0072CE]/10 text-[#0072CE] text-xs font-bold tracking-wider uppercase mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-[#FDB913]" />
+              <span>Session Registration</span>
             </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => handleDirectStripe(primarySession.url)}
-                className="bg-[#042F61] hover:bg-[#0072CE] text-white font-bold text-sm px-6 py-3.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <span>Instant Checkout</span>
-                <ExternalLink className="w-4 h-4" />
-              </button>
-            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-[#042F61] tracking-tight leading-tight">
+              Book Your Professional Development Session
+            </h2>
+            <p className="text-sm sm:text-base text-slate-600 max-w-2xl mt-2 leading-relaxed">
+              Complete the registration form below to secure your seat for upcoming masterclasses and receive direct session access details.
+            </p>
           </div>
 
-          {/* Session Overview Card */}
-          <div className="mt-8 bg-slate-50 border border-slate-200/70 rounded-2xl p-6 sm:p-7 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <span className="bg-[#0072CE] text-white text-xs font-bold px-3 py-1 rounded-md">
-                  VET Regulatory Session
-                </span>
-                <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-[#0072CE]" />
-                  {primarySession.date}
-                </span>
-                <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-[#0072CE]" />
-                  {primarySession.time}
-                </span>
-              </div>
-
-              <h4 className="text-lg sm:text-xl font-bold text-[#042F61]">
-                {primarySession.title}
-              </h4>
-              <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
-                {primarySession.description}
-              </p>
-            </div>
-
-            <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-3">
-              <button
-                onClick={() => handleOpenBooking(primarySession)}
-                className="bg-[#FDB913] hover:bg-[#042F61] text-[#042F61] hover:text-[#FDB913] text-sm font-black px-6 py-3 rounded-xl shadow-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer group"
-              >
-                <span>Session Details</span>
-                <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </button>
-              <a
-                href={primarySession.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="border border-slate-300 hover:border-[#042F61] text-slate-700 hover:text-[#042F61] text-sm font-bold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <span>Direct Stripe Link</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </div>
+          <div 
+            id="wp-gravity-form-mount" 
+            ref={gravityFormMountRef}
+            className="gform_wrapper gravity-form-mount-container w-full min-h-[160px] flex items-center justify-center scroll-mt-28 sm:scroll-mt-36"
+            data-form-type="gravity-forms"
+            data-form-name="pd-session-registration"
+          >
+            {/* WordPress Gravity Form mounts here */}
+            <span className="text-slate-400 text-xs font-mono select-none">
+              #wp-gravity-form-mount
+            </span>
           </div>
-
-          {/* Session Features Checklist */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-6 border-t border-slate-100">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-[#0072CE] shrink-0 mt-0.5" />
-              <div>
-                <h5 className="text-sm font-bold text-[#042F61]">Official Certificate</h5>
-                <p className="text-xs text-slate-500 mt-0.5">Compliant documentation for your trainer matrix & ASQA evidence.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-[#0072CE] shrink-0 mt-0.5" />
-              <div>
-                <h5 className="text-sm font-bold text-[#042F61]">Practical Templates</h5>
-                <p className="text-xs text-slate-500 mt-0.5">Includes assessment validation sheets and evidence checklist.</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-[#0072CE] shrink-0 mt-0.5" />
-              <div>
-                <h5 className="text-sm font-bold text-[#042F61]">Senior Consultant Access</h5>
-                <p className="text-xs text-slate-500 mt-0.5">Direct live Q&A with experienced vocational compliance leads.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* ====================================================================
-              GRAVITY FORM MOUNT POINT (Integrated for WordPress Gravity Forms)
-              Target ID: #wp-gravity-form-mount / #gform_wrapper_pd_session
-              WordPress Gravity Forms scripts or hooks can mount directly here.
-              ==================================================================== */}
-          <div className="mt-10 pt-8 border-t border-slate-200">
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0072CE]/10 text-[#0072CE] text-xs font-bold uppercase tracking-wider mb-2">
-                  <Sparkles className="w-3.5 h-3.5 text-[#FDB913]" />
-                  <span>Interactive Enrollment Form</span>
-                </div>
-                <h4 className="text-xl sm:text-2xl font-black text-[#042F61] tracking-tight">
-                  Bookings & Registration Form
-                </h4>
-                <p className="text-slate-600 text-xs sm:text-sm mt-0.5">
-                  Complete the registration fields below to reserve attendance for your assessors or RTO compliance team.
-                </p>
-              </div>
-
-              {/* WordPress Gravity Form Mount Indicator Tag */}
-              <div className="self-start sm:self-center">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-slate-100 border border-slate-200 text-[11px] font-mono text-slate-600">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  #wp-gravity-form-mount
-                </span>
-              </div>
-            </div>
-
-            {/* THE GRAVITY FORM MOUNT POINT CONTAINER */}
-            <div 
-              id="wp-gravity-form-mount" 
-              ref={gravityFormMountRef}
-              className="gform_wrapper gravity-form-mount-container w-full bg-slate-50/70 border border-slate-200/90 rounded-2xl p-5 sm:p-8"
-              data-form-type="gravity-forms"
-              data-form-name="pd-session-registration"
-            >
-              {formSubmitted ? (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="p-8 text-center bg-white rounded-xl border border-emerald-200 shadow-sm"
-                >
-                  <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <h5 className="text-xl font-black text-[#042F61]">Registration Inquiry Received</h5>
-                  <p className="text-sm text-slate-600 mt-2 max-w-md mx-auto leading-relaxed">
-                    Thank you, <span className="font-semibold text-slate-800">{formData.fullName}</span>. Our vocational education consultant will confirm your team's reservation for <span className="font-semibold text-[#0072CE]">{formData.sessionChoice}</span> shortly.
-                  </p>
-                  <button
-                    onClick={() => setFormSubmitted(false)}
-                    className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-[#0072CE] hover:underline cursor-pointer"
-                  >
-                    Submit another attendee registration
-                  </button>
-                </motion.div>
-              ) : (
-                <form 
-                  onSubmit={handleFormSubmit}
-                  className="space-y-5"
-                  id="gform_pd_session"
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    
-                    {/* Full Name */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#042F61] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 text-[#0072CE]" />
-                        <span>Full Name <span className="text-red-500">*</span></span>
-                      </label>
-                      <input 
-                        type="text" 
-                        required
-                        value={formData.fullName}
-                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        placeholder="e.g. Sarah Jenkins"
-                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0072CE]/30 focus:border-[#0072CE] transition-all"
-                      />
-                    </div>
-
-                    {/* Work Email */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#042F61] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                        <Mail className="w-3.5 h-3.5 text-[#0072CE]" />
-                        <span>Work Email <span className="text-red-500">*</span></span>
-                      </label>
-                      <input 
-                        type="email" 
-                        required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="s.jenkins@rto.edu.au"
-                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0072CE]/30 focus:border-[#0072CE] transition-all"
-                      />
-                    </div>
-
-                    {/* Phone Number */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#042F61] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                        <Phone className="w-3.5 h-3.5 text-[#0072CE]" />
-                        <span>Contact Number</span>
-                      </label>
-                      <input 
-                        type="tel" 
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="+61 400 000 000"
-                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0072CE]/30 focus:border-[#0072CE] transition-all"
-                      />
-                    </div>
-
-                    {/* Organization / RTO */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#042F61] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                        <Building className="w-3.5 h-3.5 text-[#0072CE]" />
-                        <span>Organization / RTO Name <span className="text-red-500">*</span></span>
-                      </label>
-                      <input 
-                        type="text" 
-                        required
-                        value={formData.organization}
-                        onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                        placeholder="e.g. Australian Institute of Skills"
-                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0072CE]/30 focus:border-[#0072CE] transition-all"
-                      />
-                    </div>
-
-                    {/* Job Title / Role */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#042F61] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                        <GraduationCap className="w-3.5 h-3.5 text-[#0072CE]" />
-                        <span>Role / Job Title</span>
-                      </label>
-                      <input 
-                        type="text" 
-                        value={formData.jobTitle}
-                        onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
-                        placeholder="e.g. Lead Trainer & Assessor"
-                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0072CE]/30 focus:border-[#0072CE] transition-all"
-                      />
-                    </div>
-
-                    {/* Number of Attendees */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#042F61] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-[#0072CE]" />
-                        <span>Number of Seats</span>
-                      </label>
-                      <select 
-                        value={formData.attendeesCount}
-                        onChange={(e) => setFormData({ ...formData, attendeesCount: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0072CE]/30 focus:border-[#0072CE] transition-all cursor-pointer"
-                      >
-                        <option value="1">1 Attendee (Solo)</option>
-                        <option value="2-3">2 - 3 Attendees (Small Team)</option>
-                        <option value="4-7">4 - 7 Attendees (Assessor Cohort)</option>
-                        <option value="8+">8+ Attendees (Whole RTO Faculty)</option>
-                      </select>
-                    </div>
-
-                  </div>
-
-                  {/* Selected Session */}
-                  <div>
-                    <label className="block text-xs font-bold text-[#042F61] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-[#0072CE]" />
-                      <span>Select Target Session <span className="text-red-500">*</span></span>
-                    </label>
-                    <select 
-                      value={formData.sessionChoice}
-                      onChange={(e) => setFormData({ ...formData, sessionChoice: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0072CE]/30 focus:border-[#0072CE] transition-all cursor-pointer"
-                    >
-                      {upcomingSessions.map((s) => (
-                        <option key={s.id} value={s.title}>
-                          {s.date} — {decodeHtmlEntities(s.title)} ({s.time || '04:00 PM AEST'})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Specific Questions / Notes */}
-                  <div>
-                    <label className="block text-xs font-bold text-[#042F61] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5 text-[#0072CE]" />
-                      <span>Specific Questions or Compliance Areas of Focus</span>
-                    </label>
-                    <textarea 
-                      rows={3}
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      placeholder="e.g. We have questions around RPL evidence sufficiency and assessment tool validation under new ASQA standards..."
-                      className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#0072CE]/30 focus:border-[#0072CE] transition-all resize-none"
-                    />
-                  </div>
-
-                  {/* Submit Button */}
-                  <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                    <p className="text-xs text-slate-500">
-                      We respect your privacy. Invoices can be issued with your RTO purchase order.
-                    </p>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="bg-[#0072CE] hover:bg-[#042F61] text-white font-bold text-sm px-8 py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                    >
-                      {isSubmitting ? (
-                        <span>Processing...</span>
-                      ) : (
-                        <>
-                          <span>Submit Booking Registration</span>
-                          <Send className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                </form>
-              )}
-            </div>
-          </div>
-
         </div>
+
+        {/* ====================================================================
+            CERTIFICATE VERIFICATION SECTION
+            Direct WordPress REST API Integration: /wp-json/certificates/v1/verify
+            ==================================================================== */}
+        <CertificateVerificationCard />
 
       </div>
 
@@ -1288,22 +1061,63 @@ export const BookPDSessionPage: React.FC = () => {
 
                 <div>
                   <h4 className="text-xs uppercase font-bold text-[#042F61] tracking-wider mb-2">Description</h4>
-                  <p className="text-sm text-slate-600 leading-relaxed">
-                    {selectedSession.description}
-                  </p>
+                  {(() => {
+                    const rawDesc = selectedSession.description ? selectedSession.description.replace(/<[^>]*>?/gm, '').trim() : '';
+                    const hasDesc = rawDesc.length > 0;
+
+                    if (hasDesc) {
+                      return (
+                        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                          {decodeHtmlEntities(selectedSession.description)}
+                        </p>
+                      );
+                    }
+
+                    return (
+                      <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-600 flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-[#FDB913]/15 flex items-center justify-center shrink-0 mt-0.5">
+                          <Sparkles className="w-4 h-4 text-[#FDB913]" />
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-[#042F61] uppercase tracking-wider block mb-1">
+                            Description Pending Update
+                          </span>
+                          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                            A detailed session syllabus, learning outcomes, and recording archives for this masterclass will be updated shortly. You can reserve your seat or inquiry below.
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
-                  <a
-                    href={selectedSession.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-[#FDB913] hover:bg-[#042F61] text-[#042F61] hover:text-[#FDB913] font-black text-sm py-3.5 px-6 rounded-xl shadow-md transition-all duration-300 flex items-center justify-center gap-2 text-center"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedSession(null);
+                      setTimeout(() => {
+                        scrollToGravityFormMount();
+                      }, 120);
+                    }}
+                    className="flex-1 bg-[#FDB913] hover:bg-[#0072CE] text-[#042F61] hover:text-white font-black text-sm py-3.5 px-6 rounded-xl shadow-md transition-all duration-300 flex items-center justify-center gap-2 text-center cursor-pointer select-none group"
                   >
                     <span>Book This Session</span>
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
+                    <ArrowUpRight className="w-4 h-4 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </button>
+                  {selectedSession.url && (
+                    <a
+                      href={selectedSession.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl border border-slate-200 hover:border-[#0072CE] text-slate-700 hover:text-[#0072CE] font-bold text-xs transition-colors"
+                    >
+                      <span>Direct Payment</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
                   <button
+                    type="button"
                     onClick={() => setSelectedSession(null)}
                     className="border border-slate-300 hover:border-slate-400 text-slate-700 font-bold text-sm py-3.5 px-5 rounded-xl transition-colors cursor-pointer"
                   >
