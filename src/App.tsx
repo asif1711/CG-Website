@@ -39,6 +39,7 @@ import OurTeamsPage from "./OurTeamsPage";
 import OurPeoplePage from "./OurPeoplePage";
 import TeamDetailPage from "./TeamDetailPage";
 import HrDashboardPage from "./components/HRDashboard/HrDashboardPage";
+import BookPDSessionPage from "./components/BookPDSession/BookPDSessionPage";
 import WorldMapGraphic from "./components/WorldMapGraphic";
 import Testimonials from "./components/Testimonials";
 import { PDAnnouncement } from "./components/PDAnnouncement";
@@ -1738,8 +1739,9 @@ export default function App() {
         '#meet-our-team'
       ].includes(window.location.hash);
       const isTeamPath = window.location.pathname.startsWith('/our-people') || window.location.pathname.startsWith('/our-teams');
+      const isBookPdPath = window.location.pathname === '/book-pd-session' || window.location.hash === '#book-pd-session';
       
-      if (isTeamHash || isTeamPath) {
+      if (isTeamHash || isTeamPath || isBookPdPath) {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
     };
@@ -1774,8 +1776,13 @@ export default function App() {
   const isHrDashboardPage = 
     normalizedCurrentPath === '/hr-dashboard' ||
     currentHash === '#hr-dashboard';
+  const isBookPdSessionPage = 
+    !isHrDashboardPage && !isTeamDetailPage && !isOrgChartPage && (
+      normalizedCurrentPath === '/book-pd-session' || 
+      currentHash === '#book-pd-session'
+    );
   const isOurPeoplePage = 
-    !isTeamDetailPage && !isHrDashboardPage && (
+    !isTeamDetailPage && !isHrDashboardPage && !isBookPdSessionPage && (
       normalizedCurrentPath === '/our-people' || 
       normalizedCurrentPath === '/our-teams' || 
       [
@@ -1788,7 +1795,7 @@ export default function App() {
   return (
     <div className="font-sans">
       {!isHrDashboardPage && (
-        <Navbar forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage} />
+        <Navbar forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage || isBookPdSessionPage} />
       )}
       <main>
         <AnimatePresence mode="wait">
@@ -1836,6 +1843,16 @@ export default function App() {
                   window.scrollTo({ top: 0, behavior: 'instant' });
                 }}
               />
+            </motion.div>
+          ) : isBookPdSessionPage ? (
+            <motion.div
+              key="book-pd-session-page"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+            >
+              <BookPDSessionPage />
             </motion.div>
           ) : isOurPeoplePage ? (
             <motion.div
