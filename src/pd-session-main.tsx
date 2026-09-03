@@ -1,6 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import BookPDSessionPage from './components/BookPDSession/BookPDSessionPage';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import './index.css';
 
 // Monkey-patch DOM Node methods to prevent WordPress plugins / browser extensions / Google Translate
@@ -29,6 +31,18 @@ if (typeof Node !== 'undefined' && Node.prototype) {
     }
     return originalReplaceChild.call(this, newChild, oldChild) as T;
   };
+}
+
+function BookPdSessionApp() {
+  return (
+    <div className="font-sans min-h-screen flex flex-col justify-between">
+      <Navbar forceSolid={true} />
+      <main className="flex-1">
+        <BookPDSessionPage />
+      </main>
+      <Footer />
+    </div>
+  );
 }
 
 // Function to find and mount the Book PD Session React app safely
@@ -65,7 +79,7 @@ function initBookPdSession() {
   const root = createRoot(mountElement);
   root.render(
     <StrictMode>
-      <BookPDSessionPage />
+      <BookPdSessionApp />
     </StrictMode>
   );
 }

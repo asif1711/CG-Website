@@ -148,3 +148,495 @@ a[href*="neat.firecms.co"],
   position: absolute !important;
   left: -9999px !important;
 }
+
+/* =========================================================
+   BOOK PD SESSION — GLASS CARDS & ELEMENTOR OVERLAYS
+========================================================= */
+.card {
+  background: rgba(255, 251, 247, 0.08);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255, 251, 247, 0.16);
+  border-radius: 20px;
+  box-shadow:
+    0 12px 40px rgba(4, 47, 97, 0.18),
+    inset 0 1px 0 rgba(255, 251, 247, 0.18),
+    inset 0 -1px 0 rgba(4, 47, 97, 0.08);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.left {
+  max-height: 300px;
+}
+
+/* Blur anything acting as the Elementor Off-Canvas overlay */
+[class*="offcanvas"][class*="overlay"],
+[class*="off-canvas"][class*="overlay"],
+.e-off-canvas-overlay {
+  background: rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: blur(2px) !important;
+  -webkit-backdrop-filter: blur(2px) !important;
+}
+
+/* =========================================================
+   STRIPE QR GENERATOR & DISPLAY
+========================================================= */
+.stripe-qr-generator {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#stripe-qrcode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+#stripe-qrcode img,
+#stripe-qrcode canvas {
+  display: block;
+}
+
+/* =========================================================
+   GRAVITY FORM #20 (Book PD Session)
+   Brand Styling:
+   Primary:   #042F61
+   Secondary: #313439
+   Text:      #7A7A7A
+   Accent:    #FDB913
+========================================================= */
+
+/* FORM BASE */
+#wp-gravity-form-mount #gform_wrapper_20,
+#gform_wrapper_20 {
+  font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #313439;
+  font-size: 15px;
+  line-height: 1.5;
+  width: 100%;
+}
+
+/* REMOVE GRAVITY FORMS "(Required)" TEXT */
+#wp-gravity-form-mount #gform_wrapper_20 .gfield_required_text,
+#gform_wrapper_20 .gfield_required_text {
+  display: none !important;
+}
+
+/* Remove unnecessary required spacing */
+#wp-gravity-form-mount #gform_wrapper_20 .gfield_required,
+#gform_wrapper_20 .gfield_required {
+  margin-left: 4px;
+}
+
+/* Style the remaining required asterisk */
+#wp-gravity-form-mount #gform_wrapper_20 .gfield_required .gfield_required_asterisk,
+#gform_wrapper_20 .gfield_required .gfield_required_asterisk {
+  color: #FDB913;
+  font-weight: 600;
+}
+
+/* FIELD LABELS */
+#wp-gravity-form-mount #gform_wrapper_20 .gfield_label,
+#gform_wrapper_20 .gfield_label {
+  margin-bottom: 7px;
+  color: #313439;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+/* DESCRIPTION / SUB-LABEL TEXT */
+#wp-gravity-form-mount #gform_wrapper_20 .gfield_description,
+#gform_wrapper_20 .gfield_description {
+  color: #7A7A7A;
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* INPUTS */
+#wp-gravity-form-mount #gform_wrapper_20 input[type="text"],
+#wp-gravity-form-mount #gform_wrapper_20 input[type="email"],
+#wp-gravity-form-mount #gform_wrapper_20 input[type="tel"],
+#wp-gravity-form-mount #gform_wrapper_20 input[type="number"],
+#wp-gravity-form-mount #gform_wrapper_20 input[type="url"],
+#wp-gravity-form-mount #gform_wrapper_20 input[type="date"],
+#wp-gravity-form-mount #gform_wrapper_20 select,
+#wp-gravity-form-mount #gform_wrapper_20 textarea,
+#gform_wrapper_20 input[type="text"],
+#gform_wrapper_20 input[type="email"],
+#gform_wrapper_20 input[type="tel"],
+#gform_wrapper_20 input[type="number"],
+#gform_wrapper_20 input[type="url"],
+#gform_wrapper_20 input[type="date"],
+#gform_wrapper_20 select,
+#gform_wrapper_20 textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #D9DDE3;
+  border-radius: 7px;
+  background: #FFFFFF;
+  color: #313439;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* PLACEHOLDER */
+#wp-gravity-form-mount #gform_wrapper_20 input::placeholder,
+#wp-gravity-form-mount #gform_wrapper_20 textarea::placeholder,
+#gform_wrapper_20 input::placeholder,
+#gform_wrapper_20 textarea::placeholder {
+  color: #7A7A7A;
+  opacity: 0.75;
+}
+
+/* INPUT FOCUS */
+#wp-gravity-form-mount #gform_wrapper_20 input:focus,
+#wp-gravity-form-mount #gform_wrapper_20 select:focus,
+#wp-gravity-form-mount #gform_wrapper_20 textarea:focus,
+#gform_wrapper_20 input:focus,
+#gform_wrapper_20 select:focus,
+#gform_wrapper_20 textarea:focus {
+  border-color: #042F61;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 2px rgba(4, 47, 97, 0.10);
+}
+
+/* FIELD SPACING */
+#wp-gravity-form-mount #gform_wrapper_20 .gfield,
+#gform_wrapper_20 .gfield {
+  margin-bottom: 4px;
+}
+
+/* NAME / ADDRESS SUB-LABELS */
+#wp-gravity-form-mount #gform_wrapper_20 .gform-field-label--type-sub,
+#gform_wrapper_20 .gform-field-label--type-sub {
+  margin-top: 5px;
+  color: #7A7A7A;
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* SECTION HEADINGS */
+#wp-gravity-form-mount #gform_wrapper_20 .gsection,
+#gform_wrapper_20 .gsection {
+  margin-top: 12px;
+  margin-bottom: 18px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid #D9DDE3;
+}
+
+#wp-gravity-form-mount #gform_wrapper_20 .gsection_title,
+#gform_wrapper_20 .gsection_title {
+  margin: 0;
+  color: #042F61;
+  font-family: "Montserrat", sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.4px;
+}
+
+/* SELECT DROPDOWN */
+#wp-gravity-form-mount #gform_wrapper_20 select,
+#gform_wrapper_20 select {
+  min-height: 44px;
+  appearance: auto;
+  -webkit-appearance: auto;
+}
+
+/* CHECKBOXES / RADIO BUTTONS */
+#wp-gravity-form-mount #gform_wrapper_20 input[type="checkbox"],
+#wp-gravity-form-mount #gform_wrapper_20 input[type="radio"],
+#gform_wrapper_20 input[type="checkbox"],
+#gform_wrapper_20 input[type="radio"] {
+  accent-color: #042F61;
+}
+
+#wp-gravity-form-mount #gform_wrapper_20 .gchoice label,
+#gform_wrapper_20 .gchoice label {
+  color: #313439;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* ERROR MESSAGE */
+#wp-gravity-form-mount #gform_wrapper_20 .gfield_error,
+#gform_wrapper_20 .gfield_error {
+  background: transparent;
+  border: none;
+}
+
+#wp-gravity-form-mount #gform_wrapper_20 .gfield_validation_message,
+#wp-gravity-form-mount #gform_wrapper_20 .validation_message,
+#gform_wrapper_20 .gfield_validation_message,
+#gform_wrapper_20 .validation_message {
+  margin-top: 5px;
+  padding: 0;
+  color: #D64545;
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+}
+
+#wp-gravity-form-mount #gform_wrapper_20 .gfield_error .gfield_label,
+#gform_wrapper_20 .gfield_error .gfield_label {
+  color: #313439;
+}
+
+/* QR CODE AREA */
+#wp-gravity-form-mount #gform_wrapper_20 .stripe-qr-generator,
+#gform_wrapper_20 .stripe-qr-generator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+#wp-gravity-form-mount #gform_wrapper_20 #stripe-qrcode,
+#gform_wrapper_20 #stripe-qrcode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background: #FFFFFF;
+  border: 1px solid #E2E5E9;
+  border-radius: 20px;
+  box-sizing: border-box;
+}
+
+#wp-gravity-form-mount #gform_wrapper_20 #stripe-qrcode img,
+#wp-gravity-form-mount #gform_wrapper_20 #stripe-qrcode canvas,
+#gform_wrapper_20 #stripe-qrcode img,
+#gform_wrapper_20 #stripe-qrcode canvas {
+  display: block;
+  width: 200px;
+  height: 200px;
+  border-radius: 0;
+}
+
+/* FORM FOOTER / BUTTON AREA */
+#wp-gravity-form-mount #gform_wrapper_20 .gform_footer,
+#gform_wrapper_20 .gform_footer {
+  margin-top: 18px;
+}
+
+/* PAYMENT TRIGGER BUTTON */
+#show-payment-options {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 50px;
+  border: 0;
+  border-radius: 25px;
+  background: #FDB913;
+  color: #313439;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+#show-payment-options:hover {
+  background: #042F61;
+  color: #FFFFFF;
+}
+
+/* PAYMENT OPTIONS — ALIGNMENT */
+#wp-gravity-form-mount #gform_wrapper_20 .payment-options,
+#gform_wrapper_20 .payment-options {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 150px;
+  width: 100%;
+  margin: 20px auto 0;
+}
+
+/* PAYMENT QR CONTAINER */
+#wp-gravity-form-mount #gform_wrapper_20 #stripe-qrcode,
+#gform_wrapper_20 #stripe-qrcode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 234px;
+  height: 234px;
+  padding: 16px;
+  box-sizing: border-box;
+  background: #FFFFFF;
+  border: 1px solid #E2E5E9;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+#wp-gravity-form-mount #gform_wrapper_20 #stripe-qrcode img,
+#wp-gravity-form-mount #gform_wrapper_20 #stripe-qrcode canvas,
+#gform_wrapper_20 #stripe-qrcode img,
+#gform_wrapper_20 #stripe-qrcode canvas {
+  display: block;
+  width: 200px !important;
+  height: 200px !important;
+  max-width: none;
+  border-radius: 0;
+}
+
+/* PAY HERE BUTTON */
+#wp-gravity-form-mount #gform_wrapper_20 .stripe-payment-button,
+#gform_wrapper_20 .stripe-payment-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  min-width: 100px;
+  height: 48px;
+  padding: 15px 50px;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  background: #FDB913;
+  color: #313439;
+  border: 0;
+  border-radius: 25px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+#wp-gravity-form-mount #gform_wrapper_20 .stripe-payment-button:hover,
+#gform_wrapper_20 .stripe-payment-button:hover {
+  background: #042F61;
+  color: #FFFFFF;
+  text-decoration: none;
+  box-shadow: 0 5px 14px rgba(4, 47, 97, 0.18);
+}
+
+/* GRAVITY FORMS #20 SUBMIT BUTTON */
+#gform_submit_button_20 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 15px 50px;
+  border: none;
+  border-radius: 25px;
+  background: #FDB913;
+  color: #313439;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+#gform_submit_button_20:hover {
+  background: #042F61;
+  color: #FFFFFF;
+  box-shadow: 0 5px 14px rgba(4, 47, 97, 0.18);
+}
+
+#gform_submit_button_20:active {
+  transform: translateY(1px);
+}
+
+#gform_submit_button_20:focus-visible {
+  outline: 2px solid #FDB913;
+  outline-offset: 3px;
+}
+
+/* RESPONSIVE / MOBILE STYLES */
+@media (max-width: 600px) {
+  #wp-gravity-form-mount #gform_wrapper_20,
+  #gform_wrapper_20 {
+    font-size: 14px;
+  }
+
+  #wp-gravity-form-mount #gform_wrapper_20 .gsection_title,
+  #gform_wrapper_20 .gsection_title {
+    font-size: 24px;
+  }
+
+  #wp-gravity-form-mount #gform_wrapper_20 input[type="text"],
+  #wp-gravity-form-mount #gform_wrapper_20 input[type="email"],
+  #wp-gravity-form-mount #gform_wrapper_20 input[type="tel"],
+  #wp-gravity-form-mount #gform_wrapper_20 input[type="number"],
+  #wp-gravity-form-mount #gform_wrapper_20 input[type="url"],
+  #wp-gravity-form-mount #gform_wrapper_20 input[type="date"],
+  #wp-gravity-form-mount #gform_wrapper_20 select,
+  #wp-gravity-form-mount #gform_wrapper_20 textarea,
+  #gform_wrapper_20 input[type="text"],
+  #gform_wrapper_20 input[type="email"],
+  #gform_wrapper_20 input[type="tel"],
+  #gform_wrapper_20 input[type="number"],
+  #gform_wrapper_20 input[type="url"],
+  #gform_wrapper_20 input[type="date"],
+  #gform_wrapper_20 select,
+  #gform_wrapper_20 textarea {
+    font-size: 14px;
+  }
+
+  #wp-gravity-form-mount #gform_wrapper_20 .payment-options,
+  #gform_wrapper_20 .payment-options {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  #wp-gravity-form-mount #gform_wrapper_20 #stripe-qrcode,
+  #gform_wrapper_20 #stripe-qrcode {
+    width: 214px;
+    height: 214px;
+    padding: 12px;
+  }
+
+  #wp-gravity-form-mount #gform_wrapper_20 #stripe-qrcode img,
+  #wp-gravity-form-mount #gform_wrapper_20 #stripe-qrcode canvas,
+  #gform_wrapper_20 #stripe-qrcode img,
+  #gform_wrapper_20 #stripe-qrcode canvas {
+    width: 180px !important;
+    height: 180px !important;
+  }
+
+  #wp-gravity-form-mount #gform_wrapper_20 .stripe-payment-button,
+  #gform_wrapper_20 .stripe-payment-button {
+    height: 46px;
+    width: 100% !important;
+  }
+}
+
