@@ -105,26 +105,39 @@ export const CertificateVerificationCard: React.FC = () => {
     const query = `certificate_id=${encodeURIComponent(trimmedId)}&full_name=${encodeURIComponent(trimmedName)}`;
 
     try {
-      let response: Response;
+      let data: VerifyCertificateResponse | null = null;
+
+      // 1. Try relative endpoint first (works in production on WordPress and in local/dev via Vite proxy)
       try {
-        response = await fetch(`/wp-json/certificates/v1/verify?${query}`, {
+        const localResponse = await fetch(`/wp-json/certificates/v1/verify?${query}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json'
           }
         });
-      } catch {
-        // Fallback for preview/local environments if relative path is unreachable
-        response = await fetch(`https://chelsongordon.com/wp-json/certificates/v1/verify?${query}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json'
-          }
-        });
+        const contentType = localResponse.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          data = await localResponse.json();
+        }
+      } catch (e) {
+        console.warn('Relative verification request failed, trying remote fallback:', e);
       }
 
-      // The endpoint returns JSON for both 200 and 404 (e.g. {"verified": false, "message": "..."})
-      const data: VerifyCertificateResponse = await response.json();
+      // 2. Fallback to direct WordPress domain if relative request was not JSON or failed
+      if (!data) {
+        const remoteResponse = await fetch(`https://chelsongordon.com/wp-json/certificates/v1/verify?${query}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        const contentType = remoteResponse.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          data = await remoteResponse.json();
+        } else {
+          throw new Error('Received non-JSON response from verification server');
+        }
+      }
 
       if (data && data.verified && data.certificate) {
         setVerifiedResult({
@@ -214,7 +227,7 @@ export const CertificateVerificationCard: React.FC = () => {
           Verify your Certificate
         </h2>
         <p className="text-sm sm:text-base text-slate-600 max-w-2xl mt-2 leading-relaxed">
-          Verify the authenticity of your Professional Development Certificate by entering your Full Name and unique Certificate ID provided by our team.
+          Verify the authenticity of your Professional Development Certificate by entering your full name and unique certificate ID provided by our team.
         </p>
       </div>
 

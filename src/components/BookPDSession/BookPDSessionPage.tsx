@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  ArrowUpRight, 
   ArrowRight,
   Users, 
   Play, 
@@ -10,7 +9,6 @@ import {
   Calendar, 
   Clock, 
   X, 
-  ExternalLink, 
   ChevronRight, 
   ChevronLeft,
   ChevronDown,
@@ -1144,35 +1142,11 @@ useEffect(() => {
                   })()}
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedSession(null);
-                      setTimeout(() => {
-                        scrollToGravityFormMount();
-                      }, 120);
-                    }}
-                    className="flex-1 bg-[#FDB913] hover:bg-[#0072CE] text-[#042F61] hover:text-white font-black text-sm py-3.5 px-6 rounded-xl shadow-md transition-all duration-300 flex items-center justify-center gap-2 text-center cursor-pointer select-none group"
-                  >
-                    <span>Book This Session</span>
-                    <ArrowUpRight className="w-4 h-4 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </button>
-                  {selectedSession.url && (
-                    <a
-                      href={selectedSession.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl border border-slate-200 hover:border-[#0072CE] text-slate-700 hover:text-[#0072CE] font-bold text-xs transition-colors"
-                    >
-                      <span>Direct Payment</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  )}
+                <div className="pt-4 border-t border-slate-100 flex justify-end">
                   <button
                     type="button"
                     onClick={() => setSelectedSession(null)}
-                    className="border border-slate-300 hover:border-slate-400 text-slate-700 font-bold text-sm py-3.5 px-5 rounded-xl transition-colors cursor-pointer"
+                    className="w-full sm:w-auto border border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-slate-700 font-bold text-sm py-3 px-6 rounded-xl transition-colors cursor-pointer text-center"
                   >
                     Dismiss
                   </button>
