@@ -23,10 +23,10 @@ export const EMPLOYEE_IMAGE_SCALE: Record<string, number> = {
   // CONSULTANT TEAM
   // Adjust these values to zoom the cut-out photos from center
   // ==========================================
-  "Ratul Dasgupta": 1.2,       // CG-CON-002 (has cut-out photo)
+  "Ratul Dasgupta": 1.15,       // CG-CON-002 (has cut-out photo)
   "Abhik Purkayastha": 1.2,    // CG-CON-019 (has cut-out photo)
-  "Ankit Chattopadhyay": 1.0,  // CG-CON-028 (has cut-out photo)
-  "Arpan Sinha": 1.0,          // CG-CON-003
+  "Ankit Chattopadhyay": 1.2,  // CG-CON-028 (has cut-out photo)
+  "Arpan Sinha": 1.2,          // CG-CON-003
   "Rajdeep Singh": 1.0,        // CG-CON-004
   "Paulami Saha": 1.0,         // CG-CON-006
   "Arya Sah": 1.0,             // CG-CON-007
@@ -54,7 +54,7 @@ export const EMPLOYEE_IMAGE_SCALE: Record<string, number> = {
   "Aswini Devi": 1.0,          // CG-CON-032
   "Priya Kumari": 1.0,         // CG-CON-033
   "Sevuloni Ratu": 1.0,        // CG-CON-034
-  "Avigyan Ray": 1.0,          // CG-CON-035
+  "Avigyan Ray": 1.2,          // CG-CON-035
   "Alvin Rao": 1.0,            // CG-CON-036
   "Sumedha Sadhu": 1.0,        // CG-CON-037
   "Deb Acharyya": 1.0,         // CG-CON-038
