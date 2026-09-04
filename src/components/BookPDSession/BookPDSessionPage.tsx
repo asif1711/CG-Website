@@ -294,6 +294,19 @@ export const BookPDSessionPage: React.FC = () => {
 
     fetchWPSessions();
 
+    // Mount server-rendered Gravity Form #20 from #cg-hidden-gform-source into #wp-gravity-form-mount
+    const mountContainer = gravityFormMountRef.current || document.getElementById('wp-gravity-form-mount');
+    if (mountContainer && !mountContainer.querySelector('#gform_wrapper_20, #gform_20')) {
+      const hiddenSource = document.getElementById('cg-hidden-gform-source');
+      const formElement = hiddenSource?.querySelector('#gform_wrapper_20, #gform_20, form') 
+        || document.getElementById('gform_wrapper_20') 
+        || hiddenSource?.firstElementChild;
+
+      if (formElement && !mountContainer.contains(formElement)) {
+        mountContainer.replaceChildren(formElement);
+      }
+    }
+
     // Dispatch event to inform any WordPress Gravity Form scripts that mount point is ready
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('gform_mount_ready', {
@@ -304,6 +317,12 @@ export const BookPDSessionPage: React.FC = () => {
     return () => {
       isMounted = false;
       document.title = originalTitle;
+      const currentMount = gravityFormMountRef.current || document.getElementById('wp-gravity-form-mount');
+      const mountedForm = currentMount?.querySelector('#gform_wrapper_20, #gform_20');
+      const hiddenSource = document.getElementById('cg-hidden-gform-source');
+      if (mountedForm && hiddenSource && !hiddenSource.contains(mountedForm)) {
+        hiddenSource.appendChild(mountedForm);
+      }
     };
   }, []);
 
@@ -1036,12 +1055,7 @@ useEffect(() => {
             className="gform_wrapper gravity-form-mount-container w-full min-h-[160px] flex items-center justify-center scroll-mt-28 sm:scroll-mt-36"
             data-form-type="gravity-forms"
             data-form-name="pd-session-registration"
-          >
-            {/* WordPress Gravity Form mounts here */}
-            <span className="text-slate-400 text-xs font-mono select-none">
-              #wp-gravity-form-mount
-            </span>
-          </div>
+          />
         </div>
 
         {/* ====================================================================
