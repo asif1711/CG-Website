@@ -67,7 +67,7 @@ export const CertificateVerificationCard: React.FC = () => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [networkError, setNetworkError] = useState<string | null>(null);
   const [verifiedResult, setVerifiedResult] = useState<VerifyCertificateResponse | null>(null);
-  const [viewSize, setViewSize] = useState<'dynamic' | 'a4-portrait' | 'a4-landscape'>('dynamic');
+  const [viewSize, setViewSize] = useState<'dynamic' | 'a4-portrait' | 'a4-landscape'>('a4-portrait');
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Close fullscreen on Escape key
@@ -214,7 +214,7 @@ export const CertificateVerificationCard: React.FC = () => {
           Verify your Certificate
         </h2>
         <p className="text-sm sm:text-base text-slate-600 max-w-2xl mt-2 leading-relaxed">
-          Verify the authenticity of a Professional Development Certificate by entering the participant's Full Name and unique Certificate ID.
+          Verify the authenticity of your Professional Development Certificate by entering your Full Name and unique Certificate ID provided by our team.
         </p>
       </div>
 
@@ -332,17 +332,11 @@ export const CertificateVerificationCard: React.FC = () => {
                     </div>
                     <div>
                       <div className="flex items-center gap-2.5 flex-wrap">
-                        <span className="text-[11px] font-bold text-[#0072CE] uppercase tracking-wider">
-                          Verified Participant
-                        </span>
                         {renderStatusBadge(verifiedResult.certificate.status)}
                       </div>
                       <h3 className="text-xl sm:text-2xl font-black text-[#042F61] tracking-tight mt-1">
                         {verifiedResult.certificate.full_name}
                       </h3>
-                      <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-0.5">
-                        {verifiedResult.certificate.session_name}
-                      </p>
                     </div>
                   </div>
 
@@ -379,15 +373,6 @@ export const CertificateVerificationCard: React.FC = () => {
 
                   <div className="bg-white/80 rounded-xl p-3 border border-white/60">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                      Status
-                    </span>
-                    <span className="text-xs sm:text-sm font-bold text-[#042F61] mt-0.5 block capitalize truncate">
-                      {verifiedResult.certificate.status}
-                    </span>
-                  </div>
-
-                  <div className="bg-white/80 rounded-xl p-3 border border-white/60">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
                       Session Name
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-[#042F61] mt-0.5 block truncate" title={verifiedResult.certificate.session_name}>
@@ -406,11 +391,8 @@ export const CertificateVerificationCard: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-[#042F61]">
-                        Official Certificate Document
+                        Verified Certificate
                       </h4>
-                      <p className="text-[11px] text-slate-500">
-                        Rendered electronic verification document for {verifiedResult.certificate.full_name}
-                      </p>
                     </div>
                   </div>
 
@@ -447,18 +429,6 @@ export const CertificateVerificationCard: React.FC = () => {
                     <div className="flex items-center gap-1 bg-slate-200/70 p-1 rounded-xl">
                       <button
                         type="button"
-                        onClick={() => setViewSize('dynamic')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                          viewSize === 'dynamic'
-                            ? 'bg-white text-[#042F61] shadow-xs'
-                            : 'text-slate-600 hover:text-[#042F61]'
-                        }`}
-                        title="Dynamic responsive viewport to view the whole page"
-                      >
-                        Dynamic Full View
-                      </button>
-                      <button
-                        type="button"
                         onClick={() => setViewSize('a4-portrait')}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                           viewSize === 'a4-portrait'
@@ -480,6 +450,18 @@ export const CertificateVerificationCard: React.FC = () => {
                         title="Standard A4 Landscape ratio (297 × 210 mm)"
                       >
                         A4 Landscape
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setViewSize('dynamic')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          viewSize === 'dynamic'
+                            ? 'bg-white text-[#042F61] shadow-xs'
+                            : 'text-slate-600 hover:text-[#042F61]'
+                        }`}
+                        title="Dynamic responsive viewport to view the whole page"
+                      >
+                        Dynamic View
                       </button>
                     </div>
 

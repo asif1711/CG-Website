@@ -392,6 +392,66 @@ export const BookPDSessionPage: React.FC = () => {
     }
   };
 
+  const scrollToCertificateVerification = (e?: React.MouseEvent) => {
+  if (e) {
+    e.preventDefault();
+  }
+
+  const target = document.getElementById('certificate-verification-section');
+
+  if (target) {
+    const headerOffset = 100;
+    const elementPosition = target.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+    try {
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: 'smooth'
+      });
+    } catch {
+      window.scrollTo(0, Math.max(0, offsetPosition));
+    }
+
+    try {
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    } catch {
+      target.scrollIntoView();
+    }
+
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, '', '#certificate-verification-section');
+    } else {
+      window.location.hash = 'certificate-verification-section';
+    }
+  } else {
+    window.location.hash = 'certificate-verification-section';
+  }
+};
+
+useEffect(() => {
+  const handleHashScroll = () => {
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hash === '#certificate-verification-section'
+    ) {
+      const timer = setTimeout(() => {
+        scrollToCertificateVerification();
+      }, 200);
+
+      return () => clearTimeout(timer);
+    }
+  };
+
+  handleHashScroll();
+  window.addEventListener('hashchange', handleHashScroll);
+
+  return () => window.removeEventListener('hashchange', handleHashScroll);
+}, []);
+
   // Check URL hash on load or hashchange to handle direct deep links to the registration form card
   useEffect(() => {
     const handleHashScroll = () => {
