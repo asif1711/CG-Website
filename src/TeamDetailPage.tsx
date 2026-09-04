@@ -28,6 +28,9 @@ import {
   Briefcase
 } from 'lucide-react';
 import { EMPLOYEES_FLAT_DATA, getInitials } from './orgData';
+import { EMPLOYEE_IMAGE_SCALE, getEmployeeImageScale } from './employeeScaleConfig';
+
+export { EMPLOYEE_IMAGE_SCALE, getEmployeeImageScale };
 
 // Helper to determine role-based icon (e.g. Clapperboard/Film for Media Production, Globe for Web Designers/Developers)
 const getRoleIcon = (position: string, team?: string) => {
@@ -109,6 +112,7 @@ interface TeamMemberDisplay {
   bio?: string;
   motto?: string;
   image_url?: string;
+  image_scale?: number;
   avatar?: string;
   office?: string;
   email?: string;
@@ -124,6 +128,7 @@ interface TeamMemberCardProps {
 
 const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ emp, index, onSelect }) => {
   const RoleIcon = getRoleIcon(emp.position, emp.team);
+  const scaleFactor = emp.image_scale ?? 1.0;
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     let origin: 'left' | 'center' | 'right' = 'center';
@@ -176,19 +181,34 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ emp, index, onSelect })
           </div>
 
           {/* Foreground Overlaid Cut-Out Image / Avatar */}
-          <div className="absolute inset-x-0 bottom-0 top-[-25%] z-10 flex items-end justify-center pointer-events-none overflow-visible">
+          <div 
+            className="absolute inset-x-0 bottom-0 top-[-35%] z-10 flex items-end justify-center pointer-events-none overflow-visible"
+            style={{
+              clipPath: 'polygon(-50% -100%, 150% -100%, 150% 100%, -50% 100%)'
+            }}
+          >
             {emp.image_url ? (
               <img
                 src={emp.image_url}
                 alt={emp.name}
-                className="h-[125%] w-auto max-w-[85%] sm:max-w-[80%] object-contain object-bottom filter drop-shadow-2xl"
+                className="h-full w-auto max-w-[85%] sm:max-w-[80%] object-contain object-bottom filter drop-shadow-2xl transition-transform duration-300"
+                style={{
+                  transform: `scale(${scaleFactor})`,
+                  transformOrigin: 'center bottom'
+                }}
                 loading="lazy"
                 referrerPolicy="no-referrer"
               />
             ) : (
               /* Fallback Cut-out Silhouette / Stylized Avatar when no photo */
-              <div className="relative h-[120%] w-[75%] sm:w-[70%] flex items-end justify-center pb-1">
-                <div className="w-full h-full flex flex-col items-center justify-center bg-white/20 backdrop-blur-md rounded-t-2xl text-white shadow-inner">
+              <div className="relative h-[115%] w-[75%] sm:w-[70%] flex items-end justify-center pb-1">
+                <div 
+                  className="w-full h-[85%] flex flex-col items-center justify-center bg-white/20 backdrop-blur-md rounded-t-2xl text-white shadow-inner transition-transform duration-300"
+                  style={{
+                    transform: `scale(${scaleFactor})`,
+                    transformOrigin: 'center bottom'
+                  }}
+                >
                   <span className="text-3xl sm:text-4xl font-black text-white/90 tracking-wider drop-shadow-md">
                     {emp.avatar || getInitials(emp.name)}
                   </span>
@@ -237,13 +257,23 @@ interface TeamDetailPageProps {
   onNavigateBack?: () => void;
 }
 
+// Mapping of React team IDs to WordPress CPT taxonomy slugs
+const TEAM_WP_QUERY_MAP: Record<string, string> = {
+  'marketing-team': 'marketing-team',
+  'consultant-team': 'consultant-team',
+  'operational-support-team': 'operational-support-team',
+  'human-strategy-team': 'human-strategy-team',
+  'executive-assistant-team': 'executive-assistant-team',
+  'learning-academic-team': 'administrative-teams',
+};
+
 export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageProps) {
   // Normalize slug to match with or without leading/trailing slashes
   const normalizedSlug = slug.replace(/\/+$/, '') || '/';
   const team = TEAMS_DATA.find((t) => t.slug === normalizedSlug) || TEAMS_DATA[0];
   const TeamIcon = getTeamIcon(team.id);
 
-  // States for WordPress API integration test
+  // States for WordPress API integration
   const [wpMembers, setWpMembers] = useState<WordPressTeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -263,14 +293,14 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
     };
   }, [team]);
 
-  // WordPress REST API fetch for Marketing Team
-  const fetchMarketingTeam = () => {
-    if (team.id !== 'marketing-team') return;
+  // WordPress REST API fetch for team members directly from CPT
+  const fetchTeamData = () => {
+    const wpTeamSlug = TEAM_WP_QUERY_MAP[team.id] || team.id;
 
     setIsLoading(true);
     setFetchError(null);
 
-    const API_URL = 'https://chelsongordon.com/wp-json/cg/v1/team-members?team=marketing-team';
+    const API_URL = `https://chelsongordon.com/wp-json/cg/v1/team-members?team=${encodeURIComponent(wpTeamSlug)}`;
 
     fetch(API_URL)
       .then((res) => {
@@ -280,59 +310,58 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
         return res.json();
       })
       .then((data: WordPressTeamMember[]) => {
-        // Step 10: Temporary console logging to verify API response
-        console.log('WordPress Team Members:', data);
         setWpMembers(Array.isArray(data) ? data : []);
         setIsLoading(false);
       })
       .catch((err: Error) => {
-        console.error('WordPress Team Members API Fetch Error:', err);
+        console.error(`WordPress Team Members API Fetch Error (${team.id}):`, err);
         setFetchError(err.message || 'Failed to load team data from WordPress API');
         setIsLoading(false);
       });
   };
 
   useEffect(() => {
-    if (team.id === 'marketing-team') {
-      fetchMarketingTeam();
-    }
+    fetchTeamData();
   }, [team.id]);
 
-  // Resolved list of members for this team view
+  // Resolved list of members: directly from CPT with fallback to local flat data
   const teamMembers: TeamMemberDisplay[] = useMemo(() => {
-    if (team.id === 'marketing-team') {
-      // Step 7 & 8: Filter by show === true and map API fields
-      return wpMembers
-        .filter((member) => member.show === true)
-        .map((member) => ({
-          id: member.id,
-          employee_id: member.employee_id,
-          name: member.name,
-          position: member.position,
-          team: member.team,
-          subteam: member.subteam,
-          bio: member.bio,
-          motto: member.motto,
-          image_url: member.image_url,
-          avatar: getInitials(member.name),
-          show: member.show
-        }));
+    // 1. Primary: Use live WordPress CPT data directly
+    if (wpMembers && wpMembers.length > 0) {
+      return wpMembers.map((member) => ({
+        id: member.id,
+        employee_id: member.employee_id,
+        name: member.name,
+        position: member.position,
+        team: member.team,
+        subteam: member.subteam,
+        bio: member.bio,
+        motto: member.motto,
+        image_url: member.image_url || undefined,
+        image_scale: getEmployeeImageScale(member),
+        avatar: getInitials(member.name),
+        show: member.show
+      }));
     }
 
-    // For other teams, continue using local JSON / flat data
-    const deptKeywordMap: Record<string, string> = {
-      'learning-academic-team': 'Learning & Academic Operations',
-      'consultant-team': 'Business Consultant',
-      'human-strategy-team': 'Human Strategy',
-      'executive-assistant-team': 'Executive Assistant',
-      'operational-support-team': 'Operational Support'
+    // 2. Fallback: If CPT returns empty or encounters network errors, fallback to local flat data
+    const deptKeywordMap: Record<string, string[]> = {
+      'learning-academic-team': ['learning & academic', 'learning support', 'academic'],
+      'consultant-team': ['consultant', 'consulting'],
+      'human-strategy-team': ['human strategy', 'hr'],
+      'executive-assistant-team': ['executive assistant', 'accounting'],
+      'operational-support-team': ['operational support', 'operations', 'administrator', 'support'],
+      'marketing-team': ['marketing', 'sales', 'media']
     };
 
-    const targetDept = deptKeywordMap[team.id];
-    if (!targetDept) return [];
+    const targetKeywords = deptKeywordMap[team.id] || [team.name.toLowerCase()];
 
     return EMPLOYEES_FLAT_DATA
-      .filter((emp) => emp.department.toLowerCase().includes(targetDept.toLowerCase()) || emp.role.toLowerCase().includes(targetDept.toLowerCase()))
+      .filter((emp) => {
+        const d = (emp.department || '').toLowerCase();
+        const r = (emp.role || '').toLowerCase();
+        return targetKeywords.some((kw) => d.includes(kw.toLowerCase()) || r.includes(kw.toLowerCase()));
+      })
       .map((emp) => ({
         id: emp.id,
         employee_id: emp.id,
@@ -344,9 +373,10 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
         email: emp.email,
         phone: emp.phone,
         avatar: emp.avatar || getInitials(emp.name),
+        image_scale: getEmployeeImageScale(emp),
         show: true
       }));
-  }, [team.id, wpMembers]);
+  }, [team.id, team.name, wpMembers]);
 
   const handleBack = () => {
     if (onNavigateBack) {
@@ -402,7 +432,7 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
 
         {/* Team Members Section */}
         <div className="mb-12">
-          <div className="mb-6">
+          <div className="mb-[34px]">
             <h2 className="text-xl sm:text-2xl font-bold text-primary tracking-tight">
               Team Members
             </h2>
@@ -415,7 +445,7 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
 
           {/* Loading State */}
           {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 xl:gap-x-8 gap-y-[44px] xl:gap-y-[52px]">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="bg-white rounded-2xl border border-slate-200 p-6 animate-pulse">
                   <div className="flex items-start justify-between gap-4 mb-4">
@@ -437,7 +467,7 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
               <h3 className="text-sm font-bold text-red-800 uppercase tracking-wider">WordPress API Fetch Error</h3>
               <p className="text-xs text-red-600 mt-1 mb-4">{fetchError}</p>
               <button
-                onClick={fetchMarketingTeam}
+                onClick={fetchTeamData}
                 className="px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-primary-light transition-colors cursor-pointer"
               >
                 Try Again
@@ -449,7 +479,7 @@ export default function TeamDetailPage({ slug, onNavigateBack }: TeamDetailPageP
           {!isLoading && !fetchError && (
             <>
               {teamMembers.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 xl:gap-x-8 gap-y-[44px] xl:gap-y-[52px]">
                   {teamMembers.map((emp, index) => (
                     <TeamMemberCard
                       key={emp.id}
