@@ -149,15 +149,26 @@ const NAV_LINKS = [
 
 export interface NavbarProps {
   forceSolid?: boolean;
+  logoHref?: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
+export const Navbar: React.FC<NavbarProps> = ({ forceSolid, logoHref }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState(() => {
     return localStorage.getItem('selected_language_name') || 'English';
   });
+
+  const isBookPdSessionPage = 
+    typeof window !== 'undefined' && 
+    (window.location.pathname === '/book-pd-session' || 
+     window.location.pathname.startsWith('/book-pd-session') || 
+     window.location.hash === '#book-pd-session' ||
+     window.location.hash.startsWith('#book-pd-session'));
+
+  const effectiveLogoHref = logoHref || (isBookPdSessionPage ? 'https://chelsongordon.com/' : '/');
+  const isExternalLogoLink = effectiveLogoHref.startsWith('http');
 
   const activeScrolled = isScrolled || forceSolid;
 
@@ -321,15 +332,19 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid }) => {
         {/* Left: Logo */}
         <div className="flex-shrink-0">
           <a 
-            href="/" 
+            href={effectiveLogoHref} 
             onClick={(e) => {
+              if (isExternalLogoLink) {
+                // Allow direct navigation to https://chelsongordon.com/
+                return;
+              }
               e.preventDefault();
               window.history.pushState(null, '', '/');
               window.location.hash = "";
               window.dispatchEvent(new Event('popstate'));
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="flex items-center gap-3"
+            className="flex items-center gap-3 cursor-pointer"
           >
              <img 
                src={activeScrolled ? LOGO_URL : (logoError ? LOGO_URL : LOGO_WHITE_URL)} 

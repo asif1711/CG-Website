@@ -1739,9 +1739,9 @@ export default function App() {
         '#meet-our-team'
       ].includes(window.location.hash);
       const isTeamPath = window.location.pathname.startsWith('/our-people') || window.location.pathname.startsWith('/our-teams');
-      const isBookPdPath = window.location.pathname === '/book-pd-session' || window.location.hash === '#book-pd-session';
+      const isBookPdPath = window.location.pathname === '/book-pd-session' || window.location.hash === '#book-pd-session' || window.location.hash.startsWith('#book-pd-session');
       
-      if (isTeamHash || isTeamPath || isBookPdPath) {
+      if (isTeamHash || isTeamPath || (isBookPdPath && !window.location.hash.includes('booking-registration-section') && !window.location.hash.includes('wp-gravity-form-mount'))) {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
     };
@@ -1779,7 +1779,8 @@ export default function App() {
   const isBookPdSessionPage = 
     !isHrDashboardPage && !isTeamDetailPage && !isOrgChartPage && (
       normalizedCurrentPath === '/book-pd-session' || 
-      currentHash === '#book-pd-session'
+      currentHash === '#book-pd-session' ||
+      currentHash.startsWith('#book-pd-session')
     );
   const isOurPeoplePage = 
     !isTeamDetailPage && !isHrDashboardPage && !isBookPdSessionPage && (
@@ -1795,7 +1796,10 @@ export default function App() {
   return (
     <div className="font-sans">
       {!isHrDashboardPage && (
-        <Navbar forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage || isBookPdSessionPage} />
+        <Navbar 
+          forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage || isBookPdSessionPage} 
+          logoHref={isBookPdSessionPage ? "https://chelsongordon.com/" : undefined}
+        />
       )}
       <main>
         <AnimatePresence mode="wait">

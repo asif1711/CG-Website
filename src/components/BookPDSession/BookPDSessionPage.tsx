@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowUpRight, 
+  ArrowRight,
   Users, 
   Play, 
   ShieldCheck, 
@@ -14,33 +15,12 @@ import {
   ChevronLeft,
   ChevronDown,
   MessageSquare,
-  Globe
+  Globe,
+  History,
+  Mail
 } from 'lucide-react';
 import { WordPressPDSession } from '../PDAnnouncement';
 import { CertificateVerificationCard } from './CertificateVerificationCard';
-
-/**
- * Custom Mail Arrow icon representing an outgoing email message (Envelope + Arrow Up Right)
- */
-export const MailArrowUpRight: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
-  <svg 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2.2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-    aria-hidden="true"
-  >
-    {/* Envelope Body */}
-    <rect width="15" height="11" x="2" y="8" rx="2" />
-    <path d="m2 10 7.5 5 7.5-5" />
-    {/* Arrow pointing up and to the right */}
-    <path d="M15 3h6v6" />
-    <path d="m14 10 7-7" />
-  </svg>
-);
 
 /**
  * Decodes HTML entities commonly returned by WordPress (e.g. &#8211;, &#8212;, &amp;)
@@ -371,13 +351,13 @@ export const BookPDSessionPage: React.FC = () => {
     }
 
     const target = 
+      document.getElementById('booking-registration-section') ||
       document.getElementById('wp-gravity-form-mount') ||
-      gravityFormMountRef.current ||
-      document.getElementById('booking-registration-section');
+      gravityFormMountRef.current;
 
     if (target) {
       // Calculate clearance offset taking sticky navigation headers and WP admin bar into account
-      const headerOffset = 120;
+      const headerOffset = 100;
       const elementPosition = target.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -403,23 +383,29 @@ export const BookPDSessionPage: React.FC = () => {
 
       // 3. Update hash in address bar without abrupt jump
       if (window.history && window.history.pushState) {
-        window.history.pushState(null, '', '#wp-gravity-form-mount');
+        window.history.pushState(null, '', '#booking-registration-section');
       } else {
-        window.location.hash = 'wp-gravity-form-mount';
+        window.location.hash = 'booking-registration-section';
       }
     } else {
-      window.location.hash = 'wp-gravity-form-mount';
+      window.location.hash = 'booking-registration-section';
     }
   };
 
-  // Check URL hash on load to handle direct deep links to the registration form
+  // Check URL hash on load or hashchange to handle direct deep links to the registration form card
   useEffect(() => {
-    if (typeof window !== 'undefined' && (window.location.hash === '#wp-gravity-form-mount' || window.location.hash === '#booking-registration-section')) {
-      const timer = setTimeout(() => {
-        scrollToGravityFormMount();
-      }, 350);
-      return () => clearTimeout(timer);
-    }
+    const handleHashScroll = () => {
+      if (typeof window !== 'undefined' && (window.location.hash === '#booking-registration-section' || window.location.hash === '#wp-gravity-form-mount')) {
+        const timer = setTimeout(() => {
+          scrollToGravityFormMount();
+        }, 200);
+        return () => clearTimeout(timer);
+      }
+    };
+
+    handleHashScroll();
+    window.addEventListener('hashchange', handleHashScroll);
+    return () => window.removeEventListener('hashchange', handleHashScroll);
   }, []);
 
   const handleOpenBooking = (sessionToBook?: WordPressPDSession) => {
@@ -435,8 +421,8 @@ export const BookPDSessionPage: React.FC = () => {
         className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0"
         aria-hidden="true"
       >
-        {/* Right Side Vertical Watermark Column (positioned directly below header ending, right-[120px]) */}
-        <div className="absolute top-[165px] sm:top-[180px] lg:top-[170px] xl:top-[190px] 2xl:top-[205px] right-[120px] w-0 h-0 overflow-visible origin-top-left transform rotate-90 text-[52px] sm:text-[64px] lg:text-[72px] xl:text-[80px] font-black tracking-widest text-[#042F61]/[0.07] uppercase leading-none whitespace-nowrap select-none">
+        {/* Right Side Vertical Watermark Column (positioned directly below header ending, right-[120px] on mobile/tablet/desktop, shifted to right-[60px] on standard laptop lg screens) */}
+        <div className="absolute top-[165px] sm:top-[180px] lg:top-[170px] xl:top-[190px] 2xl:top-[205px] right-[120px] lg:right-[60px] xl:right-[120px] w-0 h-0 overflow-visible origin-top-left transform rotate-90 text-[52px] sm:text-[64px] lg:text-[72px] xl:text-[80px] font-black tracking-widest text-[#042F61]/[0.07] uppercase leading-none whitespace-nowrap select-none">
           PROFESSIONAL DEVELOPMENT
         </div>
         {/* Ambient Gradient Halos */}
@@ -510,48 +496,53 @@ export const BookPDSessionPage: React.FC = () => {
                     {/* Header Row: Category Pill Tag + Carousel Navigation */}
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/85 border border-[#0072CE]/20 text-[#0072CE] text-xs font-bold tracking-wider uppercase shadow-xs">
-                        <Sparkles className="w-3.5 h-3.5 text-[#FDB913]" />
-                        <span>Upcoming Masterclass</span>
-                        {upcomingSessions.length > 1 && (
-                          <span className="bg-[#0072CE]/10 text-[#0072CE] text-[10px] px-2 py-0.5 rounded-full font-bold ml-1">
-                            {upcomingIndex + 1} / {upcomingSessions.length}
-                          </span>
-                        )}
+                        <span className="inline-flex items-center text-[#0072CE]">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <ArrowRight className="w-2.5 h-2.5 -ml-0.5" />
+                        </span>
+                        <span>UPCOMING SESSIONS</span>
                       </div>
 
                       {/* Carousel Arrow & Dot Navigation Controls */}
                       {upcomingSessions.length > 1 && (
-                        <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full border border-slate-200/80 shadow-xs">
-                          <button
-                            onClick={handlePrevUpcoming}
-                            aria-label="Previous upcoming session"
-                            className="w-7 h-7 rounded-full flex items-center justify-center text-[#042F61] hover:bg-[#0072CE] hover:text-white transition-colors cursor-pointer"
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                          </button>
-                          
-                          <div className="flex items-center gap-1 px-1">
-                            {upcomingSessions.map((_, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => setUpcomingIndex(idx)}
-                                aria-label={`Go to upcoming session slide ${idx + 1}`}
-                                className={`transition-all rounded-full cursor-pointer ${
-                                  idx === upcomingIndex 
-                                    ? 'w-4 h-2 bg-[#0072CE]' 
-                                    : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
-                                }`}
-                              />
-                            ))}
+                        <div className="flex items-center gap-2">
+                          {/* Session Count Div moved to the left of carousel navigation arrow pill section */}
+                          <div className="bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full border border-slate-200/80 shadow-xs text-[#0072CE] text-xs font-bold font-sans">
+                            {upcomingIndex + 1} / {upcomingSessions.length}
                           </div>
 
-                          <button
-                            onClick={handleNextUpcoming}
-                            aria-label="Next upcoming session"
-                            className="w-7 h-7 rounded-full flex items-center justify-center text-[#042F61] hover:bg-[#0072CE] hover:text-white transition-colors cursor-pointer"
-                          >
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full border border-slate-200/80 shadow-xs">
+                            <button
+                              onClick={handlePrevUpcoming}
+                              aria-label="Previous upcoming session"
+                              className="w-7 h-7 rounded-full flex items-center justify-center text-[#042F61] hover:bg-[#0072CE] hover:text-white transition-colors cursor-pointer"
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            
+                            <div className="flex items-center gap-1 px-1">
+                              {upcomingSessions.map((_, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => setUpcomingIndex(idx)}
+                                  aria-label={`Go to upcoming session slide ${idx + 1}`}
+                                  className={`transition-all rounded-full cursor-pointer ${
+                                    idx === upcomingIndex 
+                                      ? 'w-4 h-2 bg-[#0072CE]' 
+                                      : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+
+                            <button
+                              onClick={handleNextUpcoming}
+                              aria-label="Next upcoming session"
+                              className="w-7 h-7 rounded-full flex items-center justify-center text-[#042F61] hover:bg-[#0072CE] hover:text-white transition-colors cursor-pointer"
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -607,7 +598,7 @@ export const BookPDSessionPage: React.FC = () => {
                     className="w-full bg-[#FDB913] hover:bg-[#042F61] text-[#042F61] hover:text-[#FDB913] text-sm font-black tracking-wider uppercase py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer select-none"
                   >
                     <span>Join Now</span>
-                    <ArrowUpRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4" />
                   </a>
                 </div>
               </div>
@@ -646,7 +637,7 @@ export const BookPDSessionPage: React.FC = () => {
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none -skew-x-12" />
                 
                 <span className="relative z-10 whitespace-nowrap">JOIN NOW</span>
-                <ArrowUpRight className="w-4.5 h-4.5 relative z-10 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 stroke-[2.5]" />
+                <ArrowRight className="w-4.5 h-4.5 relative z-10 transition-transform duration-300 group-hover:translate-x-1 stroke-[2.5]" />
               </a>
             </div>
 
@@ -667,59 +658,56 @@ export const BookPDSessionPage: React.FC = () => {
               
               {/* 1st: Our Community Card */}
               <div className="bg-[#E1EFFB] border border-[#B8DCF8] rounded-[24px] p-5 sm:p-6 flex flex-col justify-between relative shadow-sm hover:shadow-md transition-shadow flex-1">
-                {/* Card Header with Email Arrow Link */}
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div>
-                    <span className="text-[11px] font-bold text-[#0072CE] uppercase tracking-widest block">Our</span>
-                    <h2 className="text-2xl sm:text-[24px] font-black text-[#042F61] tracking-tight leading-tight mt-0.5">
-                      Community
-                    </h2>
+                <div>
+                  {/* Card Header with Multiple Users/People Icon (30px) */}
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <div>
+                      <span className="text-[11px] font-bold text-[#0072CE] uppercase tracking-widest block">Our</span>
+                      <h2 className="text-2xl sm:text-[24px] font-black text-[#042F61] tracking-tight leading-tight mt-0.5">
+                        Community
+                      </h2>
+                    </div>
+
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-[#042F61] shrink-0">
+                      <Users className="w-[30px] h-[30px] text-[#042F61]" strokeWidth={2} />
+                    </div>
                   </div>
 
-                  <a
-                    href="mailto:professionaldevelopment@chelsongordon.com"
-                    className="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center text-[#042F61] hover:bg-[#FDB913] hover:text-[#042F61] hover:scale-105 active:scale-95 transition-all cursor-pointer group"
-                    aria-label="Email Our Community: professionaldevelopment@chelsongordon.com"
-                    title="Email our community team"
-                  >
-                    <MailArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
+                  {/* Metric Rows with Circular Badges - gap of ~8px from header */}
+                  <div className="space-y-3 pt-1">
+                    {/* Metric 1 */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
+                        <Users className="w-4 h-4 text-[#042F61]" />
+                      </div>
+                      <div>
+                        <span className="text-sm sm:text-base font-black text-[#042F61] block leading-tight">1,200+ Active</span>
+                        <span className="text-[11px] font-semibold text-slate-600 block">Educators & Assessors</span>
+                      </div>
+                    </div>
+
+                    {/* Metric 2 */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
+                        <ShieldCheck className="w-4 h-4 text-[#042F61]" />
+                      </div>
+                      <div>
+                        <span className="text-sm sm:text-base font-black text-[#042F61] block leading-tight">100% ASQA</span>
+                        <span className="text-[11px] font-semibold text-slate-600 block">Compliant Frameworks</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* 3 Metric Rows with Circular Badges */}
-                <div className="space-y-3">
-                  {/* Metric 1 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
-                      <Users className="w-4 h-4 text-[#042F61]" />
-                    </div>
-                    <div>
-                      <span className="text-sm sm:text-base font-black text-[#042F61] block leading-tight">1,200+ Active</span>
-                      <span className="text-[11px] font-semibold text-slate-600 block">Educators & Assessors</span>
-                    </div>
-                  </div>
-
-                  {/* Metric 2 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
-                      <Play className="w-4 h-4 text-[#042F61] fill-[#042F61]/10" />
-                    </div>
-                    <div>
-                      <span className="text-sm sm:text-base font-black text-[#042F61] block leading-tight">350+ Hours</span>
-                      <span className="text-[11px] font-semibold text-slate-600 block">Of PD Masterclasses</span>
-                    </div>
-                  </div>
-
-                  {/* Metric 3 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-white shadow-xs flex items-center justify-center text-[#042F61] shrink-0">
-                      <ShieldCheck className="w-4 h-4 text-[#042F61]" />
-                    </div>
-                    <div>
-                      <span className="text-sm sm:text-base font-black text-[#042F61] block leading-tight">100% ASQA</span>
-                      <span className="text-[11px] font-semibold text-slate-600 block">Compliant Frameworks</span>
-                    </div>
-                  </div>
+                {/* Ask us Anything Button - same style and position as Give Feedback */}
+                <div className="pt-4 sm:pt-5">
+                  <a
+                    href="mailto:professionaldevelopment@chelsongordon.com?subject=Enquiry%20from%20Community%20-%20Ask%20us%20Anything"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-[#042F61] hover:bg-[#0072CE] text-white text-xs font-black uppercase tracking-wider px-5 py-3 rounded-xl shadow-xs transition-colors cursor-pointer group select-none"
+                  >
+                    <span>Ask us Anything</span>
+                    <Mail className="w-4 h-4 transition-transform group-hover:scale-110" />
+                  </a>
                 </div>
               </div>
 
@@ -749,7 +737,7 @@ export const BookPDSessionPage: React.FC = () => {
                   className="w-full inline-flex items-center justify-center gap-2 bg-[#042F61] hover:bg-[#0072CE] text-white text-xs font-black uppercase tracking-wider px-5 py-3 rounded-xl shadow-xs transition-colors cursor-pointer group select-none"
                 >
                   <span>Give Feedback</span>
-                  <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                 </a>
               </div>
 
@@ -795,13 +783,18 @@ export const BookPDSessionPage: React.FC = () => {
 
               {/* Card Header (aligned at top, displaying 50+ Completed Masterclasses) */}
               <div className="flex items-center justify-between pb-3.5 sm:pb-4 border-b border-white/15 mb-3 sm:mb-3.5 relative z-10">
-                <div>
-                  <span className="text-[11px] font-bold text-sky-200 uppercase tracking-wider block">
-                    50+ Completed Masterclasses
-                  </span>
-                  <h2 className="text-2xl sm:text-[26px] font-black text-white tracking-tight leading-tight mt-0.5">
-                    Previous Sessions
-                  </h2>
+                <div className="flex items-center gap-3 sm:gap-3.5">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner">
+                    <History className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-bold text-sky-200 uppercase tracking-wider block">
+                      50+ Completed Masterclasses
+                    </span>
+                    <h2 className="text-2xl sm:text-[26px] font-black text-white tracking-tight leading-tight mt-0.5">
+                      Previous Sessions
+                    </h2>
+                  </div>
                 </div>
 
                 <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/15 text-white border border-white/25 shadow-2xs font-sans">

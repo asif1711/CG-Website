@@ -419,8 +419,56 @@ export const PDAnnouncement: React.FC = () => {
     return a.date.localeCompare(b.date);
   });
 
-  // Map primary Left Column CTA button to old book session URL per user request until new page is finished
-  const primaryJoinUrl = "https://chelsongordon.com/book-a-pd-session/";
+  // Map primary Left Column CTA button to /book-pd-session
+  const primaryJoinUrl = "/book-pd-session";
+
+  const handlePrimaryJoinClick = (e: React.MouseEvent) => {
+    if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      const isSpa = typeof window !== 'undefined' && (
+        window.location.origin.includes('ais-') || 
+        window.location.origin.includes('localhost') || 
+        !!document.getElementById('root')
+      );
+      if (isSpa && window.location.pathname !== '/book-pd-session') {
+        e.preventDefault();
+        window.history.pushState(null, '', '/book-pd-session');
+        window.location.hash = '';
+        window.dispatchEvent(new Event('popstate'));
+        window.dispatchEvent(new Event('hashchange'));
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    }
+  };
+
+  const handlePopupJoinClick = (e: React.MouseEvent) => {
+    if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      const isSpa = typeof window !== 'undefined' && (
+        window.location.origin.includes('ais-') || 
+        window.location.origin.includes('localhost') || 
+        !!document.getElementById('root')
+      );
+      if (isSpa) {
+        e.preventDefault();
+        setSelectedSession(null);
+        window.history.pushState(null, '', '/book-pd-session#booking-registration-section');
+        window.dispatchEvent(new Event('popstate'));
+        window.dispatchEvent(new Event('hashchange'));
+        setTimeout(() => {
+          const target = document.getElementById('booking-registration-section') || document.getElementById('wp-gravity-form-mount');
+          if (target) {
+            const headerOffset = 100;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            try {
+              window.scrollTo({ top: Math.max(0, offsetPosition), behavior: 'smooth' });
+            } catch {
+              window.scrollTo(0, Math.max(0, offsetPosition));
+            }
+          }
+        }, 150);
+      }
+    }
+  };
 
   return (
     <section 
@@ -472,11 +520,10 @@ export const PDAnnouncement: React.FC = () => {
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1">
                 <motion.a
                   href={primaryJoinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  onClick={handlePrimaryJoinClick}
                   whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.97 }}
-                  className="inline-flex items-center justify-center gap-2.5 sm:gap-3 px-6 xl:px-8 py-3.5 xl:py-4 rounded-full bg-[#0072CE] hover:bg-[#042F61] text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-[#0072CE]/25 transition-all duration-300 group"
+                  className="inline-flex items-center justify-center gap-2.5 sm:gap-3 px-6 xl:px-8 py-3.5 xl:py-4 rounded-full bg-[#0072CE] hover:bg-[#042F61] text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-[#0072CE]/25 transition-all duration-300 group cursor-pointer"
                 >
                   <span>JOIN NOW</span>
                   <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
@@ -856,13 +903,12 @@ export const PDAnnouncement: React.FC = () => {
                 )}
               </div>
 
-              {/* Join Link = mapped to old book session URL per user request until new page is finished */}
+              {/* Join Link = mapped to gravity form mount point card on book session page */}
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
                 <a
-                  href="https://chelsongordon.com/book-a-pd-session/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative overflow-hidden w-full inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-[#0072CE] hover:bg-[#FDB913] text-white hover:text-[#042F61] font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-[#0072CE]/25 hover:shadow-xl hover:shadow-[#FDB913]/30 transition-all duration-300 group"
+                  href="/book-pd-session#booking-registration-section"
+                  onClick={handlePopupJoinClick}
+                  className="relative overflow-hidden w-full inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-[#0072CE] hover:bg-[#FDB913] text-white hover:text-[#042F61] font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-[#0072CE]/25 hover:shadow-xl hover:shadow-[#FDB913]/30 transition-all duration-300 group cursor-pointer"
                 >
                   {/* Brand Yellow hover left-to-right luminous shine */}
                   <span 

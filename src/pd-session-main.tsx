@@ -36,7 +36,7 @@ if (typeof Node !== 'undefined' && Node.prototype) {
 function BookPdSessionApp() {
   return (
     <div className="font-sans min-h-screen flex flex-col justify-between">
-      <Navbar forceSolid={true} />
+      <Navbar forceSolid={true} logoHref="https://chelsongordon.com/" />
       <main className="flex-1">
         <BookPDSessionPage />
       </main>
