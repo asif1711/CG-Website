@@ -906,7 +906,7 @@ export const PDAnnouncement: React.FC = () => {
               {/* Join Link = mapped to gravity form mount point card on book session page */}
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
                 <a
-                  href="/book-pd-session#booking-registration-section"
+                  href="https://chelsongordon.com/book-pd-session/#booking-registration-section"
                   onClick={handlePopupJoinClick}
                   className="relative overflow-hidden w-full inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-[#0072CE] hover:bg-[#FDB913] text-white hover:text-[#042F61] font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-[#0072CE]/25 hover:shadow-xl hover:shadow-[#FDB913]/30 transition-all duration-300 group cursor-pointer"
                 >
