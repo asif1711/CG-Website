@@ -441,16 +441,40 @@ export const PDAnnouncement: React.FC = () => {
   };
 
   const handlePopupJoinClick = (e: React.MouseEvent) => {
+    // If running on WordPress (chelsongordon.com), allow native browser navigation to the PHP-rendered page
+    if (typeof window !== 'undefined' && window.location.hostname.includes('chelsongordon.com')) {
+      // If already on /book-pd-session/, close modal and smoothly scroll to the registration section
+      if (window.location.pathname.startsWith('/book-pd-session')) {
+        e.preventDefault();
+        setSelectedSession(null);
+        if (window.location.hash !== '#booking-registration-section') {
+          window.history.pushState(null, '', '/book-pd-session/#booking-registration-section');
+        }
+        const target = document.getElementById('booking-registration-section') || document.getElementById('wp-gravity-form-mount');
+        if (target) {
+          const headerOffset = 100;
+          const elementPosition = target.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          try {
+            window.scrollTo({ top: Math.max(0, offsetPosition), behavior: 'smooth' });
+          } catch {
+            window.scrollTo(0, Math.max(0, offsetPosition));
+          }
+        }
+      }
+      return;
+    }
+
+    // In SPA preview environments (AI Studio / localhost)
     if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
       const isSpa = typeof window !== 'undefined' && (
         window.location.origin.includes('ais-') || 
-        window.location.origin.includes('localhost') || 
-        !!document.getElementById('root')
+        window.location.origin.includes('localhost')
       );
       if (isSpa) {
         e.preventDefault();
         setSelectedSession(null);
-        window.history.pushState(null, '', '/book-pd-session#booking-registration-section');
+        window.history.pushState(null, '', '/book-pd-session/#booking-registration-section');
         window.dispatchEvent(new Event('popstate'));
         window.dispatchEvent(new Event('hashchange'));
         setTimeout(() => {
