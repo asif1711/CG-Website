@@ -7,6 +7,7 @@ import {
   ShieldCheck, 
   Sparkles, 
   Calendar, 
+  CalendarPlus, 
   Clock, 
   X, 
   ChevronRight, 
@@ -1018,7 +1019,7 @@ useEffect(() => {
           {/* Card Header on Top of Gravity Form Mount */}
           <div className="mb-6 sm:mb-8 pb-5 sm:pb-6 border-b border-slate-100 relative z-10">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0072CE]/10 text-[#0072CE] text-xs font-bold tracking-wider uppercase mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-[#FDB913]" />
+              <CalendarPlus className="w-3.5 h-3.5 text-[#0072CE]" />
               <span>Session Registration</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-[#042F61] tracking-tight leading-tight">
