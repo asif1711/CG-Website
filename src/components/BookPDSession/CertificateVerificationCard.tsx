@@ -364,7 +364,7 @@ export const CertificateVerificationCard: React.FC = () => {
                 </div>
 
                 {/* Key Certificate Details Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-4 border-t border-[#B8DCF8]/60">
+                <div className="grid grid-cols-2 gap-3 mt-5 pt-4 border-t border-[#B8DCF8]/60">
                   <div className="bg-white/80 rounded-xl p-3 border border-white/60">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
                       Certificate ID
@@ -384,7 +384,7 @@ export const CertificateVerificationCard: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="bg-white/80 rounded-xl p-3 border border-white/60">
+                  <div className="col-span-2 bg-white/80 rounded-xl p-3 border border-white/60">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
                       Session Name
                     </span>

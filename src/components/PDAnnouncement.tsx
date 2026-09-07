@@ -419,19 +419,46 @@ export const PDAnnouncement: React.FC = () => {
     return a.date.localeCompare(b.date);
   });
 
-  // Map primary Left Column CTA button to /book-pd-session
-  const primaryJoinUrl = "/book-pd-session";
+  // Map primary Left Column CTA button to /book-pd-session/
+  const primaryJoinUrl = "/book-pd-session/";
 
   const handlePrimaryJoinClick = (e: React.MouseEvent) => {
+    // If running on WordPress (chelsongordon.com or any non-preview environment),
+    // allow native browser navigation to /book-pd-session/ so WordPress loads the PHP template with Gravity Form #20,
+    // exactly as handlePopupJoinClick does for individual session Join Now clicks.
+    if (typeof window !== 'undefined' && (
+      window.location.hostname.includes('chelsongordon.com') ||
+      (!window.location.origin.includes('ais-') && !window.location.origin.includes('localhost'))
+    )) {
+      // If already on /book-pd-session/, smoothly scroll to the registration section or top
+      if (window.location.pathname.startsWith('/book-pd-session')) {
+        e.preventDefault();
+        const target = document.getElementById('booking-registration-section') || document.getElementById('wp-gravity-form-mount');
+        if (target) {
+          const headerOffset = 100;
+          const elementPosition = target.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          try {
+            window.scrollTo({ top: Math.max(0, offsetPosition), behavior: 'smooth' });
+          } catch {
+            window.scrollTo(0, Math.max(0, offsetPosition));
+          }
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+      return;
+    }
+
+    // In SPA preview environments (AI Studio / localhost)
     if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
       const isSpa = typeof window !== 'undefined' && (
         window.location.origin.includes('ais-') || 
-        window.location.origin.includes('localhost') || 
-        !!document.getElementById('root')
+        window.location.origin.includes('localhost')
       );
-      if (isSpa && window.location.pathname !== '/book-pd-session') {
+      if (isSpa && window.location.pathname !== '/book-pd-session' && window.location.pathname !== '/book-pd-session/') {
         e.preventDefault();
-        window.history.pushState(null, '', '/book-pd-session');
+        window.history.pushState(null, '', '/book-pd-session/');
         window.location.hash = '';
         window.dispatchEvent(new Event('popstate'));
         window.dispatchEvent(new Event('hashchange'));

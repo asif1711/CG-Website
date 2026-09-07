@@ -294,20 +294,97 @@ export const BookPDSessionPage: React.FC = () => {
 
     fetchWPSessions();
 
-    // Mount server-rendered Gravity Form #20 from #cg-hidden-gform-source into #wp-gravity-form-mount
-    const mountContainer = gravityFormMountRef.current || document.getElementById('wp-gravity-form-mount');
-    if (mountContainer && !mountContainer.querySelector('#gform_wrapper_20, #gform_20')) {
+    // Reusable and resilient Gravity Form #20 mounting helper
+    let retryTimeouts: ReturnType<typeof setTimeout>[] = [];
+    let mutationObserver: MutationObserver | null = null;
+
+    const mountGravityForm = (): boolean => {
+      if (!isMounted) return false;
+      const mountContainer = gravityFormMountRef.current || document.getElementById('wp-gravity-form-mount');
+      if (!mountContainer) return false;
+
+      // Check if form is already mounted
+      if (mountContainer.querySelector('#gform_wrapper_20, #gform_20, form.gform, [id*="gform_wrapper_20"]')) {
+        return true;
+      }
+
       const hiddenSource = document.getElementById('cg-hidden-gform-source');
-      const formElement = hiddenSource?.querySelector('#gform_wrapper_20, #gform_20, form') 
+      const formElement = 
+        hiddenSource?.querySelector('#gform_wrapper_20, #gform_20, form') 
         || document.getElementById('gform_wrapper_20') 
+        || document.querySelector('[id*="gform_wrapper_20"]')
         || hiddenSource?.firstElementChild;
 
       if (formElement && !mountContainer.contains(formElement)) {
         mountContainer.replaceChildren(formElement);
+
+        // Inform WordPress Gravity Form scripts that mount point is ready
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('gform_mount_ready', {
+            detail: { containerId: 'wp-gravity-form-mount' }
+          }));
+          window.dispatchEvent(new Event('resize'));
+        }
+        return true;
       }
+      return false;
+    };
+
+    // 1. Mount immediately
+    const mountedImmediately = mountGravityForm();
+
+    // 2. Retry intervals to capture any asynchronous script or WordPress template injection
+    if (!mountedImmediately) {
+      const delays = [50, 150, 300, 600, 1200, 2500];
+      retryTimeouts = delays.map(delay => 
+        setTimeout(() => {
+          mountGravityForm();
+        }, delay)
+      );
+
+      // 3. MutationObserver on document.body to instantly detect form DOM insertion
+      if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {
+        mutationObserver = new MutationObserver(() => {
+          if (mountGravityForm()) {
+            mutationObserver?.disconnect();
+          }
+        });
+        mutationObserver.observe(document.body, { childList: true, subtree: true });
+      }
+
+      // 4. Background fetch fallback for client-side SPA visits where WordPress didn't render #cg-hidden-gform-source on previous route
+      const fetchTimer = setTimeout(() => {
+        const mountContainer = gravityFormMountRef.current || document.getElementById('wp-gravity-form-mount');
+        if (mountContainer && !mountContainer.querySelector('#gform_wrapper_20, #gform_20, form')) {
+          const hasHiddenSource = !!document.getElementById('cg-hidden-gform-source');
+          if (!hasHiddenSource && typeof window !== 'undefined' && window.location.pathname.startsWith('/book-pd-session')) {
+            fetch('/book-pd-session/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+              .then(res => res.ok ? res.text() : '')
+              .then(html => {
+                if (!html || !isMounted) return;
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const serverSource = doc.getElementById('cg-hidden-gform-source') || doc.getElementById('gform_wrapper_20');
+                if (serverSource) {
+                  let localSource = document.getElementById('cg-hidden-gform-source');
+                  if (!localSource) {
+                    localSource = document.createElement('div');
+                    localSource.id = 'cg-hidden-gform-source';
+                    localSource.style.display = 'none';
+                    document.body.appendChild(localSource);
+                  }
+                  localSource.innerHTML = serverSource.innerHTML;
+                  mountGravityForm();
+                }
+              })
+              .catch(() => {});
+          }
+        }
+      }, 350);
+      retryTimeouts.push(fetchTimer);
     }
 
-    // Dispatch event to inform any WordPress Gravity Form scripts that mount point is ready
+    // Dispatch event to inform any WordPress Gravity Form scripts that mount point is initialized
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('gform_mount_ready', {
         detail: { containerId: 'wp-gravity-form-mount' }
@@ -317,6 +394,10 @@ export const BookPDSessionPage: React.FC = () => {
     return () => {
       isMounted = false;
       document.title = originalTitle;
+      retryTimeouts.forEach(t => clearTimeout(t));
+      if (mutationObserver) {
+        mutationObserver.disconnect();
+      }
       const currentMount = gravityFormMountRef.current || document.getElementById('wp-gravity-form-mount');
       const mountedForm = currentMount?.querySelector('#gform_wrapper_20, #gform_20');
       const hiddenSource = document.getElementById('cg-hidden-gform-source');
@@ -671,7 +752,7 @@ useEffect(() => {
                 {/* Mobile-only button placement (< sm screens) */}
                 <div className="sm:hidden pt-3 mt-3 border-t border-slate-300/40 flex justify-end">
                   <a
-                    href="#wp-gravity-form-mount"
+                    href="/#booking-registration-section"
                     onClick={scrollToGravityFormMount}
                     className="w-full bg-[#FDB913] hover:bg-[#042F61] text-[#042F61] hover:text-[#FDB913] text-sm font-black tracking-wider uppercase py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer select-none"
                   >
@@ -707,7 +788,7 @@ useEffect(() => {
                 ================================================================ */}
             <div className="hidden sm:flex absolute bottom-3.5 right-[1px] z-20">
               <a
-                href="#wp-gravity-form-mount"
+                href="/#booking-registration-section"
                 onClick={scrollToGravityFormMount}
                 className="relative group overflow-hidden bg-[#FDB913] hover:bg-[#0072CE] text-[#042F61] hover:text-white text-sm font-black tracking-wider uppercase px-[55px] py-3.5 rounded-full shadow-lg border border-[#FDB913]/60 hover:border-[#0072CE] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer select-none"
               >

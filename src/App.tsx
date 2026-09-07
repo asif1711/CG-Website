@@ -1739,7 +1739,11 @@ export default function App() {
         '#meet-our-team'
       ].includes(window.location.hash);
       const isTeamPath = window.location.pathname.startsWith('/our-people') || window.location.pathname.startsWith('/our-teams');
-      const isBookPdPath = window.location.pathname === '/book-pd-session' || window.location.hash === '#book-pd-session' || window.location.hash.startsWith('#book-pd-session');
+      const isBookPdPath = 
+        window.location.pathname.startsWith('/book-pd-session') || 
+        window.location.hash === '#book-pd-session' || 
+        window.location.hash.startsWith('#book-pd-session') ||
+        window.location.hash === '#booking-registration-section';
       
       if (isTeamHash || isTeamPath || (isBookPdPath && !window.location.hash.includes('booking-registration-section') && !window.location.hash.includes('wp-gravity-form-mount'))) {
         window.scrollTo({ top: 0, behavior: 'instant' });
@@ -1780,7 +1784,8 @@ export default function App() {
     !isHrDashboardPage && !isTeamDetailPage && !isOrgChartPage && (
       normalizedCurrentPath === '/book-pd-session' || 
       currentHash === '#book-pd-session' ||
-      currentHash.startsWith('#book-pd-session')
+      currentHash.startsWith('#book-pd-session') ||
+      currentHash === '#booking-registration-section'
     );
   const isOurPeoplePage = 
     !isTeamDetailPage && !isHrDashboardPage && !isBookPdSessionPage && (
