@@ -845,6 +845,30 @@ select option[value=""] {
   background: linear-gradient(90deg, #042F61 0%, #0072CE 100%);
   border-radius: 9999px;
   transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  text-indent: -9999px !important;
+  overflow: hidden !important;
+}
+
+/* REMOVE PROGRESS BAR PERCENTAGE TEXT */
+#rpl-consultation .gf_progressbar_percentage span,
+#rpl-consultation-gravity-form-mount .gf_progressbar_percentage span,
+#rpl-consultation .gf_progressbar span,
+#rpl-consultation-gravity-form-mount .gf_progressbar span,
+#rpl-consultation .gf_progressbar_percentage_text,
+#rpl-consultation-gravity-form-mount .gf_progressbar_percentage_text,
+#rpl-consultation .percentbar_blue span,
+#rpl-consultation-gravity-form-mount .percentbar_blue span {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  text-indent: -9999px !important;
 }
 
 /* HEADINGS & INSTRUCTIONAL TEXT */
@@ -1088,11 +1112,10 @@ select option[value=""] {
   text-transform: uppercase !important;
 }
 
-/* CREDENTIAL EYEBROW: CONSULTATION FOR GRADUATE DIPLOMA OF */
+/* CREDENTIAL EYEBROW: CONSULTATION FOR */
 #rpl-consultation .gchoice label::before,
 #rpl-consultation-gravity-form-mount .gchoice label::before {
-  content: "CONSULTATION FOR\A GRADUATE DIPLOMA OF" !important;
-  white-space: pre-line !important;
+  content: "CONSULTATION FOR" !important;
   display: block !important;
   font-family: "Montserrat", sans-serif !important;
   font-size: 11px !important;
@@ -1259,9 +1282,24 @@ select option[value=""] {
    .rpl-payment-notice
    .rpl-payment-notice__icon
    .rpl-payment-notice__svg
+   .rpl-payment-notice__content
    .rpl-payment-notice__text
    .make-payment-button
 ========================================================= */
+#rpl-consultation .gfield:has(.rpl-payment-notice),
+#rpl-consultation .gfield_html:has(.rpl-payment-notice),
+#rpl-consultation #field_23_8,
+#rpl-consultation-gravity-form-mount .gfield:has(.rpl-payment-notice),
+#rpl-consultation-gravity-form-mount .gfield_html:has(.rpl-payment-notice),
+#rpl-consultation-gravity-form-mount #field_23_8,
+#rpl-consultation #field_23_8 .ginput_container,
+#rpl-consultation-gravity-form-mount #field_23_8 .ginput_container {
+  width: 100% !important;
+  max-width: 100% !important;
+  grid-column: 1 / -1 !important;
+  box-sizing: border-box !important;
+}
+
 #rpl-consultation .rpl-payment-notice,
 #rpl-consultation-gravity-form-mount .rpl-payment-notice {
   display: flex;
@@ -1273,6 +1311,9 @@ select option[value=""] {
   border-radius: 16px;
   margin: 16px 0 28px 0;
   box-shadow: 0 2px 8px rgba(0, 114, 206, 0.04);
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 #rpl-consultation .rpl-payment-notice__icon,
@@ -1297,6 +1338,13 @@ select option[value=""] {
   stroke-width: 2.2;
 }
 
+#rpl-consultation .rpl-payment-notice__content,
+#rpl-consultation-gravity-form-mount .rpl-payment-notice__content {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
 #rpl-consultation .rpl-payment-notice__text,
 #rpl-consultation-gravity-form-mount .rpl-payment-notice__text {
   font-family: "Montserrat", sans-serif;
@@ -1304,7 +1352,8 @@ select option[value=""] {
   font-weight: 500;
   color: #042F61;
   line-height: 1.6;
-  flex: 1;
+  margin: 0;
+  width: 100%;
 }
 
 /* PAYMENT BUTTONS: .make-payment-button */
