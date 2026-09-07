@@ -1798,12 +1798,15 @@ export default function App() {
       ].includes(currentHash)
     );
 
+  const isHomepage = !isHrDashboardPage && !isOrgChartPage && !isTeamDetailPage && !isBookPdSessionPage && !isOurPeoplePage;
+
   return (
     <div className="font-sans">
       {!isHrDashboardPage && (
         <Navbar 
           forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage || isBookPdSessionPage} 
           logoHref={isBookPdSessionPage ? "https://chelsongordon.com/" : undefined}
+          isHomepage={isHomepage}
         />
       )}
       <main>

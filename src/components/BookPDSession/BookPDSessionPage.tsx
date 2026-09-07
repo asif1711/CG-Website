@@ -223,6 +223,418 @@ const FALLBACK_PAST_SESSIONS: WordPressPDSession[] = [
   }
 ];
 
+interface SessionContentOverride {
+  thumbnail: string;
+  description: string;
+}
+
+/**
+ * Curated high-resolution Unsplash photography and rich topic-specific descriptions
+ * mapped to each individual professional development session.
+ */
+const TOPIC_CONTENT_MAP: Record<number | string, SessionContentOverride> = {
+  // 22272: Compliant Assessment Practices – Embedding Validity and Reliability in Assessment
+  22272: {
+    thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
+    description: 'Equip your assessors with the knowledge, evidence-gathering strategies, and practical tools to embed fairness, flexibility, validity, and sufficiency into daily assessment workflows in line with ASQA Standards.'
+  },
+  // 22273: Assessment Confidence – Applying Validity and Sufficiency in Practice
+  // User selected: https://unsplash.com/photos/a-man-sitting-at-a-desk-working-on-a-computer-Oexx7cEMKFA
+  22273: {
+    thumbnail: 'https://images.unsplash.com/photo-1738566061961-4e20e3bf470d?auto=format&fit=crop&w=800&q=80',
+    description: 'Master evidence sufficiency, authentic learner verification, and robust validation instruments to ensure total audit confidence and defensible assessor judgments.'
+  },
+  // 22274: Assessment Integrity – Ensuring Authenticity and Currency of Evidence
+  // User selected: https://unsplash.com/photos/a-pen-sitting-on-top-of-a-pile-of-papers-PUd6C90Isp0
+  22274: {
+    thumbnail: 'https://images.unsplash.com/photo-1631557776808-91908aba7ca0?auto=format&fit=crop&w=800&q=80',
+    description: 'Establish rigorous safeguards against plagiarism and emerging AI misuse while mastering authentic evidence verification and workplace supervisor validation under ASQA standards.'
+  },
+  // 22275: Designing Learner Guides for Quality Training and Compliance
+  // User selected: https://unsplash.com/photos/man-standing-in-front-of-group-of-men-rxpThOwuVgE
+  22275: {
+    thumbnail: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80',
+    description: 'Learn systematic development methodologies for student learning materials that elevate assessor delivery, streamline learner progression, and ensure full compliance with packaging rules.'
+  },
+  // 22276: Learner Guide to Learning Experience – Designing Engaging Training Presentations
+  22276: {
+    thumbnail: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
+    description: 'Transform static training materials into immersive, interactive learning journeys with modern presentation frameworks tailored for high adult learner engagement and retention.'
+  },
+  // 22271: Compliant Assessment Practices – Embedding Fairness and Flexibility in Assessment
+  22271: {
+    thumbnail: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80',
+    description: 'Unpack practical methods for implementing reasonable adjustments, supportive learner accommodations, and culturally responsive assessment practices without compromising competency standards.'
+  },
+  // 22270: VET Regulatory Trends & Standards for RTO Compliance
+  22270: {
+    thumbnail: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80',
+    description: 'Unpack regulatory reforms, upcoming Standards for RTOs revisions, and risk-based compliance methodologies shaping modern Australian RTO governance.'
+  },
+  // 22269: Evidence Sufficiency & Authenticity in Vocational Assessment
+  22269: {
+    thumbnail: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=800&q=80',
+    description: 'Deep dive into authentic student evidence collection, validation methods, and third-party reports under ASQA standards to ensure audit-tested competency sign-offs.'
+  },
+  // 22268: Designing Impactful Learner Guides & Assessment Tools
+  22268: {
+    thumbnail: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80',
+    description: 'Practical masterclass on developing compliant learning materials and assessment tools that boost student engagement, provide clear benchmarks, and satisfy audit scrutiny.'
+  },
+  // 22267: RPL Evidence Gathering & Competency Conversation Strategies
+  22267: {
+    thumbnail: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80',
+    description: 'Advanced masterclass on streamlining Recognition of Prior Learning workflows with structured competency interview techniques and authentic prior work portfolio evaluations.'
+  },
+  // 22266: Industry Consultation Frameworks & Trainer Currency Evidence
+  22266: {
+    thumbnail: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80',
+    description: 'Robust methodologies for establishing active industry advisory networks and maintaining verifiable trainer currency logs in alignment with ASQA Standard 1.'
+  },
+  // 22265: Assessment Validation Workflows – Pre & Post Delivery
+  22265: {
+    thumbnail: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=800&q=80',
+    description: 'Step-by-step guidance on establishing statistically valid sampling formulas, collaborative moderation panels, and continuous improvement validation logs across RTO faculties.'
+  },
+  // 22264: Training & Assessment Strategy (TAS) Design for Audit Scrutiny
+  22264: {
+    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
+    description: 'Comprehensive blueprint for structuring compliant TAS documents reflecting real learner cohorts, volume of learning calculations, and delivery modes ready for audit scrutiny.'
+  },
+};
+
+/**
+ * Resolves context-specific thumbnail image from Unsplash and tailored description
+ * based on session ID and topic title semantics.
+ */
+const getSessionThumbnailAndDescription = (session: WordPressPDSession): { thumbnail: string; description: string } => {
+  if (session.id && TOPIC_CONTENT_MAP[session.id]) {
+    return TOPIC_CONTENT_MAP[session.id];
+  }
+
+  const titleLower = decodeHtmlEntities(session.title || '').toLowerCase();
+
+  // If session already has a meaningful non-empty description from WordPress or custom data
+  const existingDesc = session.description && session.description.trim().length > 15
+    ? decodeHtmlEntities(session.description)
+    : '';
+
+  // Match by topic keywords
+  if (titleLower.includes('validity') || titleLower.includes('reliability')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Equip your assessors with the knowledge, evidence-gathering strategies, and practical tools to embed fairness, flexibility, validity, and sufficiency into daily assessment workflows in line with ASQA Standards.'
+    };
+  }
+
+  if (titleLower.includes('confidence') || titleLower.includes('sufficiency')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1738566061961-4e20e3bf470d?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Master evidence sufficiency, authentic learner verification, and robust validation instruments to ensure total audit confidence and defensible assessor judgments.'
+    };
+  }
+
+  if (titleLower.includes('integrity') || titleLower.includes('authenticity') || titleLower.includes('currency')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1631557776808-91908aba7ca0?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Establish rigorous safeguards against plagiarism and emerging AI misuse while mastering authentic evidence verification and workplace supervisor validation under ASQA standards.'
+    };
+  }
+
+  if (titleLower.includes('presentation') || titleLower.includes('experience') || titleLower.includes('engaging')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Transform static training materials into immersive, interactive learning journeys with modern presentation frameworks tailored for high adult learner engagement and retention.'
+    };
+  }
+
+  if (titleLower.includes('learner guide') || titleLower.includes('designing') || titleLower.includes('materials')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Learn systematic development methodologies for student learning materials that elevate assessor delivery, streamline learner progression, and ensure full compliance with packaging rules.'
+    };
+  }
+
+  if (titleLower.includes('fairness') || titleLower.includes('flexibility') || titleLower.includes('adjustment')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Unpack practical methods for implementing reasonable adjustments, supportive learner accommodations, and culturally responsive assessment practices without compromising competency standards.'
+    };
+  }
+
+  if (titleLower.includes('regulatory') || titleLower.includes('standards') || titleLower.includes('compliance')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Unpack regulatory reforms, upcoming Standards for RTOs revisions, and risk-based compliance methodologies shaping modern Australian RTO governance.'
+    };
+  }
+
+  if (titleLower.includes('rpl') || titleLower.includes('prior learning') || titleLower.includes('conversation')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Advanced masterclass on streamlining Recognition of Prior Learning workflows with structured competency interview techniques and authentic prior work portfolio evaluations.'
+    };
+  }
+
+  if (titleLower.includes('validation') || titleLower.includes('workflow') || titleLower.includes('sampling')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Step-by-step guidance on establishing statistically valid sampling formulas, collaborative moderation panels, and continuous improvement validation logs across RTO faculties.'
+    };
+  }
+
+  if (titleLower.includes('tas') || titleLower.includes('strategy')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Comprehensive blueprint for structuring compliant TAS documents reflecting real learner cohorts, volume of learning calculations, and delivery modes ready for audit scrutiny.'
+    };
+  }
+
+  // Fallback
+  return {
+    thumbnail: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
+    description: existingDesc || 'Join an interactive professional development masterclass where compliance rigour and practical training unite to build confidence, resilience, and fair assessment outcomes in line with ASQA Standards.'
+  };
+};
+
+interface HeroSessionCardProps {
+  session: WordPressPDSession;
+  sessionIndex: number;
+  totalSessions: number;
+  isCenter: boolean;
+  isSpacer?: boolean;
+  onCardClick?: () => void;
+  scrollToGravityFormMount: (e?: React.MouseEvent) => void;
+  allSessions: WordPressPDSession[];
+}
+
+const HeroSessionCard: React.FC<HeroSessionCardProps> = ({
+  session,
+  isCenter,
+  isSpacer = false,
+  onCardClick,
+  scrollToGravityFormMount,
+}) => {
+  const [isSmScreen, setIsSmScreen] = useState(false);
+
+  useEffect(() => {
+    const checkSm = () => setIsSmScreen(window.innerWidth >= 640);
+    checkSm();
+    window.addEventListener('resize', checkSm);
+    return () => window.removeEventListener('resize', checkSm);
+  }, []);
+
+  const sessionContent = getSessionThumbnailAndDescription(session);
+
+  // When isCenter on sm+ screens, mask the bottom-right corner of the card
+  // so the area behind the floating yellow Join Now button is 100% transparent.
+  const cardMaskStyle: React.CSSProperties | undefined = (isCenter && isSmScreen) ? {
+    WebkitMaskImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 264 100" width="264" height="100"><path d="M 0,0 L 264,0 A 24,24 0 0,1 240,24 L 48,24 A 24,24 0 0,0 24,48 L 24,76 A 24,24 0 0,1 0,100 L 0,100 Z" fill="black"/></svg>'), linear-gradient(#000,#000), linear-gradient(#000,#000)`,
+    WebkitMaskPosition: 'bottom right, top left, bottom left',
+    WebkitMaskSize: '264px 100px, 100% calc(100% - 99px), calc(100% - 263px) 100px',
+    WebkitMaskRepeat: 'no-repeat',
+    maskImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 264 100" width="264" height="100"><path d="M 0,0 L 264,0 A 24,24 0 0,1 240,24 L 48,24 A 24,24 0 0,0 24,48 L 24,76 A 24,24 0 0,1 0,100 L 0,100 Z" fill="black"/></svg>'), linear-gradient(#000,#000), linear-gradient(#000,#000)`,
+    maskPosition: 'bottom right, top left, bottom left',
+    maskSize: '264px 100px, 100% calc(100% - 99px), calc(100% - 263px) 100px',
+    maskRepeat: 'no-repeat',
+  } : undefined;
+
+  return (
+    <div 
+      onClick={!isCenter ? onCardClick : undefined}
+      className={`relative w-full h-full bg-transparent ${!isCenter ? 'cursor-pointer select-none' : ''}`}
+    >
+      {/* The Light Hero Card with Carved-Out Inverted Corner at Bottom Right (Center slide only) or Full Curved Card (Side slides) */}
+      <div 
+        style={cardMaskStyle}
+        className="w-full h-full bg-gradient-to-br from-[#CDE4F9] via-[#E2F0FD] to-[#BEE0F8] border border-white/80 rounded-[24px] sm:rounded-[26px] p-4 sm:p-6 lg:p-7 xl:p-8 relative overflow-hidden flex flex-col justify-between shadow-[0_10px_28px_rgba(4,47,97,0.07)]"
+      >
+        
+        {/* Organic Soft Ambient Blobs */}
+        <div className="absolute -left-12 -top-12 w-80 sm:w-96 h-80 sm:h-96 bg-[#0072CE]/18 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute left-40 top-20 w-72 h-72 bg-[#FDB913]/20 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-[#0072CE]/16 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 items-center relative z-10">
+          
+          {/* Left Column: Contextual Session Thumbnail */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
+            <div className="relative w-full max-w-[280px] sm:max-w-[320px] lg:max-w-[350px] aspect-[4/3.1] flex items-center justify-center">
+              
+              {/* Organic Floating Blob SVG */}
+              <svg 
+                viewBox="0 0 200 200" 
+                className="absolute inset-0 w-full h-full text-[#0072CE]/15 fill-current transform -rotate-6 scale-110 pointer-events-none"
+              >
+                <path d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,88.5,-0.9C86.9,14.6,81.3,29.1,72.9,41.9C64.6,54.6,53.5,65.6,40.3,72.7C27.1,79.8,11.8,83.1,-3.1,88.4C-17.9,93.8,-35.8,101.3,-50,95.5C-64.2,89.7,-74.7,70.8,-81.4,52.3C-88.1,33.8,-91,15.7,-88.9,-1.2C-86.8,-18.1,-79.7,-33.8,-69.8,-46.8C-59.9,-59.9,-47.2,-70.3,-33.4,-77.8C-19.6,-85.2,-9.8,-89.7,2.8,-94.5C15.4,-99.4,30.7,-83.6,44.7,-76.4Z" transform="translate(100 100)" />
+              </svg>
+              
+              <div className="relative w-full h-full rounded-[22px] overflow-hidden border-2 border-white/80 shadow-[0_12px_28px_rgba(4,47,97,0.12)] bg-gradient-to-b from-white/90 via-sky-50 to-[#EAF3FA]">
+                <img
+                  src={sessionContent.thumbnail}
+                  alt={decodeHtmlEntities(session.title)}
+                  className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-700"
+                  loading="eager"
+                  referrerPolicy="no-referrer"
+                />
+                
+                {/* Floating Pill: Live Interactive Masterclass (Only shown on center card in carousel) */}
+                {isCenter && (
+                  <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md py-1.5 px-3 rounded-xl border border-slate-200/80 shadow-md flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0072CE] opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0072CE]"></span>
+                      </span>
+                      <span className="text-[10.5px] font-bold text-[#042F61] uppercase tracking-wider">Live & Interactive</span>
+                    </div>
+                    <span className="text-[10.5px] font-bold text-[#0072CE] bg-[#0072CE]/10 px-2 py-0.5 rounded-md">VET Accredited</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Narrative & Carousel Details */}
+          <div className="lg:col-span-7 flex flex-col justify-between h-full space-y-4 sm:space-y-5 sm:pr-6 lg:pr-10">
+            
+            <div className="space-y-3 sm:space-y-3.5">
+              {/* Header Row: Category Pill Tag */}
+              <div className="flex items-center">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/85 border border-[#0072CE]/20 text-[#0072CE] text-xs font-bold tracking-wider uppercase shadow-xs">
+                  <span className="inline-flex items-center text-[#0072CE]">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-2.5 h-2.5 -ml-0.5" />
+                  </span>
+                  <span>UPCOMING SESSIONS</span>
+                </div>
+              </div>
+
+              {/* Main Display Headline (Fetched Topic with font-size: 18px, font-weight: 700) */}
+              <h1 
+                className="text-[18px] font-bold text-[#042F61] tracking-tight leading-[1.3] font-sans transition-all line-clamp-2"
+                style={{ fontSize: '18px', fontWeight: 700 }}
+              >
+                {decodeHtmlEntities(session.title)}
+              </h1>
+
+              {/* Body Subtitle / Contextual Description (font-size: 14px) */}
+              <p 
+                className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal max-w-2xl"
+                style={{ fontSize: '14px' }}
+              >
+                {sessionContent.description}
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Key Session Value Highlights: Mode, Date, Time */}
+        <div className={`relative z-10 mt-4 sm:mt-5 w-full ${isCenter ? 'sm:max-w-[calc(100%-245px)] lg:max-w-[calc(100%-230px)]' : ''}`}>
+          <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+            <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2 sm:p-2.5 border border-slate-200/70 shadow-xs">
+              <span className="text-[9.5px] uppercase font-bold text-slate-400 block tracking-wider">Mode</span>
+              <span className="text-xs sm:text-[13px] font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
+                <Globe className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
+                <span className="truncate">Online Session</span>
+              </span>
+            </div>
+            <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2 sm:p-2.5 border border-slate-200/70 shadow-xs">
+              <span className="text-[9.5px] uppercase font-bold text-slate-400 block tracking-wider">Session Date</span>
+              <span className="text-xs sm:text-[13px] font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
+                <Calendar className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
+                <span className="truncate">{formatDisplayDate(session.date)}</span>
+              </span>
+            </div>
+            <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2 sm:p-2.5 border border-slate-200/70 shadow-xs">
+              <span className="text-[9.5px] uppercase font-bold text-slate-400 block tracking-wider">Session Time</span>
+              <span className="text-xs sm:text-[13px] font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
+                <Clock className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
+                <span className="truncate">{session.time || '04:00 PM AEST'}</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Mobile-only button placement (< sm screens, center slide only) */}
+          {isCenter && (
+            <div className="sm:hidden pt-3 mt-3 border-t border-slate-300/40 flex justify-end">
+              <a
+                href="/#booking-registration-section"
+                onClick={(e) => {
+                  if (!isSpacer) {
+                    scrollToGravityFormMount(e);
+                  }
+                }}
+                className="w-full bg-[#FDB913] hover:bg-[#042F61] text-[#042F61] hover:text-[#FDB913] text-sm font-black tracking-wider uppercase py-3 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer select-none"
+              >
+                <span className="relative z-10 whitespace-nowrap font-extrabold" style={{ fontWeight: 800 }}>Join Now</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
+          )}
+        </div>
+
+      </div>
+
+      {/* ================================================================
+          CARVED-OUT BOTTOM-RIGHT CORNER NOTCH (Desktop/Tablet: sm and up)
+          Only rendered on the center active slide.
+          Background fill is set to transparent so the area behind the button floats freely.
+          ================================================================ */}
+      {isCenter && (
+        <svg 
+          className="hidden sm:block absolute -bottom-px -right-px w-[265px] h-[101px] pointer-events-none z-10" 
+          viewBox="0 0 264 100" 
+          preserveAspectRatio="none"
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          {/* Cutout Polygon with transparent fill */}
+          <path 
+            d="M 264,0 A 24,24 0 0,1 240,24 L 48,24 A 24,24 0 0,0 24,48 L 24,76 A 24,24 0 0,1 0,100 L 264,100 Z" 
+            fill="transparent" 
+          />
+          {/* Elegant hairline border along the carved curve matching border-white/80 */}
+          <path 
+            d="M 264,0 A 24,24 0 0,1 240,24 L 48,24 A 24,24 0 0,0 24,48 L 24,76 A 24,24 0 0,1 0,100" 
+            stroke="rgba(255,255,255,0.85)" 
+            strokeWidth="1.5" 
+            fill="none"
+          />
+        </svg>
+      )}
+
+      {/* ================================================================
+          "JOIN NOW" BUTTON SITTING OUTSIDE THE WHITE CARD IN THE CARVED CORNER
+          Only rendered on the center active slide.
+          ================================================================ */}
+      {isCenter && (
+        <div className="hidden sm:flex absolute bottom-3.5 right-[1px] z-20">
+          <a
+            href="/#booking-registration-section"
+            onClick={(e) => {
+              if (!isSpacer) {
+                scrollToGravityFormMount(e);
+              }
+            }}
+            className="relative group overflow-hidden bg-[#FDB913] hover:bg-[#0072CE] text-[#042F61] hover:text-white text-xs sm:text-sm font-black tracking-wider uppercase px-10 sm:px-[52px] py-3 sm:py-3.5 rounded-full shadow-lg border border-[#FDB913]/60 hover:border-[#0072CE] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer select-none"
+          >
+            {/* Ambient Luminous Light Sweep on Hover */}
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none -skew-x-12" />
+            
+            <span className="relative z-10 whitespace-nowrap font-extrabold" style={{ fontWeight: 800 }}>JOIN NOW</span>
+            <ArrowRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 relative z-10 transition-transform duration-300 group-hover:translate-x-1 stroke-[2.5]" />
+          </a>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
 export const BookPDSessionPage: React.FC = () => {
   const [allSessions, setAllSessions] = useState<WordPressPDSession[]>([]);
   const [upcomingSessions, setUpcomingSessions] = useState<WordPressPDSession[]>(FALLBACK_UPCOMING_SESSIONS);
@@ -417,6 +829,23 @@ export const BookPDSessionPage: React.FC = () => {
     setUpcomingIndex(prev => (prev + 1) % upcomingSessions.length);
   };
 
+  const touchStartXRef = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+    touchStartXRef.current = null;
+    if (deltaX > 45) {
+      handlePrevUpcoming();
+    } else if (deltaX < -45) {
+      handleNextUpcoming();
+    }
+  };
+
   const handlePastScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const currentScrollTop = e.currentTarget.scrollTop;
     setIsPastScrolledDown(currentScrollTop > 15);
@@ -573,7 +1002,7 @@ useEffect(() => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F7FB] font-sans pt-[165px] sm:pt-[180px] lg:pt-[170px] xl:pt-[190px] 2xl:pt-[205px] pb-24 relative overflow-hidden select-none">
+    <div className="min-h-screen bg-[#F4F7FB] font-sans pt-[180px] sm:pt-[190px] lg:pt-[175px] xl:pt-[200px] 2xl:pt-[220px] pb-24 relative overflow-hidden select-none">
       
       {/* Subtle Ambient Background Watermark Text */}
       <div 
@@ -581,7 +1010,7 @@ useEffect(() => {
         aria-hidden="true"
       >
         {/* Right Side Vertical Watermark Column (positioned directly below header ending, right-[120px] on mobile/tablet/desktop, shifted to right-[60px] on standard laptop lg screens) */}
-        <div className="absolute top-[165px] sm:top-[180px] lg:top-[170px] xl:top-[190px] 2xl:top-[205px] right-[120px] lg:right-[60px] xl:right-[120px] w-0 h-0 overflow-visible origin-top-left transform rotate-90 text-[52px] sm:text-[64px] lg:text-[72px] xl:text-[80px] font-black tracking-widest text-[#042F61]/[0.07] uppercase leading-none whitespace-nowrap select-none">
+        <div className="absolute top-[180px] sm:top-[190px] lg:top-[175px] xl:top-[200px] 2xl:top-[220px] right-[120px] lg:right-[60px] xl:right-[120px] w-0 h-0 overflow-visible origin-top-left transform rotate-90 text-[52px] sm:text-[64px] lg:text-[72px] xl:text-[80px] font-black tracking-widest text-[#042F61]/[0.07] uppercase leading-none whitespace-nowrap select-none">
           PROFESSIONAL DEVELOPMENT
         </div>
         {/* Ambient Gradient Halos */}
@@ -589,7 +1018,7 @@ useEffect(() => {
         <div className="absolute bottom-1/4 right-10 w-[500px] h-[500px] bg-[radial-gradient(ellipse_at_center,rgba(253,185,19,0.05)_0%,transparent_70%)] blur-3xl pointer-events-none" />
       </div>
 
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         
         {/* ====================================================================
             MAIN CONTENT CONTAINER (SAME AS PAGE CANVAS)
@@ -597,209 +1026,155 @@ useEffect(() => {
         <div className="relative">
 
           {/* ====================================================================
-              TOP HERO SECTION (UPCOMING SESSIONS CAROUSEL)
-              With Carved-Out Corner Notch and "Join Now" Button sitting outside
-              the light card at the bottom right corner
+              TOP HERO SECTION (3-CARD SLIDER CAROUSEL)
+              1 center card at primary scale, 2 smaller adjacent cards on left & right.
+              Transparent floating feel without box containment.
+              Preserves the custom carved-out button notch and SVG paths.
               ==================================================================== */}
-          <div className="relative mb-3.5 sm:mb-5">
-            
-            {/* The Light Hero Card with Carved-Out Inverted Corner at Bottom Right */}
-            <div className="bg-gradient-to-br from-[#CDE4F9] via-[#E2F0FD] to-[#BEE0F8] border border-white/80 rounded-[26px] sm:rounded-[28px] p-6 sm:p-8 lg:p-12 relative overflow-hidden">
+          <div 
+            className="relative mt-2 sm:mt-3 lg:mt-4 mb-4 sm:mb-5 -mx-2 sm:-mx-4 lg:-mx-6 px-2 sm:px-4 lg:px-6"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            <div className="relative w-full overflow-hidden py-2 sm:py-3 px-1 sm:px-2">
               
-              {/* Organic Soft Ambient Blobs */}
-              <div className="absolute -left-12 -top-12 w-80 sm:w-96 h-80 sm:h-96 bg-[#0072CE]/18 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute left-40 top-20 w-72 h-72 bg-[#FDB913]/20 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-[#0072CE]/16 rounded-full blur-3xl pointer-events-none" />
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center relative z-10">
-                
-                {/* Left Column: Facilitator Portrait */}
-                <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
-                  <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-[4/3.4] flex items-center justify-center">
-                    
-                    {/* Organic Floating Blob SVG */}
-                    <svg 
-                      viewBox="0 0 200 200" 
-                      className="absolute inset-0 w-full h-full text-[#0072CE]/15 fill-current transform -rotate-6 scale-110 pointer-events-none"
-                    >
-                      <path d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,88.5,-0.9C86.9,14.6,81.3,29.1,72.9,41.9C64.6,54.6,53.5,65.6,40.3,72.7C27.1,79.8,11.8,83.1,-3.1,88.4C-17.9,93.8,-35.8,101.3,-50,95.5C-64.2,89.7,-74.7,70.8,-81.4,52.3C-88.1,33.8,-91,15.7,-88.9,-1.2C-86.8,-18.1,-79.7,-33.8,-69.8,-46.8C-59.9,-59.9,-47.2,-70.3,-33.4,-77.8C-19.6,-85.2,-9.8,-89.7,2.8,-94.5C15.4,-99.4,30.7,-83.6,44.7,-76.4Z" transform="translate(100 100)" />
-                    </svg>
-                    
-                    <div className="relative w-full h-full rounded-[24px] overflow-hidden border-2 border-white/80 shadow-[0_15px_35px_rgba(4,47,97,0.12)] bg-gradient-to-b from-white/90 via-sky-50 to-[#EAF3FA]">
-                      <img
-                        src="https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/our-people/learning_2.webp"
-                        alt="Professional Development Facilitator"
-                        className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
-                        loading="eager"
-                      />
-                      
-                      {/* Floating Pill: Live Interactive Masterclass */}
-                      <div className="absolute bottom-3.5 left-3.5 right-3.5 bg-white/95 backdrop-blur-md py-2 px-3.5 rounded-xl border border-slate-200/80 shadow-md flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0072CE] opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0072CE]"></span>
-                          </span>
-                          <span className="text-[11px] font-bold text-[#042F61] uppercase tracking-wider">Live & Interactive</span>
-                        </div>
-                        <span className="text-[11px] font-bold text-[#0072CE] bg-[#0072CE]/10 px-2 py-0.5 rounded-md">VET Accredited</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column: Narrative & Carousel Details */}
-                <div className="lg:col-span-7 flex flex-col justify-between h-full space-y-6 lg:space-y-8 sm:pr-8 lg:pr-14">
-                  
-                  <div className="space-y-4">
-                    {/* Header Row: Category Pill Tag + Carousel Navigation */}
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/85 border border-[#0072CE]/20 text-[#0072CE] text-xs font-bold tracking-wider uppercase shadow-xs">
-                        <span className="inline-flex items-center text-[#0072CE]">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <ArrowRight className="w-2.5 h-2.5 -ml-0.5" />
-                        </span>
-                        <span>UPCOMING SESSIONS</span>
-                      </div>
-
-                      {/* Carousel Arrow & Dot Navigation Controls */}
-                      {upcomingSessions.length > 1 && (
-                        <div className="flex items-center gap-2">
-                          {/* Session Count Div moved to the left of carousel navigation arrow pill section */}
-                          <div className="bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full border border-slate-200/80 shadow-xs text-[#0072CE] text-xs font-bold font-sans">
-                            {upcomingIndex + 1} / {upcomingSessions.length}
-                          </div>
-
-                          <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full border border-slate-200/80 shadow-xs">
-                            <button
-                              onClick={handlePrevUpcoming}
-                              aria-label="Previous upcoming session"
-                              className="w-7 h-7 rounded-full flex items-center justify-center text-[#042F61] hover:bg-[#0072CE] hover:text-white transition-colors cursor-pointer"
-                            >
-                              <ChevronLeft className="w-4 h-4" />
-                            </button>
-                            
-                            <div className="flex items-center gap-1 px-1">
-                              {upcomingSessions.map((_, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => setUpcomingIndex(idx)}
-                                  aria-label={`Go to upcoming session slide ${idx + 1}`}
-                                  className={`transition-all rounded-full cursor-pointer ${
-                                    idx === upcomingIndex 
-                                      ? 'w-4 h-2 bg-[#0072CE]' 
-                                      : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-
-                            <button
-                              onClick={handleNextUpcoming}
-                              aria-label="Next upcoming session"
-                              className="w-7 h-7 rounded-full flex items-center justify-center text-[#042F61] hover:bg-[#0072CE] hover:text-white transition-colors cursor-pointer"
-                            >
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Main Display Headline (Fetched Topic) */}
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[42px] xl:text-[46px] font-black text-[#042F61] tracking-tight leading-[1.18] font-sans transition-all">
-                      {decodeHtmlEntities(currentUpcomingSession.title)}
-                    </h1>
-
-                    {/* Body Subtitle / Description */}
-                    <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal max-w-2xl">
-                      {currentUpcomingSession.description 
-                        ? decodeHtmlEntities(currentUpcomingSession.description)
-                        : "Join an interactive professional development masterclass where compliance rigour and practical training unite to build confidence, resilience, and fair assessment outcomes in line with ASQA Standards."}
-                    </p>
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* Key Session Value Highlights: Mode, Date, Time (Full width below image section + para section, ending just to the left of the carved-out SVG notch) */}
-              <div className="relative z-10 mt-6 sm:mt-7 w-full sm:max-w-[calc(100%-245px)] lg:max-w-[calc(100%-230px)]">
-                <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                  <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2.5 sm:p-3 border border-slate-200/70 shadow-xs">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Mode</span>
-                    <span className="text-xs sm:text-[13px] md:text-sm font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
-                      <Globe className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
-                      <span className="truncate">Online Session</span>
-                    </span>
-                  </div>
-                  <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2.5 sm:p-3 border border-slate-200/70 shadow-xs">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Session Date</span>
-                    <span className="text-xs sm:text-[13px] md:text-sm font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
-                      <Calendar className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
-                      <span className="truncate">{formatDisplayDate(currentUpcomingSession.date)}</span>
-                    </span>
-                  </div>
-                  <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2.5 border border-slate-200/70 shadow-xs">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Session Time</span>
-                    <span className="text-xs sm:text-[13px] md:text-sm font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
-                      <Clock className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
-                      <span className="truncate">{currentUpcomingSession.time || '04:00 PM AEST'}</span>
-                    </span>
-                  </div>
-                </div>
-
-                {/* Mobile-only button placement (< sm screens) */}
-                <div className="sm:hidden pt-3 mt-3 border-t border-slate-300/40 flex justify-end">
-                  <a
-                    href="/#booking-registration-section"
-                    onClick={scrollToGravityFormMount}
-                    className="w-full bg-[#FDB913] hover:bg-[#042F61] text-[#042F61] hover:text-[#FDB913] text-sm font-black tracking-wider uppercase py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer select-none"
-                  >
-                    <span>Join Now</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </a>
-                </div>
-              </div>
-
-            </div>
-
-            {/* ================================================================
-                CARVED-OUT BOTTOM-RIGHT CORNER NOTCH (Desktop/Tablet: sm and up)
-                Precisely carved corner matching page canvas (#F4F7FB) with no border
-                ================================================================ */}
-            <svg 
-              className="hidden sm:block absolute -bottom-px -right-px w-[265px] h-[101px] pointer-events-none z-10" 
-              viewBox="0 0 264 100" 
-              preserveAspectRatio="none"
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              {/* Cutout Polygon matching page canvas with no border */}
-              <path 
-                d="M 264,0 A 24,24 0 0,1 240,24 L 48,24 A 24,24 0 0,0 24,48 L 24,76 A 24,24 0 0,1 0,100 L 264,100 Z" 
-                fill="#F4F7FB" 
-              />
-            </svg>
-
-            {/* ================================================================
-                "JOIN NOW" BUTTON SITTING OUTSIDE THE WHITE CARD IN THE CARVED CORNER
-                ================================================================ */}
-            <div className="hidden sm:flex absolute bottom-3.5 right-[1px] z-20">
-              <a
-                href="/#booking-registration-section"
-                onClick={scrollToGravityFormMount}
-                className="relative group overflow-hidden bg-[#FDB913] hover:bg-[#0072CE] text-[#042F61] hover:text-white text-sm font-black tracking-wider uppercase px-[55px] py-3.5 rounded-full shadow-lg border border-[#FDB913]/60 hover:border-[#0072CE] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer select-none"
+              {/* Invisible spacer card that accurately sizes the container naturally */}
+              <div 
+                className="invisible pointer-events-none select-none opacity-0 w-[76%] sm:w-[72%] lg:w-[68%] xl:w-[66%] max-w-[960px] mx-auto"
+                aria-hidden="true"
               >
-                {/* Ambient Luminous Light Sweep on Hover */}
-                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none -skew-x-12" />
-                
-                <span className="relative z-10 whitespace-nowrap">JOIN NOW</span>
-                <ArrowRight className="w-4.5 h-4.5 relative z-10 transition-transform duration-300 group-hover:translate-x-1 stroke-[2.5]" />
-              </a>
+                <HeroSessionCard
+                  session={currentUpcomingSession}
+                  sessionIndex={upcomingIndex}
+                  totalSessions={upcomingSessions.length}
+                  isCenter={true}
+                  isSpacer={true}
+                  scrollToGravityFormMount={scrollToGravityFormMount}
+                  allSessions={upcomingSessions}
+                />
+              </div>
+
+              {/* The Carousel Track: 3 visible floating cards (Center, Left, Right) */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {upcomingSessions.map((session, idx) => {
+                  const len = upcomingSessions.length;
+                  let diff = (idx - upcomingIndex) % len;
+                  if (diff > Math.floor(len / 2)) {
+                    diff -= len;
+                  } else if (diff < -Math.floor((len - 1) / 2)) {
+                    diff += len;
+                  }
+
+                  const isCenter = diff === 0;
+                  const isLeft = diff === -1;
+                  const isRight = diff === 1;
+                  const isVisible = Math.abs(diff) <= 1;
+
+                  let transformStyle = 'translate(-50%, -50%) scale(1)';
+                  let opacityVal = 1;
+                  let zIndexVal = 20;
+
+                  if (isCenter) {
+                    transformStyle = 'translate(-50%, -50%) scale(1)';
+                    opacityVal = 1;
+                    zIndexVal = 20;
+                  } else if (isLeft) {
+                    transformStyle = 'translate(calc(-50% - 30%), -50%) scale(0.82)';
+                    opacityVal = 0.65;
+                    zIndexVal = 10;
+                  } else if (isRight) {
+                    transformStyle = 'translate(calc(-50% + 30%), -50%) scale(0.82)';
+                    opacityVal = 0.65;
+                    zIndexVal = 10;
+                  } else {
+                    transformStyle = diff < 0 
+                      ? 'translate(calc(-50% - 120%), -50%) scale(0.7)' 
+                      : 'translate(calc(-50% + 120%), -50%) scale(0.7)';
+                    opacityVal = 0;
+                    zIndexVal = 0;
+                  }
+
+                  return (
+                    <div
+                      key={session.id || idx}
+                      style={{
+                        transform: transformStyle,
+                        opacity: opacityVal,
+                        zIndex: zIndexVal,
+                        pointerEvents: isVisible ? 'auto' : 'none',
+                        visibility: isVisible ? 'visible' : 'hidden',
+                        transition: 'transform 550ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms ease, filter 500ms ease',
+                        left: '50%',
+                        top: '50%',
+                      }}
+                      className={`absolute w-[76%] sm:w-[72%] lg:w-[68%] xl:w-[66%] max-w-[960px] h-[94%] sm:h-[96%] bg-transparent transition-all ${
+                        isCenter 
+                          ? '' 
+                          : 'hover:opacity-85 filter brightness-[0.98]'
+                      }`}
+                    >
+                      <HeroSessionCard
+                        session={session}
+                        sessionIndex={idx}
+                        totalSessions={upcomingSessions.length}
+                        isCenter={isCenter}
+                        onCardClick={() => {
+                          if (isLeft) handlePrevUpcoming();
+                          if (isRight) handleNextUpcoming();
+                        }}
+                        scrollToGravityFormMount={scrollToGravityFormMount}
+                        allSessions={upcomingSessions}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Side Navigation Arrows (Left & Right of the hero section) */}
+              {upcomingSessions.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handlePrevUpcoming}
+                    aria-label="Previous upcoming session"
+                    className="absolute left-0.5 sm:left-1.5 lg:left-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-white/95 hover:bg-[#0072CE] text-[#042F61] hover:text-white border-2 border-white shadow-[0_6px_20px_rgba(4,47,97,0.18)] hover:shadow-[0_10px_25px_rgba(0,114,206,0.35)] flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md group"
+                  >
+                    <ChevronLeft className="w-5 h-5 stroke-[2.5] transition-transform duration-200 group-hover:-translate-x-0.5" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleNextUpcoming}
+                    aria-label="Next upcoming session"
+                    className="absolute right-0.5 sm:right-1.5 lg:right-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-white/95 hover:bg-[#0072CE] text-[#042F61] hover:text-white border-2 border-white shadow-[0_6px_20px_rgba(4,47,97,0.18)] hover:shadow-[0_10px_25px_rgba(0,114,206,0.35)] flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md group"
+                  >
+                    <ChevronRight className="w-5 h-5 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5" />
+                  </button>
+                </>
+              )}
+
             </div>
 
+            {/* Visual indicator of pagination moved to bottom center of carousel below the card */}
+            {upcomingSessions.length > 1 && (
+              <div className="flex justify-center items-center mt-2.5 sm:mt-3 relative z-30">
+                <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200/80 shadow-xs">
+                  {upcomingSessions.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setUpcomingIndex(idx)}
+                      aria-label={`Go to upcoming session slide ${idx + 1}`}
+                      className={`transition-all rounded-full cursor-pointer ${
+                        idx === upcomingIndex 
+                          ? 'w-5 h-2 bg-[#0072CE]' 
+                          : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ====================================================================

@@ -4,21 +4,83 @@ import { ChevronRight } from 'lucide-react';
 
 interface TopAnnouncementBannerProps {
   isScrolled?: boolean;
+  isHomepage?: boolean;
 }
 
-export const TopAnnouncementBanner: React.FC<TopAnnouncementBannerProps> = ({ isScrolled = false }) => {
+export const TopAnnouncementBanner: React.FC<TopAnnouncementBannerProps> = ({ 
+  isScrolled = false,
+  isHomepage
+}) => {
+  const getIsHomePage = (): boolean => {
+    if (typeof isHomepage === 'boolean') {
+      return isHomepage;
+    }
+    if (typeof window === 'undefined') {
+      return true;
+    }
+    if (document.getElementById('pd-announcement')) {
+      return true;
+    }
+    const path = window.location.pathname.split('?')[0].replace(/\/+$/, '') || '/';
+    const hash = window.location.hash || '';
+
+    const isNonHome = 
+      path.startsWith('/book-pd-session') ||
+      path.startsWith('/our-people') ||
+      path.startsWith('/our-teams') ||
+      path.startsWith('/team') ||
+      path.startsWith('/hr-dashboard') ||
+      hash.startsWith('#book-pd-session') ||
+      hash === '#booking-registration-section' ||
+      hash.startsWith('#our-people') ||
+      hash.startsWith('#our-teams') ||
+      hash.startsWith('#meet-our-team') ||
+      hash.startsWith('#hr-dashboard') ||
+      hash === '#org-chart';
+
+    return !isNonHome && (path === '/' || path === '');
+  };
+
+  const [currentIsHome, setCurrentIsHome] = React.useState<boolean>(getIsHomePage);
+
+  React.useEffect(() => {
+    if (typeof isHomepage === 'boolean') {
+      setCurrentIsHome(isHomepage);
+      return;
+    }
+
+    const checkLocation = () => {
+      setCurrentIsHome(getIsHomePage());
+    };
+
+    checkLocation();
+    window.addEventListener('popstate', checkLocation);
+    window.addEventListener('hashchange', checkLocation);
+    return () => {
+      window.removeEventListener('popstate', checkLocation);
+      window.removeEventListener('hashchange', checkLocation);
+    };
+  }, [isHomepage]);
+
   const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const pdSection = document.getElementById('pd-announcement');
-    if (pdSection) {
-      pdSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (currentIsHome) {
+      e.preventDefault();
+      const pdSection = document.getElementById('pd-announcement');
+      if (pdSection) {
+        pdSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.history.pushState(null, '', '#pd-announcement');
+      } else {
+        window.history.pushState(null, '', '/#pd-announcement');
+        window.dispatchEvent(new Event('popstate'));
+        setTimeout(() => {
+          const el = document.getElementById('pd-announcement');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      }
     } else {
-      window.history.pushState(null, '', '/#pd-announcement');
-      window.dispatchEvent(new Event('popstate'));
-      setTimeout(() => {
-        const el = document.getElementById('pd-announcement');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 150);
+      // Not on homepage: redirect to https://chelsongordon.com/book-pd-session/
+      e.preventDefault();
+      window.location.href = 'https://chelsongordon.com/book-pd-session/';
     }
   };
 
@@ -54,7 +116,7 @@ export const TopAnnouncementBanner: React.FC<TopAnnouncementBannerProps> = ({ is
       />
 
       <a
-        href="#pd-announcement"
+        href={currentIsHome ? "#pd-announcement" : "https://chelsongordon.com/book-pd-session/"}
         onClick={handleClick}
         className="group relative flex items-center justify-center gap-2 sm:gap-2.5 px-4 py-2 sm:py-2.5 text-center cursor-pointer transition-all duration-300"
       >
