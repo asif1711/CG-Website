@@ -773,7 +773,7 @@ select option[value=""] {
 
 /* =========================================================
    GRAVITY FORM #23 (RPL Consultation)
-   Strictly Scoped under #rpl-consultation-gravity-form-mount
+   Strictly Scoped under #rpl-consultation
    Design System Tokens:
    Primary Brand Navy:  #042F61
    Secondary Accent:    #0072CE
@@ -786,6 +786,7 @@ select option[value=""] {
 ========================================================= */
 
 /* CONTAINER & WRAPPER */
+#rpl-consultation,
 #rpl-consultation-gravity-form-mount {
   font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #313439;
@@ -795,6 +796,7 @@ select option[value=""] {
   box-sizing: border-box;
 }
 
+#rpl-consultation .gform_wrapper,
 #rpl-consultation-gravity-form-mount .gform_wrapper {
   width: 100%;
   margin: 0;
@@ -802,18 +804,21 @@ select option[value=""] {
   box-sizing: border-box;
 }
 
+#rpl-consultation form,
 #rpl-consultation-gravity-form-mount form {
   width: 100%;
   margin: 0;
 }
 
 /* PROGRESS BAR & MULTI-STEP NAVIGATION */
+#rpl-consultation .gf_progressbar_wrapper,
 #rpl-consultation-gravity-form-mount .gf_progressbar_wrapper {
   margin-bottom: 28px;
   padding-bottom: 20px;
   border-bottom: 1px solid #E2E8F0;
 }
 
+#rpl-consultation .gf_progressbar_title,
 #rpl-consultation-gravity-form-mount .gf_progressbar_title {
   font-family: "Montserrat", sans-serif;
   font-size: 12px;
@@ -825,6 +830,7 @@ select option[value=""] {
   display: block;
 }
 
+#rpl-consultation .gf_progressbar,
 #rpl-consultation-gravity-form-mount .gf_progressbar {
   height: 8px;
   border-radius: 9999px;
@@ -833,6 +839,7 @@ select option[value=""] {
   position: relative;
 }
 
+#rpl-consultation .gf_progressbar_percentage,
 #rpl-consultation-gravity-form-mount .gf_progressbar_percentage {
   height: 100%;
   background: linear-gradient(90deg, #042F61 0%, #0072CE 100%);
@@ -841,12 +848,14 @@ select option[value=""] {
 }
 
 /* HEADINGS & INSTRUCTIONAL TEXT */
+#rpl-consultation .gform_heading,
 #rpl-consultation-gravity-form-mount .gform_heading {
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid #F1F5F9;
 }
 
+#rpl-consultation .gform_title,
 #rpl-consultation-gravity-form-mount .gform_title {
   font-family: "Montserrat", sans-serif;
   font-size: 22px;
@@ -857,6 +866,7 @@ select option[value=""] {
   line-height: 1.3;
 }
 
+#rpl-consultation .gform_description,
 #rpl-consultation-gravity-form-mount .gform_description {
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
@@ -867,12 +877,15 @@ select option[value=""] {
 }
 
 /* FIELD BASE & LABELS */
+#rpl-consultation .gfield,
 #rpl-consultation-gravity-form-mount .gfield {
   margin-bottom: 22px;
   position: relative;
   box-sizing: border-box;
 }
 
+#rpl-consultation .gfield_label,
+#rpl-consultation legend.gfield_label,
 #rpl-consultation-gravity-form-mount .gfield_label,
 #rpl-consultation-gravity-form-mount legend.gfield_label {
   margin-bottom: 8px;
@@ -888,10 +901,12 @@ select option[value=""] {
   border: none;
 }
 
+#rpl-consultation .gfield_required_text,
 #rpl-consultation-gravity-form-mount .gfield_required_text {
   display: none !important;
 }
 
+#rpl-consultation .gfield_required .gfield_required_asterisk,
 #rpl-consultation-gravity-form-mount .gfield_required .gfield_required_asterisk {
   color: #FDB913;
   font-weight: 700;
@@ -899,6 +914,7 @@ select option[value=""] {
   font-size: 15px;
 }
 
+#rpl-consultation .gfield_description,
 #rpl-consultation-gravity-form-mount .gfield_description {
   color: #64748B;
   font-family: "Montserrat", sans-serif;
@@ -910,14 +926,26 @@ select option[value=""] {
 
 /* =========================================================
    PAGE 1: COURSE SELECTION CARDS (FIELD #12)
-   Graduate Diploma of Strategic Leadership (BSB80320)
-   Graduate Diploma of Portfolio Management (BSP80220)
+   Card 1:
+   CONSULTATION FOR
+   GRADUATE DIPLOMA OF
+   STRATEGIC LEADERSHIP
+   BSB80320
+
+   Card 2:
+   CONSULTATION FOR
+   GRADUATE DIPLOMA OF
+   PORTFOLIO MANAGEMENT
+   BSP80220
 ========================================================= */
+#rpl-consultation #field_23_12,
 #rpl-consultation-gravity-form-mount #field_23_12 {
   margin-top: 8px;
   margin-bottom: 28px;
 }
 
+#rpl-consultation #field_23_12 legend.gfield_label,
+#rpl-consultation #field_23_12 .gfield_label,
 #rpl-consultation-gravity-form-mount #field_23_12 legend.gfield_label,
 #rpl-consultation-gravity-form-mount #field_23_12 .gfield_label {
   font-size: 16px;
@@ -926,6 +954,8 @@ select option[value=""] {
   margin-bottom: 14px;
 }
 
+#rpl-consultation .gfield_radio,
+#rpl-consultation #input_23_12,
 #rpl-consultation-gravity-form-mount .gfield_radio,
 #rpl-consultation-gravity-form-mount #input_23_12 {
   display: grid !important;
@@ -939,6 +969,7 @@ select option[value=""] {
 }
 
 /* COURSE CARD CONTAINER */
+#rpl-consultation .gchoice,
 #rpl-consultation-gravity-form-mount .gchoice {
   position: relative !important;
   display: flex !important;
@@ -951,11 +982,12 @@ select option[value=""] {
   cursor: pointer !important;
   box-shadow: 0 2px 8px rgba(4, 47, 97, 0.04) !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  min-height: 164px !important;
+  min-height: 168px !important;
   box-sizing: border-box !important;
 }
 
 /* HOVER STATE */
+#rpl-consultation .gchoice:hover,
 #rpl-consultation-gravity-form-mount .gchoice:hover {
   border-color: #0072CE !important;
   background: #FAFCFF !important;
@@ -964,6 +996,8 @@ select option[value=""] {
 }
 
 /* SELECTED STATE */
+#rpl-consultation .gchoice:has(input[type="radio"]:checked),
+#rpl-consultation .gchoice.gchoice--selected,
 #rpl-consultation-gravity-form-mount .gchoice:has(input[type="radio"]:checked),
 #rpl-consultation-gravity-form-mount .gchoice.gchoice--selected {
   background: #F0F7FF !important;
@@ -972,12 +1006,14 @@ select option[value=""] {
 }
 
 /* KEYBOARD ACCESSIBILITY FOCUS */
+#rpl-consultation .gchoice:focus-within,
 #rpl-consultation-gravity-form-mount .gchoice:focus-within {
   outline: 2px solid #0072CE !important;
   outline-offset: 3px !important;
 }
 
 /* CUSTOM SELECTION INDICATOR (RADIO INPUT) */
+#rpl-consultation .gchoice input[type="radio"],
 #rpl-consultation-gravity-form-mount .gchoice input[type="radio"] {
   position: absolute !important;
   top: 24px !important;
@@ -998,6 +1034,7 @@ select option[value=""] {
   outline: none !important;
 }
 
+#rpl-consultation .gchoice input[type="radio"]::before,
 #rpl-consultation-gravity-form-mount .gchoice input[type="radio"]::before {
   content: "" !important;
   width: 10px !important;
@@ -1008,26 +1045,31 @@ select option[value=""] {
   background-color: #0072CE !important;
 }
 
+#rpl-consultation .gchoice:hover input[type="radio"],
 #rpl-consultation-gravity-form-mount .gchoice:hover input[type="radio"] {
   border-color: #0072CE !important;
 }
 
+#rpl-consultation .gchoice input[type="radio"]:checked,
 #rpl-consultation-gravity-form-mount .gchoice input[type="radio"]:checked {
   border-color: #0072CE !important;
   background-color: #FFFFFF !important;
   box-shadow: 0 0 0 1px #0072CE !important;
 }
 
+#rpl-consultation .gchoice input[type="radio"]:checked::before,
 #rpl-consultation-gravity-form-mount .gchoice input[type="radio"]:checked::before {
   transform: scale(1) !important;
 }
 
+#rpl-consultation .gchoice input[type="radio"]:focus-visible,
 #rpl-consultation-gravity-form-mount .gchoice input[type="radio"]:focus-visible {
   outline: 2px solid #0072CE !important;
   outline-offset: 3px !important;
 }
 
 /* CARD LABEL & TYPOGRAPHY HIERARCHY */
+#rpl-consultation .gchoice label,
 #rpl-consultation-gravity-form-mount .gchoice label {
   cursor: pointer !important;
   display: flex !important;
@@ -1039,15 +1081,18 @@ select option[value=""] {
   user-select: none !important;
   font-family: "Montserrat", sans-serif !important;
   font-size: 18px !important;
-  font-weight: 700 !important;
+  font-weight: 800 !important;
   color: #042F61 !important;
-  line-height: 1.35 !important;
+  line-height: 1.3 !important;
   letter-spacing: -0.01em !important;
+  text-transform: uppercase !important;
 }
 
-/* CREDENTIAL EYEBROW: GRADUATE DIPLOMA */
+/* CREDENTIAL EYEBROW: CONSULTATION FOR GRADUATE DIPLOMA OF */
+#rpl-consultation .gchoice label::before,
 #rpl-consultation-gravity-form-mount .gchoice label::before {
-  content: "GRADUATE DIPLOMA" !important;
+  content: "CONSULTATION FOR\A GRADUATE DIPLOMA OF" !important;
+  white-space: pre-line !important;
   display: block !important;
   font-family: "Montserrat", sans-serif !important;
   font-size: 11px !important;
@@ -1056,10 +1101,12 @@ select option[value=""] {
   text-transform: uppercase !important;
   color: #0072CE !important;
   margin-bottom: 8px !important;
-  line-height: 1.2 !important;
+  line-height: 1.3 !important;
 }
 
 /* COURSE CODE BADGE: BSB80320 */
+#rpl-consultation .gchoice:has(input[value="BSB80320"])::after,
+#rpl-consultation .gchoice_23_12_0::after,
 #rpl-consultation-gravity-form-mount .gchoice:has(input[value="BSB80320"])::after,
 #rpl-consultation-gravity-form-mount .gchoice_23_12_0::after {
   content: "BSB80320" !important;
@@ -1080,6 +1127,8 @@ select option[value=""] {
 }
 
 /* COURSE CODE BADGE: BSP80220 */
+#rpl-consultation .gchoice:has(input[value="BSP80220"])::after,
+#rpl-consultation .gchoice_23_12_1::after,
 #rpl-consultation-gravity-form-mount .gchoice:has(input[value="BSP80220"])::after,
 #rpl-consultation-gravity-form-mount .gchoice_23_12_1::after {
   content: "BSP80220" !important;
@@ -1100,6 +1149,7 @@ select option[value=""] {
 }
 
 /* BADGE ACTIVE STATE WHEN CARD IS SELECTED */
+#rpl-consultation .gchoice:has(input[type="radio"]:checked)::after,
 #rpl-consultation-gravity-form-mount .gchoice:has(input[type="radio"]:checked)::after {
   background: #0072CE !important;
   color: #FFFFFF !important;
@@ -1112,6 +1162,11 @@ select option[value=""] {
    Field #3: Personal Email
    Field #4: Diploma Certificate
 ========================================================= */
+#rpl-consultation input[type="text"],
+#rpl-consultation input[type="email"],
+#rpl-consultation input[type="tel"],
+#rpl-consultation select,
+#rpl-consultation textarea,
 #rpl-consultation-gravity-form-mount input[type="text"],
 #rpl-consultation-gravity-form-mount input[type="email"],
 #rpl-consultation-gravity-form-mount input[type="tel"],
@@ -1133,6 +1188,9 @@ select option[value=""] {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
+#rpl-consultation input:focus,
+#rpl-consultation select:focus,
+#rpl-consultation textarea:focus,
 #rpl-consultation-gravity-form-mount input:focus,
 #rpl-consultation-gravity-form-mount select:focus,
 #rpl-consultation-gravity-form-mount textarea:focus {
@@ -1141,6 +1199,8 @@ select option[value=""] {
   box-shadow: 0 0 0 4px rgba(0, 114, 206, 0.12);
 }
 
+#rpl-consultation input::placeholder,
+#rpl-consultation textarea::placeholder,
 #rpl-consultation-gravity-form-mount input::placeholder,
 #rpl-consultation-gravity-form-mount textarea::placeholder {
   color: #94A3B8;
@@ -1148,10 +1208,12 @@ select option[value=""] {
 }
 
 /* FILE UPLOAD (FIELD #4) */
+#rpl-consultation .ginput_container_fileupload,
 #rpl-consultation-gravity-form-mount .ginput_container_fileupload {
   margin-top: 8px;
 }
 
+#rpl-consultation input[type="file"],
 #rpl-consultation-gravity-form-mount input[type="file"] {
   width: 100%;
   box-sizing: border-box;
@@ -1166,11 +1228,13 @@ select option[value=""] {
   transition: all 0.2s ease;
 }
 
+#rpl-consultation input[type="file"]:hover,
 #rpl-consultation-gravity-form-mount input[type="file"]:hover {
   border-color: #0072CE;
   background: #F0F7FF;
 }
 
+#rpl-consultation input[type="file"]::file-selector-button,
 #rpl-consultation-gravity-form-mount input[type="file"]::file-selector-button {
   margin-right: 16px;
   padding: 8px 18px;
@@ -1185,6 +1249,7 @@ select option[value=""] {
   transition: background-color 0.2s ease;
 }
 
+#rpl-consultation input[type="file"]::file-selector-button:hover,
 #rpl-consultation-gravity-form-mount input[type="file"]::file-selector-button:hover {
   background: #0072CE;
 }
@@ -1197,6 +1262,7 @@ select option[value=""] {
    .rpl-payment-notice__text
    .make-payment-button
 ========================================================= */
+#rpl-consultation .rpl-payment-notice,
 #rpl-consultation-gravity-form-mount .rpl-payment-notice {
   display: flex;
   align-items: flex-start;
@@ -1209,6 +1275,7 @@ select option[value=""] {
   box-shadow: 0 2px 8px rgba(0, 114, 206, 0.04);
 }
 
+#rpl-consultation .rpl-payment-notice__icon,
 #rpl-consultation-gravity-form-mount .rpl-payment-notice__icon {
   display: flex;
   align-items: center;
@@ -1222,6 +1289,7 @@ select option[value=""] {
   box-shadow: 0 4px 12px rgba(0, 114, 206, 0.25);
 }
 
+#rpl-consultation .rpl-payment-notice__svg,
 #rpl-consultation-gravity-form-mount .rpl-payment-notice__svg {
   width: 22px;
   height: 22px;
@@ -1229,6 +1297,7 @@ select option[value=""] {
   stroke-width: 2.2;
 }
 
+#rpl-consultation .rpl-payment-notice__text,
 #rpl-consultation-gravity-form-mount .rpl-payment-notice__text {
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
@@ -1239,6 +1308,8 @@ select option[value=""] {
 }
 
 /* PAYMENT BUTTONS: .make-payment-button */
+#rpl-consultation .gfield:has(.make-payment-button),
+#rpl-consultation .gfield_html:has(.make-payment-button),
 #rpl-consultation-gravity-form-mount .gfield:has(.make-payment-button),
 #rpl-consultation-gravity-form-mount .gfield_html:has(.make-payment-button) {
   text-align: center;
@@ -1247,6 +1318,7 @@ select option[value=""] {
   margin: 16px 0;
 }
 
+#rpl-consultation .make-payment-button,
 #rpl-consultation-gravity-form-mount .make-payment-button {
   display: inline-flex;
   align-items: center;
@@ -1272,6 +1344,7 @@ select option[value=""] {
   max-width: 100%;
 }
 
+#rpl-consultation .make-payment-button:hover,
 #rpl-consultation-gravity-form-mount .make-payment-button:hover {
   background: #042F61;
   color: #FFFFFF;
@@ -1281,11 +1354,13 @@ select option[value=""] {
   text-decoration: none;
 }
 
+#rpl-consultation .make-payment-button:active,
 #rpl-consultation-gravity-form-mount .make-payment-button:active {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(4, 47, 97, 0.2);
 }
 
+#rpl-consultation .make-payment-button:focus-visible,
 #rpl-consultation-gravity-form-mount .make-payment-button:focus-visible {
   outline: 2px solid #0072CE;
   outline-offset: 3px;
@@ -1294,6 +1369,7 @@ select option[value=""] {
 /* =========================================================
    PAGE FOOTER & NAVIGATION (NEXT, PREVIOUS, SUBMIT)
 ========================================================= */
+#rpl-consultation .gform_page_footer,
 #rpl-consultation-gravity-form-mount .gform_page_footer {
   display: flex;
   align-items: center;
@@ -1307,6 +1383,10 @@ select option[value=""] {
 }
 
 /* NEXT AND SUBMIT BUTTONS (PRIMARY CTA) */
+#rpl-consultation .gform_next_button,
+#rpl-consultation .gform_button,
+#rpl-consultation input[type="submit"],
+#rpl-consultation #gform_submit_button_23,
 #rpl-consultation-gravity-form-mount .gform_next_button,
 #rpl-consultation-gravity-form-mount .gform_button,
 #rpl-consultation-gravity-form-mount input[type="submit"],
@@ -1331,6 +1411,10 @@ select option[value=""] {
   white-space: nowrap;
 }
 
+#rpl-consultation .gform_next_button:hover,
+#rpl-consultation .gform_button:hover,
+#rpl-consultation input[type="submit"]:hover,
+#rpl-consultation #gform_submit_button_23:hover,
 #rpl-consultation-gravity-form-mount .gform_next_button:hover,
 #rpl-consultation-gravity-form-mount .gform_button:hover,
 #rpl-consultation-gravity-form-mount input[type="submit"]:hover,
@@ -1342,6 +1426,10 @@ select option[value=""] {
   box-shadow: 0 8px 20px rgba(4, 47, 97, 0.25);
 }
 
+#rpl-consultation .gform_next_button:active,
+#rpl-consultation .gform_button:active,
+#rpl-consultation input[type="submit"]:active,
+#rpl-consultation #gform_submit_button_23:active,
 #rpl-consultation-gravity-form-mount .gform_next_button:active,
 #rpl-consultation-gravity-form-mount .gform_button:active,
 #rpl-consultation-gravity-form-mount input[type="submit"]:active,
@@ -1350,6 +1438,10 @@ select option[value=""] {
   box-shadow: 0 2px 8px rgba(4, 47, 97, 0.2);
 }
 
+#rpl-consultation .gform_next_button:focus-visible,
+#rpl-consultation .gform_button:focus-visible,
+#rpl-consultation input[type="submit"]:focus-visible,
+#rpl-consultation #gform_submit_button_23:focus-visible,
 #rpl-consultation-gravity-form-mount .gform_next_button:focus-visible,
 #rpl-consultation-gravity-form-mount .gform_button:focus-visible,
 #rpl-consultation-gravity-form-mount input[type="submit"]:focus-visible,
@@ -1359,6 +1451,7 @@ select option[value=""] {
 }
 
 /* PREVIOUS BUTTON (SECONDARY OUTLINED) */
+#rpl-consultation .gform_previous_button,
 #rpl-consultation-gravity-form-mount .gform_previous_button {
   display: inline-flex;
   align-items: center;
@@ -1379,6 +1472,7 @@ select option[value=""] {
   white-space: nowrap;
 }
 
+#rpl-consultation .gform_previous_button:hover,
 #rpl-consultation-gravity-form-mount .gform_previous_button:hover {
   background: #F8FAFC;
   border-color: #042F61;
@@ -1386,10 +1480,12 @@ select option[value=""] {
   transform: translateY(-1px);
 }
 
+#rpl-consultation .gform_previous_button:active,
 #rpl-consultation-gravity-form-mount .gform_previous_button:active {
   transform: translateY(0);
 }
 
+#rpl-consultation .gform_previous_button:focus-visible,
 #rpl-consultation-gravity-form-mount .gform_previous_button:focus-visible {
   outline: 2px solid #0072CE;
   outline-offset: 3px;
@@ -1400,6 +1496,13 @@ select option[value=""] {
    Field #5: Hidden Graduate Diploma Course
    Field #6: Hidden Payment Status
 ========================================================= */
+#rpl-consultation #field_23_5,
+#rpl-consultation #field_23_6,
+#rpl-consultation .field_23_5,
+#rpl-consultation .field_23_6,
+#rpl-consultation .gfield_visibility_hidden,
+#rpl-consultation .gform_hidden,
+#rpl-consultation input[type="hidden"],
 #rpl-consultation-gravity-form-mount #field_23_5,
 #rpl-consultation-gravity-form-mount #field_23_6,
 #rpl-consultation-gravity-form-mount .field_23_5,
@@ -1416,10 +1519,22 @@ select option[value=""] {
 }
 
 /* CONDITIONAL LOGIC DISPLAY NONE PRESERVATION */
+#rpl-consultation .gfield[style*="display: none"],
+#rpl-consultation .gfield[style*="display:none"],
+#rpl-consultation .gform_page[style*="display: none"],
+#rpl-consultation .gform_page[style*="display:none"],
+#rpl-consultation #field_23_8[style*="display: none"],
+#rpl-consultation #field_23_8[style*="display:none"],
+#rpl-consultation #field_23_9[style*="display: none"],
+#rpl-consultation #field_23_9[style*="display:none"],
+#rpl-consultation #field_23_10[style*="display: none"],
+#rpl-consultation #field_23_10[style*="display:none"],
 #rpl-consultation-gravity-form-mount .gfield[style*="display: none"],
 #rpl-consultation-gravity-form-mount .gfield[style*="display:none"],
 #rpl-consultation-gravity-form-mount .gform_page[style*="display: none"],
 #rpl-consultation-gravity-form-mount .gform_page[style*="display:none"],
+#rpl-consultation-gravity-form-mount #field_23_8[style*="display: none"],
+#rpl-consultation-gravity-form-mount #field_23_8[style*="display:none"],
 #rpl-consultation-gravity-form-mount #field_23_9[style*="display: none"],
 #rpl-consultation-gravity-form-mount #field_23_9[style*="display:none"],
 #rpl-consultation-gravity-form-mount #field_23_10[style*="display: none"],
@@ -1430,10 +1545,14 @@ select option[value=""] {
 /* =========================================================
    VALIDATION & ERROR STATES
 ========================================================= */
+#rpl-consultation .gfield_error,
 #rpl-consultation-gravity-form-mount .gfield_error {
   margin-bottom: 20px;
 }
 
+#rpl-consultation .gfield_error input,
+#rpl-consultation .gfield_error select,
+#rpl-consultation .gfield_error textarea,
 #rpl-consultation-gravity-form-mount .gfield_error input,
 #rpl-consultation-gravity-form-mount .gfield_error select,
 #rpl-consultation-gravity-form-mount .gfield_error textarea {
@@ -1442,6 +1561,8 @@ select option[value=""] {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
 }
 
+#rpl-consultation .validation_message,
+#rpl-consultation .gfield_validation_message,
 #rpl-consultation-gravity-form-mount .validation_message,
 #rpl-consultation-gravity-form-mount .gfield_validation_message {
   color: #DC2626 !important;
@@ -1454,6 +1575,7 @@ select option[value=""] {
   gap: 4px !important;
 }
 
+#rpl-consultation .gform_validation_errors,
 #rpl-consultation-gravity-form-mount .gform_validation_errors {
   border: 1px solid #FCA5A5;
   background-color: #FEF2F2;
@@ -1469,6 +1591,8 @@ select option[value=""] {
    MOBILE RESPONSIVENESS (BREAKPOINTS <= 768px & <= 640px)
 ========================================================= */
 @media (max-width: 768px) {
+  #rpl-consultation .gfield_radio,
+  #rpl-consultation #input_23_12,
   #rpl-consultation-gravity-form-mount .gfield_radio,
   #rpl-consultation-gravity-form-mount #input_23_12 {
     grid-template-columns: 1fr !important;
@@ -1477,26 +1601,35 @@ select option[value=""] {
 }
 
 @media (max-width: 640px) {
+  #rpl-consultation .gchoice,
   #rpl-consultation-gravity-form-mount .gchoice {
     padding: 20px 18px 18px 18px !important;
     min-height: 144px !important;
   }
 
+  #rpl-consultation .gchoice label,
   #rpl-consultation-gravity-form-mount .gchoice label {
     font-size: 16px !important;
   }
 
+  #rpl-consultation .gchoice input[type="radio"],
   #rpl-consultation-gravity-form-mount .gchoice input[type="radio"] {
     top: 20px !important;
     right: 18px !important;
   }
 
+  #rpl-consultation .gform_page_footer,
   #rpl-consultation-gravity-form-mount .gform_page_footer {
     flex-direction: column-reverse !important;
     gap: 12px !important;
     width: 100% !important;
   }
 
+  #rpl-consultation .gform_next_button,
+  #rpl-consultation .gform_previous_button,
+  #rpl-consultation .gform_button,
+  #rpl-consultation input[type="submit"],
+  #rpl-consultation #gform_submit_button_23,
   #rpl-consultation-gravity-form-mount .gform_next_button,
   #rpl-consultation-gravity-form-mount .gform_previous_button,
   #rpl-consultation-gravity-form-mount .gform_button,
@@ -1506,11 +1639,13 @@ select option[value=""] {
     justify-content: center !important;
   }
 
+  #rpl-consultation .make-payment-button,
   #rpl-consultation-gravity-form-mount .make-payment-button {
     width: 100% !important;
     max-width: 100% !important;
   }
 
+  #rpl-consultation .rpl-payment-notice,
   #rpl-consultation-gravity-form-mount .rpl-payment-notice {
     flex-direction: column !important;
     gap: 12px !important;
