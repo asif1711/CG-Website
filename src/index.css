@@ -771,3 +771,752 @@ select option[value=""] {
   }
 }
 
+/* =========================================================
+   GRAVITY FORM #23 (RPL Consultation)
+   Strictly Scoped under #rpl-consultation-gravity-form-mount
+   Design System Tokens:
+   Primary Brand Navy:  #042F61
+   Secondary Accent:    #0072CE
+   Gold CTA Accent:     #FDB913
+   Dark Text:           #313439
+   Slate Muted:         #64748B
+   Border Default:      #E2E8F0
+   Selected Blue:       #F0F7FF
+   Error Red:           #EF4444
+========================================================= */
+
+/* CONTAINER & WRAPPER */
+#rpl-consultation-gravity-form-mount {
+  font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #313439;
+  font-size: 15px;
+  line-height: 1.6;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#rpl-consultation-gravity-form-mount .gform_wrapper {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#rpl-consultation-gravity-form-mount form {
+  width: 100%;
+  margin: 0;
+}
+
+/* PROGRESS BAR & MULTI-STEP NAVIGATION */
+#rpl-consultation-gravity-form-mount .gf_progressbar_wrapper {
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+#rpl-consultation-gravity-form-mount .gf_progressbar_title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #042F61;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 10px 0;
+  display: block;
+}
+
+#rpl-consultation-gravity-form-mount .gf_progressbar {
+  height: 8px;
+  border-radius: 9999px;
+  background-color: #E2E8F0;
+  overflow: hidden;
+  position: relative;
+}
+
+#rpl-consultation-gravity-form-mount .gf_progressbar_percentage {
+  height: 100%;
+  background: linear-gradient(90deg, #042F61 0%, #0072CE 100%);
+  border-radius: 9999px;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* HEADINGS & INSTRUCTIONAL TEXT */
+#rpl-consultation-gravity-form-mount .gform_heading {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+#rpl-consultation-gravity-form-mount .gform_title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #042F61;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+#rpl-consultation-gravity-form-mount .gform_description {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  color: #64748B;
+  line-height: 1.55;
+  display: block;
+  margin: 0;
+}
+
+/* FIELD BASE & LABELS */
+#rpl-consultation-gravity-form-mount .gfield {
+  margin-bottom: 22px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+#rpl-consultation-gravity-form-mount .gfield_label,
+#rpl-consultation-gravity-form-mount legend.gfield_label {
+  margin-bottom: 8px;
+  color: #042F61;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+}
+
+#rpl-consultation-gravity-form-mount .gfield_required_text {
+  display: none !important;
+}
+
+#rpl-consultation-gravity-form-mount .gfield_required .gfield_required_asterisk {
+  color: #FDB913;
+  font-weight: 700;
+  margin-left: 4px;
+  font-size: 15px;
+}
+
+#rpl-consultation-gravity-form-mount .gfield_description {
+  color: #64748B;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 6px;
+  margin-bottom: 8px;
+}
+
+/* =========================================================
+   PAGE 1: COURSE SELECTION CARDS (FIELD #12)
+   Graduate Diploma of Strategic Leadership (BSB80320)
+   Graduate Diploma of Portfolio Management (BSP80220)
+========================================================= */
+#rpl-consultation-gravity-form-mount #field_23_12 {
+  margin-top: 8px;
+  margin-bottom: 28px;
+}
+
+#rpl-consultation-gravity-form-mount #field_23_12 legend.gfield_label,
+#rpl-consultation-gravity-form-mount #field_23_12 .gfield_label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #042F61;
+  margin-bottom: 14px;
+}
+
+#rpl-consultation-gravity-form-mount .gfield_radio,
+#rpl-consultation-gravity-form-mount #input_23_12 {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 20px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* COURSE CARD CONTAINER */
+#rpl-consultation-gravity-form-mount .gchoice {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 24px 24px 22px 24px !important;
+  background: #FFFFFF !important;
+  border: 2px solid #E2E8F0 !important;
+  border-radius: 16px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(4, 47, 97, 0.04) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  min-height: 164px !important;
+  box-sizing: border-box !important;
+}
+
+/* HOVER STATE */
+#rpl-consultation-gravity-form-mount .gchoice:hover {
+  border-color: #0072CE !important;
+  background: #FAFCFF !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 24px rgba(0, 114, 206, 0.10) !important;
+}
+
+/* SELECTED STATE */
+#rpl-consultation-gravity-form-mount .gchoice:has(input[type="radio"]:checked),
+#rpl-consultation-gravity-form-mount .gchoice.gchoice--selected {
+  background: #F0F7FF !important;
+  border-color: #0072CE !important;
+  box-shadow: 0 12px 28px rgba(0, 114, 206, 0.14), 0 0 0 1px #0072CE !important;
+}
+
+/* KEYBOARD ACCESSIBILITY FOCUS */
+#rpl-consultation-gravity-form-mount .gchoice:focus-within {
+  outline: 2px solid #0072CE !important;
+  outline-offset: 3px !important;
+}
+
+/* CUSTOM SELECTION INDICATOR (RADIO INPUT) */
+#rpl-consultation-gravity-form-mount .gchoice input[type="radio"] {
+  position: absolute !important;
+  top: 24px !important;
+  right: 24px !important;
+  width: 22px !important;
+  height: 22px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  border: 2px solid #CBD5E1 !important;
+  border-radius: 50% !important;
+  background-color: #FFFFFF !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  display: grid !important;
+  place-content: center !important;
+  transition: all 0.2s ease !important;
+  z-index: 2 !important;
+  outline: none !important;
+}
+
+#rpl-consultation-gravity-form-mount .gchoice input[type="radio"]::before {
+  content: "" !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  transform: scale(0) !important;
+  transition: 120ms transform ease-in-out !important;
+  background-color: #0072CE !important;
+}
+
+#rpl-consultation-gravity-form-mount .gchoice:hover input[type="radio"] {
+  border-color: #0072CE !important;
+}
+
+#rpl-consultation-gravity-form-mount .gchoice input[type="radio"]:checked {
+  border-color: #0072CE !important;
+  background-color: #FFFFFF !important;
+  box-shadow: 0 0 0 1px #0072CE !important;
+}
+
+#rpl-consultation-gravity-form-mount .gchoice input[type="radio"]:checked::before {
+  transform: scale(1) !important;
+}
+
+#rpl-consultation-gravity-form-mount .gchoice input[type="radio"]:focus-visible {
+  outline: 2px solid #0072CE !important;
+  outline-offset: 3px !important;
+}
+
+/* CARD LABEL & TYPOGRAPHY HIERARCHY */
+#rpl-consultation-gravity-form-mount .gchoice label {
+  cursor: pointer !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding-right: 36px !important; /* space for selection circle */
+  user-select: none !important;
+  font-family: "Montserrat", sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #042F61 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* CREDENTIAL EYEBROW: GRADUATE DIPLOMA */
+#rpl-consultation-gravity-form-mount .gchoice label::before {
+  content: "GRADUATE DIPLOMA" !important;
+  display: block !important;
+  font-family: "Montserrat", sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: #0072CE !important;
+  margin-bottom: 8px !important;
+  line-height: 1.2 !important;
+}
+
+/* COURSE CODE BADGE: BSB80320 */
+#rpl-consultation-gravity-form-mount .gchoice:has(input[value="BSB80320"])::after,
+#rpl-consultation-gravity-form-mount .gchoice_23_12_0::after {
+  content: "BSB80320" !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  align-self: flex-start !important;
+  margin-top: 16px !important;
+  padding: 4px 12px !important;
+  background: #EBF3FA !important;
+  color: #042F61 !important;
+  border: 1px solid #D1E4F5 !important;
+  border-radius: 6px !important;
+  font-family: "Space Grotesk", "Montserrat", sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  transition: all 0.2s ease !important;
+}
+
+/* COURSE CODE BADGE: BSP80220 */
+#rpl-consultation-gravity-form-mount .gchoice:has(input[value="BSP80220"])::after,
+#rpl-consultation-gravity-form-mount .gchoice_23_12_1::after {
+  content: "BSP80220" !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  align-self: flex-start !important;
+  margin-top: 16px !important;
+  padding: 4px 12px !important;
+  background: #EBF3FA !important;
+  color: #042F61 !important;
+  border: 1px solid #D1E4F5 !important;
+  border-radius: 6px !important;
+  font-family: "Space Grotesk", "Montserrat", sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  transition: all 0.2s ease !important;
+}
+
+/* BADGE ACTIVE STATE WHEN CARD IS SELECTED */
+#rpl-consultation-gravity-form-mount .gchoice:has(input[type="radio"]:checked)::after {
+  background: #0072CE !important;
+  color: #FFFFFF !important;
+  border-color: #0072CE !important;
+}
+
+/* =========================================================
+   PAGE 2: FORM CONTROLS & FILE UPLOAD
+   Field #1: Student ID
+   Field #3: Personal Email
+   Field #4: Diploma Certificate
+========================================================= */
+#rpl-consultation-gravity-form-mount input[type="text"],
+#rpl-consultation-gravity-form-mount input[type="email"],
+#rpl-consultation-gravity-form-mount input[type="tel"],
+#rpl-consultation-gravity-form-mount select,
+#rpl-consultation-gravity-form-mount textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 50px;
+  padding: 13px 16px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 12px;
+  background: #FFFFFF;
+  color: #042F61;
+  font-family: "Montserrat", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+#rpl-consultation-gravity-form-mount input:focus,
+#rpl-consultation-gravity-form-mount select:focus,
+#rpl-consultation-gravity-form-mount textarea:focus {
+  border-color: #0072CE;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(0, 114, 206, 0.12);
+}
+
+#rpl-consultation-gravity-form-mount input::placeholder,
+#rpl-consultation-gravity-form-mount textarea::placeholder {
+  color: #94A3B8;
+  font-weight: 400;
+}
+
+/* FILE UPLOAD (FIELD #4) */
+#rpl-consultation-gravity-form-mount .ginput_container_fileupload {
+  margin-top: 8px;
+}
+
+#rpl-consultation-gravity-form-mount input[type="file"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 2px dashed #CBD5E1;
+  border-radius: 12px;
+  background: #F8FAFC;
+  color: #475569;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#rpl-consultation-gravity-form-mount input[type="file"]:hover {
+  border-color: #0072CE;
+  background: #F0F7FF;
+}
+
+#rpl-consultation-gravity-form-mount input[type="file"]::file-selector-button {
+  margin-right: 16px;
+  padding: 8px 18px;
+  background: #042F61;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#rpl-consultation-gravity-form-mount input[type="file"]::file-selector-button:hover {
+  background: #0072CE;
+}
+
+/* =========================================================
+   PAGE 3: PAYMENT NOTICE & PAYMENT BUTTONS
+   .rpl-payment-notice
+   .rpl-payment-notice__icon
+   .rpl-payment-notice__svg
+   .rpl-payment-notice__text
+   .make-payment-button
+========================================================= */
+#rpl-consultation-gravity-form-mount .rpl-payment-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 24px;
+  background: #F0F7FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 16px;
+  margin: 16px 0 28px 0;
+  box-shadow: 0 2px 8px rgba(0, 114, 206, 0.04);
+}
+
+#rpl-consultation-gravity-form-mount .rpl-payment-notice__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #0072CE;
+  color: #FFFFFF;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 114, 206, 0.25);
+}
+
+#rpl-consultation-gravity-form-mount .rpl-payment-notice__svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2.2;
+}
+
+#rpl-consultation-gravity-form-mount .rpl-payment-notice__text {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #042F61;
+  line-height: 1.6;
+  flex: 1;
+}
+
+/* PAYMENT BUTTONS: .make-payment-button */
+#rpl-consultation-gravity-form-mount .gfield:has(.make-payment-button),
+#rpl-consultation-gravity-form-mount .gfield_html:has(.make-payment-button) {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+#rpl-consultation-gravity-form-mount .make-payment-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 16px 40px;
+  background: #FDB913;
+  color: #313439;
+  border: 1px solid rgba(253, 185, 19, 0.6);
+  border-radius: 9999px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(253, 185, 19, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  width: auto;
+  max-width: 100%;
+}
+
+#rpl-consultation-gravity-form-mount .make-payment-button:hover {
+  background: #042F61;
+  color: #FFFFFF;
+  border-color: #042F61;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(4, 47, 97, 0.25);
+  text-decoration: none;
+}
+
+#rpl-consultation-gravity-form-mount .make-payment-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(4, 47, 97, 0.2);
+}
+
+#rpl-consultation-gravity-form-mount .make-payment-button:focus-visible {
+  outline: 2px solid #0072CE;
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   PAGE FOOTER & NAVIGATION (NEXT, PREVIOUS, SUBMIT)
+========================================================= */
+#rpl-consultation-gravity-form-mount .gform_page_footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #E2E8F0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* NEXT AND SUBMIT BUTTONS (PRIMARY CTA) */
+#rpl-consultation-gravity-form-mount .gform_next_button,
+#rpl-consultation-gravity-form-mount .gform_button,
+#rpl-consultation-gravity-form-mount input[type="submit"],
+#rpl-consultation-gravity-form-mount #gform_submit_button_23 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 14px 36px;
+  background: #FDB913;
+  color: #313439;
+  border: 1px solid rgba(253, 185, 19, 0.6);
+  border-radius: 9999px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(253, 185, 19, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+#rpl-consultation-gravity-form-mount .gform_next_button:hover,
+#rpl-consultation-gravity-form-mount .gform_button:hover,
+#rpl-consultation-gravity-form-mount input[type="submit"]:hover,
+#rpl-consultation-gravity-form-mount #gform_submit_button_23:hover {
+  background: #042F61;
+  color: #FFFFFF;
+  border-color: #042F61;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(4, 47, 97, 0.25);
+}
+
+#rpl-consultation-gravity-form-mount .gform_next_button:active,
+#rpl-consultation-gravity-form-mount .gform_button:active,
+#rpl-consultation-gravity-form-mount input[type="submit"]:active,
+#rpl-consultation-gravity-form-mount #gform_submit_button_23:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(4, 47, 97, 0.2);
+}
+
+#rpl-consultation-gravity-form-mount .gform_next_button:focus-visible,
+#rpl-consultation-gravity-form-mount .gform_button:focus-visible,
+#rpl-consultation-gravity-form-mount input[type="submit"]:focus-visible,
+#rpl-consultation-gravity-form-mount #gform_submit_button_23:focus-visible {
+  outline: 2px solid #0072CE;
+  outline-offset: 3px;
+}
+
+/* PREVIOUS BUTTON (SECONDARY OUTLINED) */
+#rpl-consultation-gravity-form-mount .gform_previous_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 14px 28px;
+  background: #FFFFFF;
+  color: #042F61;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 9999px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+#rpl-consultation-gravity-form-mount .gform_previous_button:hover {
+  background: #F8FAFC;
+  border-color: #042F61;
+  color: #042F61;
+  transform: translateY(-1px);
+}
+
+#rpl-consultation-gravity-form-mount .gform_previous_button:active {
+  transform: translateY(0);
+}
+
+#rpl-consultation-gravity-form-mount .gform_previous_button:focus-visible {
+  outline: 2px solid #0072CE;
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   STRICT HIDDEN FIELDS & CONDITIONAL LOGIC
+   Field #5: Hidden Graduate Diploma Course
+   Field #6: Hidden Payment Status
+========================================================= */
+#rpl-consultation-gravity-form-mount #field_23_5,
+#rpl-consultation-gravity-form-mount #field_23_6,
+#rpl-consultation-gravity-form-mount .field_23_5,
+#rpl-consultation-gravity-form-mount .field_23_6,
+#rpl-consultation-gravity-form-mount .gfield_visibility_hidden,
+#rpl-consultation-gravity-form-mount .gform_hidden,
+#rpl-consultation-gravity-form-mount input[type="hidden"] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* CONDITIONAL LOGIC DISPLAY NONE PRESERVATION */
+#rpl-consultation-gravity-form-mount .gfield[style*="display: none"],
+#rpl-consultation-gravity-form-mount .gfield[style*="display:none"],
+#rpl-consultation-gravity-form-mount .gform_page[style*="display: none"],
+#rpl-consultation-gravity-form-mount .gform_page[style*="display:none"],
+#rpl-consultation-gravity-form-mount #field_23_9[style*="display: none"],
+#rpl-consultation-gravity-form-mount #field_23_9[style*="display:none"],
+#rpl-consultation-gravity-form-mount #field_23_10[style*="display: none"],
+#rpl-consultation-gravity-form-mount #field_23_10[style*="display:none"] {
+  display: none !important;
+}
+
+/* =========================================================
+   VALIDATION & ERROR STATES
+========================================================= */
+#rpl-consultation-gravity-form-mount .gfield_error {
+  margin-bottom: 20px;
+}
+
+#rpl-consultation-gravity-form-mount .gfield_error input,
+#rpl-consultation-gravity-form-mount .gfield_error select,
+#rpl-consultation-gravity-form-mount .gfield_error textarea {
+  border-color: #EF4444 !important;
+  background-color: #FEF2F2 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+}
+
+#rpl-consultation-gravity-form-mount .validation_message,
+#rpl-consultation-gravity-form-mount .gfield_validation_message {
+  color: #DC2626 !important;
+  font-family: "Montserrat", sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  margin-top: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+#rpl-consultation-gravity-form-mount .gform_validation_errors {
+  border: 1px solid #FCA5A5;
+  background-color: #FEF2F2;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  color: #991B1B;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+}
+
+/* =========================================================
+   MOBILE RESPONSIVENESS (BREAKPOINTS <= 768px & <= 640px)
+========================================================= */
+@media (max-width: 768px) {
+  #rpl-consultation-gravity-form-mount .gfield_radio,
+  #rpl-consultation-gravity-form-mount #input_23_12 {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  #rpl-consultation-gravity-form-mount .gchoice {
+    padding: 20px 18px 18px 18px !important;
+    min-height: 144px !important;
+  }
+
+  #rpl-consultation-gravity-form-mount .gchoice label {
+    font-size: 16px !important;
+  }
+
+  #rpl-consultation-gravity-form-mount .gchoice input[type="radio"] {
+    top: 20px !important;
+    right: 18px !important;
+  }
+
+  #rpl-consultation-gravity-form-mount .gform_page_footer {
+    flex-direction: column-reverse !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  #rpl-consultation-gravity-form-mount .gform_next_button,
+  #rpl-consultation-gravity-form-mount .gform_previous_button,
+  #rpl-consultation-gravity-form-mount .gform_button,
+  #rpl-consultation-gravity-form-mount input[type="submit"],
+  #rpl-consultation-gravity-form-mount #gform_submit_button_23 {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  #rpl-consultation-gravity-form-mount .make-payment-button {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  #rpl-consultation-gravity-form-mount .rpl-payment-notice {
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 16px !important;
+  }
+}
+
+
+

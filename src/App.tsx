@@ -40,6 +40,7 @@ import OurPeoplePage from "./OurPeoplePage";
 import TeamDetailPage from "./TeamDetailPage";
 import HrDashboardPage from "./components/HRDashboard/HrDashboardPage";
 import BookPDSessionPage from "./components/BookPDSession/BookPDSessionPage";
+import RPLConsultationPage from "./components/RPLConsultation/RPLConsultationPage";
 import WorldMapGraphic from "./components/WorldMapGraphic";
 import Testimonials from "./components/Testimonials";
 import { PDAnnouncement } from "./components/PDAnnouncement";
@@ -1744,8 +1745,12 @@ export default function App() {
         window.location.hash === '#book-pd-session' || 
         window.location.hash.startsWith('#book-pd-session') ||
         window.location.hash === '#booking-registration-section';
+      const isRplPath = 
+        window.location.pathname.startsWith('/rpl-consultation') || 
+        window.location.hash === '#rpl-consultation' || 
+        window.location.hash.startsWith('#rpl-consultation');
       
-      if (isTeamHash || isTeamPath || (isBookPdPath && !window.location.hash.includes('booking-registration-section') && !window.location.hash.includes('wp-gravity-form-mount'))) {
+      if (isTeamHash || isTeamPath || ((isBookPdPath || isRplPath) && !window.location.hash.includes('booking-registration-section') && !window.location.hash.includes('wp-gravity-form-mount') && !window.location.hash.includes('rpl-consultation-gravity-form-mount'))) {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
     };
@@ -1780,15 +1785,21 @@ export default function App() {
   const isHrDashboardPage = 
     normalizedCurrentPath === '/hr-dashboard' ||
     currentHash === '#hr-dashboard';
-  const isBookPdSessionPage = 
+  const isRplConsultationPage = 
     !isHrDashboardPage && !isTeamDetailPage && !isOrgChartPage && (
+      normalizedCurrentPath === '/rpl-consultation' || 
+      currentHash === '#rpl-consultation' ||
+      currentHash.startsWith('#rpl-consultation')
+    );
+  const isBookPdSessionPage = 
+    !isHrDashboardPage && !isTeamDetailPage && !isOrgChartPage && !isRplConsultationPage && (
       normalizedCurrentPath === '/book-pd-session' || 
       currentHash === '#book-pd-session' ||
       currentHash.startsWith('#book-pd-session') ||
       currentHash === '#booking-registration-section'
     );
   const isOurPeoplePage = 
-    !isTeamDetailPage && !isHrDashboardPage && !isBookPdSessionPage && (
+    !isTeamDetailPage && !isHrDashboardPage && !isBookPdSessionPage && !isRplConsultationPage && (
       normalizedCurrentPath === '/our-people' || 
       normalizedCurrentPath === '/our-teams' || 
       [
@@ -1798,14 +1809,14 @@ export default function App() {
       ].includes(currentHash)
     );
 
-  const isHomepage = !isHrDashboardPage && !isOrgChartPage && !isTeamDetailPage && !isBookPdSessionPage && !isOurPeoplePage;
+  const isHomepage = !isHrDashboardPage && !isOrgChartPage && !isTeamDetailPage && !isBookPdSessionPage && !isOurPeoplePage && !isRplConsultationPage;
 
   return (
     <div className="font-sans">
       {!isHrDashboardPage && (
         <Navbar 
-          forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage || isBookPdSessionPage} 
-          logoHref={isBookPdSessionPage ? "https://chelsongordon.com/" : undefined}
+          forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage || isBookPdSessionPage || isRplConsultationPage} 
+          logoHref={(isBookPdSessionPage || isRplConsultationPage) ? "https://chelsongordon.com/" : undefined}
           isHomepage={isHomepage}
         />
       )}
@@ -1855,6 +1866,16 @@ export default function App() {
                   window.scrollTo({ top: 0, behavior: 'instant' });
                 }}
               />
+            </motion.div>
+          ) : isRplConsultationPage ? (
+            <motion.div
+              key="rpl-consultation-page"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+            >
+              <RPLConsultationPage />
             </motion.div>
           ) : isBookPdSessionPage ? (
             <motion.div
