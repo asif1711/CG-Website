@@ -1036,7 +1036,7 @@ useEffect(() => {
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <div className="relative w-full overflow-hidden py-2 sm:py-3 px-1 sm:px-2">
+            <div className="relative w-full overflow-hidden py-3 sm:py-4 px-1 sm:px-2">
               
               {/* Invisible spacer card that accurately sizes the container naturally */}
               <div 
@@ -1130,30 +1130,30 @@ useEffect(() => {
                 })}
               </div>
 
-              {/* Side Navigation Arrows (Left & Right of the hero section) */}
-              {upcomingSessions.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={handlePrevUpcoming}
-                    aria-label="Previous upcoming session"
-                    className="absolute left-0.5 sm:left-1.5 lg:left-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-white/95 hover:bg-[#0072CE] text-[#042F61] hover:text-white border-2 border-white shadow-[0_6px_20px_rgba(4,47,97,0.18)] hover:shadow-[0_10px_25px_rgba(0,114,206,0.35)] flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md group"
-                  >
-                    <ChevronLeft className="w-5 h-5 stroke-[2.5] transition-transform duration-200 group-hover:-translate-x-0.5" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleNextUpcoming}
-                    aria-label="Next upcoming session"
-                    className="absolute right-0.5 sm:right-1.5 lg:right-2 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-white/95 hover:bg-[#0072CE] text-[#042F61] hover:text-white border-2 border-white shadow-[0_6px_20px_rgba(4,47,97,0.18)] hover:shadow-[0_10px_25px_rgba(0,114,206,0.35)] flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md group"
-                  >
-                    <ChevronRight className="w-5 h-5 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5" />
-                  </button>
-                </>
-              )}
-
             </div>
+
+            {/* Side Navigation Arrows (Positioned outside overflow-hidden with ample breathing room so glow & shadows never clip) */}
+            {upcomingSessions.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={handlePrevUpcoming}
+                  aria-label="Previous upcoming session"
+                  className="absolute left-1 sm:left-2 lg:left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-white/95 hover:bg-[#0072CE] text-[#042F61] hover:text-white border-2 border-white shadow-[0_6px_20px_rgba(4,47,97,0.18)] hover:shadow-[0_10px_25px_rgba(0,114,206,0.35)] flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md group"
+                >
+                  <ChevronLeft className="w-5 h-5 stroke-[2.5] transition-transform duration-200 group-hover:-translate-x-0.5" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNextUpcoming}
+                  aria-label="Next upcoming session"
+                  className="absolute right-1 sm:right-2 lg:right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full bg-white/95 hover:bg-[#0072CE] text-[#042F61] hover:text-white border-2 border-white shadow-[0_6px_20px_rgba(4,47,97,0.18)] hover:shadow-[0_10px_25px_rgba(0,114,206,0.35)] flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md group"
+                >
+                  <ChevronRight className="w-5 h-5 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5" />
+                </button>
+              </>
+            )}
 
             {/* Visual indicator of pagination moved to bottom center of carousel below the card */}
             {upcomingSessions.length > 1 && (
