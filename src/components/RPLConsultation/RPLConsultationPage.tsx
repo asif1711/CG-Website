@@ -192,7 +192,7 @@ export const RPLConsultationPage: React.FC = () => {
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-[#0072CE]" />
-              Portfolio Management (BSP80220)
+              Portfolio Management (BSB80220)
             </span>
           </div>
         </div>

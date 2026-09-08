@@ -960,7 +960,7 @@ select option[value=""] {
    CONSULTATION FOR
    GRADUATE DIPLOMA OF
    PORTFOLIO MANAGEMENT
-   BSP80220
+   BSB80220
 ========================================================= */
 #rpl-consultation #field_23_12,
 #rpl-consultation-gravity-form-mount #field_23_12 {
@@ -1149,12 +1149,14 @@ select option[value=""] {
   transition: all 0.2s ease !important;
 }
 
-/* COURSE CODE BADGE: BSP80220 */
+/* COURSE CODE BADGE: BSB80220 */
+#rpl-consultation .gchoice:has(input[value="BSB80220"])::after,
 #rpl-consultation .gchoice:has(input[value="BSP80220"])::after,
 #rpl-consultation .gchoice_23_12_1::after,
+#rpl-consultation-gravity-form-mount .gchoice:has(input[value="BSB80220"])::after,
 #rpl-consultation-gravity-form-mount .gchoice:has(input[value="BSP80220"])::after,
 #rpl-consultation-gravity-form-mount .gchoice_23_12_1::after {
-  content: "BSP80220" !important;
+  content: "BSB80220" !important;
   display: inline-flex !important;
   align-items: center !important;
   align-self: flex-start !important;
