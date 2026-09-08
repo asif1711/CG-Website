@@ -488,7 +488,6 @@ const HeroSessionCard: React.FC<HeroSessionCardProps> = ({
                       </span>
                       <span className="text-[10.5px] font-bold text-[#042F61] uppercase tracking-wider">Live & Interactive</span>
                     </div>
-                    <span className="text-[10.5px] font-bold text-[#0072CE] bg-[#0072CE]/10 px-2 py-0.5 rounded-md">VET Accredited</span>
                   </div>
                 )}
               </div>
