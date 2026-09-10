@@ -1008,6 +1008,19 @@ select option[value=""] {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   min-height: 168px !important;
   box-sizing: border-box !important;
+  user-select: none !important;
+}
+
+#rpl-consultation .gchoice *,
+#rpl-consultation-gravity-form-mount .gchoice * {
+  cursor: pointer !important;
+}
+
+#rpl-consultation .gchoice::after,
+#rpl-consultation-gravity-form-mount .gchoice::after,
+#rpl-consultation .gchoice label::before,
+#rpl-consultation-gravity-form-mount .gchoice label::before {
+  pointer-events: none !important;
 }
 
 /* HOVER STATE */
@@ -1110,25 +1123,6 @@ select option[value=""] {
   line-height: 1.3 !important;
   letter-spacing: -0.01em !important;
   text-transform: uppercase !important;
-}
-
-/* FULL-CARD CLICK TARGET: Expands label to cover entire card so clicking anywhere selects the radio */
-#rpl-consultation .gchoice label::after,
-#rpl-consultation-gravity-form-mount .gchoice label::after {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  border-radius: 16px !important;
-  cursor: pointer !important;
-  z-index: 1 !important;
-}
-
-/* Ensure course badge does not intercept clicks away from label */
-#rpl-consultation .gchoice::after,
-#rpl-consultation-gravity-form-mount .gchoice::after {
-  pointer-events: none !important;
 }
 
 /* CREDENTIAL EYEBROW: CONSULTATION FOR */
@@ -1441,21 +1435,49 @@ select option[value=""] {
 ========================================================= */
 #rpl-consultation .gform_page_footer,
 #rpl-consultation-gravity-form-mount .gform_page_footer {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 16px !important;
-  margin-top: 32px !important;
-  padding-top: 24px !important;
-  border-top: 1px solid #E2E8F0 !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #E2E8F0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Ensure next button on single-button pages (e.g. Page 1) stays right-aligned */
-#rpl-consultation .gform_next_button,
-#rpl-consultation-gravity-form-mount .gform_next_button {
+/* On Page 1 (where only Next button exists), keep it aligned to the right */
+#rpl-consultation .gform_page_footer:not(:has(.gform_previous_button)) .gform_next_button,
+#rpl-consultation-gravity-form-mount .gform_page_footer:not(:has(.gform_previous_button)) .gform_next_button {
   margin-left: auto !important;
+}
+
+/* CLOUDFLARE TURNSTILE CENTERING (HORIZONTALLY CENTERED BETWEEN PREVIOUS AND SUBMIT) */
+#rpl-consultation .cf-turnstile,
+#rpl-consultation-gravity-form-mount .cf-turnstile,
+#rpl-consultation .cfturnstile-wrapper,
+#rpl-consultation-gravity-form-mount .cfturnstile-wrapper,
+#rpl-consultation [data-sitekey],
+#rpl-consultation-gravity-form-mount [data-sitekey],
+#rpl-consultation .gfield:has(.cf-turnstile),
+#rpl-consultation-gravity-form-mount .gfield:has(.cf-turnstile),
+#rpl-consultation .gfield_turnstile,
+#rpl-consultation-gravity-form-mount .gfield_turnstile {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+#rpl-consultation .cf-turnstile > div,
+#rpl-consultation-gravity-form-mount .cf-turnstile > div,
+#rpl-consultation .cf-turnstile iframe,
+#rpl-consultation-gravity-form-mount .cf-turnstile iframe {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: block !important;
 }
 
 /* NEXT AND SUBMIT BUTTONS (PRIMARY CTA) */
@@ -1485,7 +1507,6 @@ select option[value=""] {
   box-shadow: 0 4px 14px rgba(253, 185, 19, 0.35);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
-  flex-shrink: 0 !important;
 }
 
 #rpl-consultation .gform_next_button:hover,
@@ -1547,7 +1568,6 @@ select option[value=""] {
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  flex-shrink: 0 !important;
 }
 
 #rpl-consultation .gform_previous_button:hover,
@@ -1567,33 +1587,6 @@ select option[value=""] {
 #rpl-consultation-gravity-form-mount .gform_previous_button:focus-visible {
   outline: 2px solid #0072CE;
   outline-offset: 3px;
-}
-
-/* =========================================================
-   CLOUDFLARE TURNSTILE CENTERING BETWEEN PREV & SUBMIT
-========================================================= */
-#rpl-consultation .cf-turnstile,
-#rpl-consultation .cfturnstile-gform,
-#rpl-consultation [class*="cfturnstile"],
-#rpl-consultation [class*="turnstile"],
-#rpl-consultation-gravity-form-mount .cf-turnstile,
-#rpl-consultation-gravity-form-mount .cfturnstile-gform,
-#rpl-consultation-gravity-form-mount [class*="cfturnstile"],
-#rpl-consultation-gravity-form-mount [class*="turnstile"] {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  margin: 0 auto !important;
-  text-align: center !important;
-  flex: 1 1 auto !important;
-}
-
-#rpl-consultation .cf-turnstile iframe,
-#rpl-consultation [class*="turnstile"] iframe,
-#rpl-consultation-gravity-form-mount .cf-turnstile iframe,
-#rpl-consultation-gravity-form-mount [class*="turnstile"] iframe {
-  margin: 0 auto !important;
-  display: block !important;
 }
 
 /* =========================================================
@@ -1726,22 +1719,8 @@ select option[value=""] {
   #rpl-consultation .gform_page_footer,
   #rpl-consultation-gravity-form-mount .gform_page_footer {
     flex-direction: column-reverse !important;
-    gap: 16px !important;
+    gap: 12px !important;
     width: 100% !important;
-    align-items: center !important;
-  }
-
-  #rpl-consultation .cf-turnstile,
-  #rpl-consultation .cfturnstile-gform,
-  #rpl-consultation [class*="cfturnstile"],
-  #rpl-consultation [class*="turnstile"],
-  #rpl-consultation-gravity-form-mount .cf-turnstile,
-  #rpl-consultation-gravity-form-mount .cfturnstile-gform,
-  #rpl-consultation-gravity-form-mount [class*="cfturnstile"],
-  #rpl-consultation-gravity-form-mount [class*="turnstile"] {
-    width: 100% !important;
-    margin: 8px auto !important;
-    justify-content: center !important;
   }
 
   #rpl-consultation .gform_next_button,
@@ -1755,8 +1734,6 @@ select option[value=""] {
   #rpl-consultation-gravity-form-mount input[type="submit"],
   #rpl-consultation-gravity-form-mount #gform_submit_button_23 {
     width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
     justify-content: center !important;
   }
 
