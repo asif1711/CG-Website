@@ -1,6 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { Award, CheckCircle2 } from 'lucide-react';
 
+declare global {
+  interface Window {
+    cfturnstileRender?: () => void;
+  }
+}
+
 export const RPLConsultationPage: React.FC = () => {
   const gravityFormMountRef = useRef<HTMLDivElement>(null);
 
@@ -43,8 +49,12 @@ export const RPLConsultationPage: React.FC = () => {
       if (formElement && !mountContainer.contains(formElement)) {
         mountContainer.replaceChildren(formElement);
 
-        // Inform WordPress Gravity Form scripts that mount point is ready
         if (typeof window !== 'undefined') {
+          if (window.cfturnstileRender) {
+            window.cfturnstileRender();
+          }
+
+          // Inform WordPress Gravity Form scripts that mount point is ready
           window.dispatchEvent(
             new CustomEvent('gform_mount_ready', {
               detail: { containerId: 'rpl-consultation-gravity-form-mount', formId: 23 },
