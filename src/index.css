@@ -1008,6 +1008,19 @@ select option[value=""] {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   min-height: 168px !important;
   box-sizing: border-box !important;
+  user-select: none !important;
+}
+
+#rpl-consultation .gchoice *,
+#rpl-consultation-gravity-form-mount .gchoice * {
+  cursor: pointer !important;
+}
+
+#rpl-consultation .gchoice::after,
+#rpl-consultation-gravity-form-mount .gchoice::after,
+#rpl-consultation .gchoice label::before,
+#rpl-consultation-gravity-form-mount .gchoice label::before {
+  pointer-events: none !important;
 }
 
 /* HOVER STATE */
@@ -1424,13 +1437,47 @@ select option[value=""] {
 #rpl-consultation-gravity-form-mount .gform_page_footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 16px;
   margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid #E2E8F0;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* On Page 1 (where only Next button exists), keep it aligned to the right */
+#rpl-consultation .gform_page_footer:not(:has(.gform_previous_button)) .gform_next_button,
+#rpl-consultation-gravity-form-mount .gform_page_footer:not(:has(.gform_previous_button)) .gform_next_button {
+  margin-left: auto !important;
+}
+
+/* CLOUDFLARE TURNSTILE CENTERING (HORIZONTALLY CENTERED BETWEEN PREVIOUS AND SUBMIT) */
+#rpl-consultation .cf-turnstile,
+#rpl-consultation-gravity-form-mount .cf-turnstile,
+#rpl-consultation .cfturnstile-wrapper,
+#rpl-consultation-gravity-form-mount .cfturnstile-wrapper,
+#rpl-consultation [data-sitekey],
+#rpl-consultation-gravity-form-mount [data-sitekey],
+#rpl-consultation .gfield:has(.cf-turnstile),
+#rpl-consultation-gravity-form-mount .gfield:has(.cf-turnstile),
+#rpl-consultation .gfield_turnstile,
+#rpl-consultation-gravity-form-mount .gfield_turnstile {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+#rpl-consultation .cf-turnstile > div,
+#rpl-consultation-gravity-form-mount .cf-turnstile > div,
+#rpl-consultation .cf-turnstile iframe,
+#rpl-consultation-gravity-form-mount .cf-turnstile iframe {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: block !important;
 }
 
 /* NEXT AND SUBMIT BUTTONS (PRIMARY CTA) */

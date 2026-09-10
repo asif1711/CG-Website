@@ -55,17 +55,60 @@ export const RPLConsultationPage: React.FC = () => {
         mountContainer.replaceChildren(formElement);
 
         if (typeof window !== 'undefined') {
-          const turnstileContainer = formElement.querySelector<HTMLElement>('.cf-turnstile');
-          if (turnstileContainer && window.turnstile?.remove) {
-            try {
-              window.turnstile.remove(turnstileContainer);
-            } catch {
-              // Safe to ignore if widget was not yet registered
-            }
-          }
+          // Directly render Cloudflare Turnstile on the moved form container using existing data-* configuration
+          const ts = formElement.querySelector<HTMLElement>('.cf-turnstile');
+          if (ts && !ts.dataset.turnstileRendered && !ts.querySelector('iframe')) {
+            const renderTurnstile = (): boolean => {
+              if (
+                !ts ||
+                ts.dataset.turnstileRendered === 'true' ||
+                ts.querySelector('iframe') ||
+                typeof window === 'undefined' ||
+                !window.turnstile ||
+                typeof window.turnstile.render !== 'function'
+              ) {
+                return false;
+              }
 
-          if (window.cfturnstileRender) {
-            window.cfturnstileRender();
+              const callbackName = ts.dataset.callback;
+              const callbackFn =
+                callbackName && typeof (window as any)[callbackName] === 'function'
+                  ? (window as any)[callbackName]
+                  : undefined;
+
+              ts.dataset.turnstileRendered = 'true';
+
+              try {
+                window.turnstile.render(ts, {
+                  sitekey: ts.dataset.sitekey,
+                  theme: ts.dataset.theme as any,
+                  language: ts.dataset.language,
+                  size: ts.dataset.size as any,
+                  retry: ts.dataset.retry as any,
+                  'retry-interval': Number(ts.dataset.retryInterval || 1000),
+                  'refresh-expired': ts.dataset.refreshExpired as any,
+                  'refresh-timeout': ts.dataset.refreshTimeout as any,
+                  action: ts.dataset.action,
+                  callback: callbackFn,
+                });
+                return true;
+              } catch {
+                delete ts.dataset.turnstileRendered;
+                return false;
+              }
+            };
+
+            if (!renderTurnstile()) {
+              let attempts = 0;
+              const maxAttempts = 20;
+              const intervalId = setInterval(() => {
+                attempts++;
+                if (renderTurnstile() || attempts >= maxAttempts) {
+                  clearInterval(intervalId);
+                }
+              }, 100);
+              retryTimeouts.push(intervalId as any);
+            }
           }
 
           // Inform WordPress Gravity Form scripts that mount point is ready
@@ -160,9 +203,37 @@ export const RPLConsultationPage: React.FC = () => {
       );
     }
 
+    // Ensure entire radio choice cards on Page 1 are clickable/selectable
+    const mountContainer =
+      gravityFormMountRef.current ||
+      document.getElementById('rpl-consultation-gravity-form-mount');
+
+    const handleRadioCardClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const choice = target.closest<HTMLElement>('.gchoice');
+      if (!choice) return;
+
+      const radio = choice.querySelector<HTMLInputElement>('input[type="radio"]');
+      if (!radio) return;
+
+      if (target !== radio) {
+        radio.checked = true;
+        const allChoices = choice.parentElement?.querySelectorAll('.gchoice');
+        allChoices?.forEach((c) => c.classList.remove('gchoice--selected'));
+        choice.classList.add('gchoice--selected');
+
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+        radio.dispatchEvent(new Event('click', { bubbles: true }));
+      }
+    };
+
+    mountContainer?.addEventListener('click', handleRadioCardClick);
+
     return () => {
       isMounted = false;
       document.title = originalTitle;
+      mountContainer?.removeEventListener('click', handleRadioCardClick);
       retryTimeouts.forEach((t) => clearTimeout(t));
       if (mutationObserver) {
         mutationObserver.disconnect();
