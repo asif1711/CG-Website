@@ -4,6 +4,11 @@ import { Award, CheckCircle2 } from 'lucide-react';
 declare global {
   interface Window {
     cfturnstileRender?: () => void;
+    turnstile?: {
+      render?: (container?: string | HTMLElement, options?: any) => string;
+      remove?: (widgetIdOrContainer?: string | HTMLElement) => void;
+      reset?: (widgetIdOrContainer?: string | HTMLElement) => void;
+    };
   }
 }
 
@@ -50,6 +55,15 @@ export const RPLConsultationPage: React.FC = () => {
         mountContainer.replaceChildren(formElement);
 
         if (typeof window !== 'undefined') {
+          const turnstileContainer = formElement.querySelector<HTMLElement>('.cf-turnstile');
+          if (turnstileContainer && window.turnstile?.remove) {
+            try {
+              window.turnstile.remove(turnstileContainer);
+            } catch {
+              // Safe to ignore if widget was not yet registered
+            }
+          }
+
           if (window.cfturnstileRender) {
             window.cfturnstileRender();
           }
