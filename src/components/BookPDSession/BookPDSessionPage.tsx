@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowRight,
@@ -18,7 +18,19 @@ import {
   History,
   Mail
 } from 'lucide-react';
-import { WordPressPDSession } from '../PDAnnouncement';
+import { parseSessionContent, ParsedSessionContent } from '../PDAnnouncement';
+import { 
+  WordPressPDSession, 
+  getCachedAllSessions, 
+  getCachedUpcomingSessions, 
+  getCachedPastSessions, 
+  filterUpcomingSessions, 
+  filterPastSessions, 
+  fetchLiveSessions, 
+  subscribeSessions, 
+  DEFAULT_UPCOMING_SESSIONS, 
+  DEFAULT_PAST_SESSIONS 
+} from '../../services/pdSessionService';
 import { CertificateVerificationCard } from './CertificateVerificationCard';
 
 /**
@@ -111,117 +123,10 @@ const renderTopicTitle = (title: string) => {
   );
 };
 
-// Fallback Upcoming Sessions (> current date)
-const FALLBACK_UPCOMING_SESSIONS: WordPressPDSession[] = [
-  {
-    id: 22272,
-    title: "Compliant Assessment Practices – Embedding Validity and Reliability in Assessment",
-    description: "Equip your assessors with the knowledge, evidence-gathering strategies, and practical tools to embed fairness, flexibility, validity, and sufficiency into daily assessment workflows in line with ASQA Standards.",
-    date: "2026-09-04",
-    time: "04:00 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22273,
-    title: "Assessment Confidence – Applying Validity and Sufficiency in Practice",
-    description: "Master evidence sufficiency, authentic learner verification, and robust validation instruments to ensure total audit confidence.",
-    date: "2026-09-11",
-    time: "04:00 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22274,
-    title: "Assessment Integrity – Ensuring Authenticity and Currency of Evidence",
-    description: "Stay ahead of regulatory reforms, audit expectations, and risk-based regulatory trends shaping Australian vocational education and training.",
-    date: "2026-09-18",
-    time: "03:30 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22275,
-    title: "Designing Learner Guides for Quality Training and Compliance",
-    description: "Learn systematic development methodologies for student learning materials that elevate assessor delivery and streamline learner progression.",
-    date: "2026-09-25",
-    time: "04:00 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22276,
-    title: "Learner Guide to Learning Experience – Designing Engaging Training Presentations",
-    description: "Transform static training materials into immersive, interactive learning journeys tailored for high adult learner engagement and retention.",
-    date: "2026-10-02",
-    time: "04:00 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  }
-];
+// Canonical Fallback Sessions (synchronized from shared pdSessionService for instant 0ms load)
+const FALLBACK_UPCOMING_SESSIONS: WordPressPDSession[] = DEFAULT_UPCOMING_SESSIONS;
+const FALLBACK_PAST_SESSIONS: WordPressPDSession[] = DEFAULT_PAST_SESSIONS;
 
-// Fallback Past Sessions (< current date)
-const FALLBACK_PAST_SESSIONS: WordPressPDSession[] = [
-  {
-    id: 22271,
-    title: "Compliant Assessment Practices – Embedding Fairness and Flexibility in Assessment",
-    description: "Equipped assessors with evidence-gathering strategies and practical tools to embed fairness, flexibility, and validity into daily workflows.",
-    date: "2026-08-28",
-    time: "04:00 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22270,
-    title: "VET Regulatory Trends & Standards for RTO Compliance",
-    description: "Unpacked regulatory reforms, audit expectations, and risk-based compliance methodologies shaping modern RTO governance.",
-    date: "2026-08-14",
-    time: "03:30 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22269,
-    title: "Evidence Sufficiency & Authenticity in Vocational Assessment",
-    description: "Deep dive into authentic student evidence collection, validation methods, and third-party reports under ASQA standards.",
-    date: "2026-07-31",
-    time: "04:00 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22268,
-    title: "Designing Impactful Learner Guides & Assessment Tools",
-    description: "Practical masterclass on developing compliant learning materials that boost student engagement and meet audit scrutiny.",
-    date: "2026-07-17",
-    time: "03:00 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22267,
-    title: "RPL Evidence Gathering & Competency Conversation Strategies",
-    description: "Advanced masterclass on streamlining Recognition of Prior Learning workflows and audit-tested candidate interview techniques.",
-    date: "2026-07-03",
-    time: "04:00 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22266,
-    title: "Industry Consultation Frameworks & Trainer Currency Evidence",
-    description: "Robust methodologies for documenting authentic industry engagement and vocational currency in alignment with ASQA standards.",
-    date: "2026-06-19",
-    time: "03:30 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22265,
-    title: "Assessment Validation Workflows – Pre & Post Delivery",
-    description: "Step-by-step guidance on establishing statistically valid sampling and collaborative validation panels across RTO faculties.",
-    date: "2026-06-05",
-    time: "04:00 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  },
-  {
-    id: 22264,
-    title: "Training & Assessment Strategy (TAS) Design for Audit Scrutiny",
-    description: "Comprehensive blueprint for structuring compliant TAS documents reflecting real learner cohorts and delivery modes.",
-    date: "2026-05-22",
-    time: "04:00 PM AEST",
-    url: "https://buy.stripe.com/6oUeVd7yRfz06GqaKNds40e"
-  }
-];
 
 interface SessionContentOverride {
   thumbnail: string;
@@ -355,6 +260,13 @@ const getSessionThumbnailAndDescription = (session: WordPressPDSession): { thumb
     };
   }
 
+  if (titleLower.includes('visa') || titleLower.includes('international') || titleLower.includes('cricos')) {
+    return {
+      thumbnail: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
+      description: existingDesc || 'Comprehensive masterclass on Australian student visa reforms, international education compliance, and regulatory risk management for CRICOS providers and RTO leaders.'
+    };
+  }
+
   if (titleLower.includes('fairness') || titleLower.includes('flexibility') || titleLower.includes('adjustment')) {
     return {
       thumbnail: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80',
@@ -397,6 +309,21 @@ const getSessionThumbnailAndDescription = (session: WordPressPDSession): { thumb
   };
 };
 
+const DEFAULT_UNSPLASH_THUMBNAIL = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80';
+
+/**
+ * Checks if a URL is likely a non-image endpoint (e.g. Stripe checkout, PayPal, mailto, empty)
+ */
+const isLikelyNonImageUrl = (url?: string): boolean => {
+  if (!url || typeof url !== 'string') return true;
+  const trimmed = url.trim().toLowerCase();
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) return true;
+  if (trimmed.includes('stripe.com') || trimmed.includes('paypal.com') || trimmed.includes('checkout') || trimmed.includes('mailto:')) {
+    return true;
+  }
+  return false;
+};
+
 interface HeroSessionCardProps {
   session: WordPressPDSession;
   sessionIndex: number;
@@ -425,6 +352,29 @@ const HeroSessionCard: React.FC<HeroSessionCardProps> = ({
   }, []);
 
   const sessionContent = getSessionThumbnailAndDescription(session);
+
+  const fallbackThumbnail = useMemo(() => {
+    return sessionContent.thumbnail || DEFAULT_UNSPLASH_THUMBNAIL;
+  }, [sessionContent.thumbnail]);
+
+  // Use url key from REST endpoint to pull thumbnail image; if missing or a non-image URL, use Unsplash fallback
+  const [thumbnailSrc, setThumbnailSrc] = useState<string>(() => {
+    const rawUrl = session.url?.trim();
+    if (rawUrl && !isLikelyNonImageUrl(rawUrl)) {
+      return rawUrl;
+    }
+    return fallbackThumbnail;
+  });
+
+  // Keep thumbnail synced if session changes
+  useEffect(() => {
+    const rawUrl = session.url?.trim();
+    if (rawUrl && !isLikelyNonImageUrl(rawUrl)) {
+      setThumbnailSrc(rawUrl);
+    } else {
+      setThumbnailSrc(fallbackThumbnail);
+    }
+  }, [session.url, fallbackThumbnail]);
 
   // When isCenter on sm+ screens, mask the bottom-right corner of the card
   // so the area behind the floating yellow Join Now button is 100% transparent.
@@ -471,8 +421,16 @@ const HeroSessionCard: React.FC<HeroSessionCardProps> = ({
               
               <div className="relative w-full h-full rounded-[22px] overflow-hidden border-2 border-white/80 shadow-[0_12px_28px_rgba(4,47,97,0.12)] bg-gradient-to-b from-white/90 via-sky-50 to-[#EAF3FA]">
                 <img
-                  src={sessionContent.thumbnail}
+                  src={thumbnailSrc}
                   alt={decodeHtmlEntities(session.title)}
+                  onError={() => {
+                    // If url is not fetching a valid image, set fallback image from unsplash
+                    if (thumbnailSrc !== fallbackThumbnail) {
+                      setThumbnailSrc(fallbackThumbnail);
+                    } else if (thumbnailSrc !== DEFAULT_UNSPLASH_THUMBNAIL) {
+                      setThumbnailSrc(DEFAULT_UNSPLASH_THUMBNAIL);
+                    }
+                  }}
                   className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-700"
                   loading="eager"
                   referrerPolicy="no-referrer"
@@ -517,13 +475,53 @@ const HeroSessionCard: React.FC<HeroSessionCardProps> = ({
                 {decodeHtmlEntities(session.title)}
               </h1>
 
-              {/* Body Subtitle / Contextual Description (font-size: 14px) */}
-              <p 
-                className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal max-w-2xl"
-                style={{ fontSize: '14px' }}
-              >
-                {sessionContent.description}
-              </p>
+              {/* Subtitle / Description Body Content (formatted from REST endpoint data similar to popup overlay) */}
+              {(() => {
+                const parsedContent = parseSessionContent(session.description);
+                if (parsedContent.hideDescription) {
+                  return (
+                    <p 
+                      className="text-sm sm:text-base text-slate-500 leading-relaxed font-normal max-w-2xl italic font-sans"
+                      style={{ fontSize: '14px' }}
+                    >
+                      Session details will be announced soon.
+                    </p>
+                  );
+                }
+
+                const hasFirstLine = Boolean(parsedContent.firstLineHtml && parsedContent.firstLineHtml.trim().length > 0);
+                const hasRemaining = Boolean(parsedContent.remainingHtml && parsedContent.remainingHtml.trim().length > 0);
+
+                if (hasFirstLine || hasRemaining) {
+                  return (
+                    <div className="space-y-1.5 sm:space-y-2 max-w-2xl">
+                      {hasFirstLine && (
+                        <div 
+                          className="text-slate-600 font-sans text-sm sm:text-[15px] leading-relaxed [&>p]:mb-0 [&>p]:leading-relaxed"
+                          style={{ fontSize: '14px' }}
+                          dangerouslySetInnerHTML={{ __html: parsedContent.firstLineHtml }}
+                        />
+                      )}
+                      {hasRemaining && (
+                        <div 
+                          className="text-slate-600 font-sans text-sm leading-relaxed max-w-none [&>p]:mb-1.5 [&>p:last-child]:mb-0 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5"
+                          style={{ fontSize: '14px' }}
+                          dangerouslySetInnerHTML={{ __html: parsedContent.remainingHtml }}
+                        />
+                      )}
+                    </div>
+                  );
+                }
+
+                return (
+                  <p 
+                    className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal max-w-2xl font-sans"
+                    style={{ fontSize: '14px' }}
+                  >
+                    {sessionContent.description}
+                  </p>
+                );
+              })()}
             </div>
 
           </div>
@@ -531,30 +529,54 @@ const HeroSessionCard: React.FC<HeroSessionCardProps> = ({
         </div>
 
         {/* Key Session Value Highlights: Mode, Date, Time */}
-        <div className={`relative z-10 mt-4 sm:mt-5 w-full ${isCenter ? 'sm:max-w-[calc(100%-245px)] lg:max-w-[calc(100%-230px)]' : ''}`}>
-          <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-            <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2 sm:p-2.5 border border-slate-200/70 shadow-xs">
-              <span className="text-[9.5px] uppercase font-bold text-slate-400 block tracking-wider">Mode</span>
-              <span className="text-xs sm:text-[13px] font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
-                <Globe className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
-                <span className="truncate">Online Session</span>
-              </span>
-            </div>
-            <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2 sm:p-2.5 border border-slate-200/70 shadow-xs">
-              <span className="text-[9.5px] uppercase font-bold text-slate-400 block tracking-wider">Session Date</span>
-              <span className="text-xs sm:text-[13px] font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
-                <Calendar className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
-                <span className="truncate">{formatDisplayDate(session.date)}</span>
-              </span>
-            </div>
-            <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2 sm:p-2.5 border border-slate-200/70 shadow-xs">
-              <span className="text-[9.5px] uppercase font-bold text-slate-400 block tracking-wider">Session Time</span>
-              <span className="text-xs sm:text-[13px] font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
-                <Clock className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
-                <span className="truncate">{session.time || '04:00 PM AEST'}</span>
-              </span>
-            </div>
-          </div>
+        {(() => {
+          const parsedContent = parseSessionContent(session.description);
+          // If both hide_date and hide_time are present in description, hide the whole date and time section / row
+          const hideBoth = parsedContent.hideDate && parsedContent.hideTime;
+          const hasDate = Boolean(session.date);
+          const hasTime = Boolean(session.time);
+          const showDate = !hideBoth && !parsedContent.hideDate && (hasDate || parsedContent.isTba);
+          const showTime = !hideBoth && !parsedContent.hideTime && (hasTime || parsedContent.isTba);
+
+          // Calculate grid columns based on visible items
+          const visibleCount = 1 + (showDate ? 1 : 0) + (showTime ? 1 : 0);
+          const gridColsClass = visibleCount === 3 
+            ? 'grid-cols-3' 
+            : visibleCount === 2 
+              ? 'grid-cols-2' 
+              : 'grid-cols-1';
+
+          return (
+            <div className={`relative z-10 mt-4 sm:mt-5 w-full ${isCenter ? 'sm:max-w-[calc(100%-245px)] lg:max-w-[calc(100%-230px)]' : ''}`}>
+              <div className={`grid ${gridColsClass} gap-2 sm:gap-2.5`}>
+                <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2 sm:p-2.5 border border-slate-200/70 shadow-xs">
+                  <span className="text-[9.5px] uppercase font-bold text-slate-400 block tracking-wider">Mode</span>
+                  <span className="text-xs sm:text-[13px] font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
+                    <Globe className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
+                    <span className="truncate">Online Session</span>
+                  </span>
+                </div>
+
+                {showDate && (
+                  <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2 sm:p-2.5 border border-slate-200/70 shadow-xs">
+                    <span className="text-[9.5px] uppercase font-bold text-slate-400 block tracking-wider">Session Date</span>
+                    <span className="text-xs sm:text-[13px] font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
+                      <Calendar className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
+                      <span className="truncate">{session.date ? formatDisplayDate(session.date) : 'TBA'}</span>
+                    </span>
+                  </div>
+                )}
+
+                {showTime && (
+                  <div className="bg-white/85 backdrop-blur-sm rounded-xl p-2 sm:p-2.5 border border-slate-200/70 shadow-xs">
+                    <span className="text-[9.5px] uppercase font-bold text-slate-400 block tracking-wider">Session Time</span>
+                    <span className="text-xs sm:text-[13px] font-bold text-[#042F61] flex items-center gap-1.5 mt-0.5">
+                      <Clock className="w-3.5 h-3.5 text-[#0072CE] shrink-0" />
+                      <span className="truncate">{session.time || 'TBA'}</span>
+                    </span>
+                  </div>
+                )}
+              </div>
 
           {/* Mobile-only button placement (< sm screens, center slide only) */}
           {isCenter && (
@@ -574,6 +596,8 @@ const HeroSessionCard: React.FC<HeroSessionCardProps> = ({
             </div>
           )}
         </div>
+      );
+    })()}
 
       </div>
 
@@ -635,9 +659,10 @@ const HeroSessionCard: React.FC<HeroSessionCardProps> = ({
 };
 
 export const BookPDSessionPage: React.FC = () => {
-  const [allSessions, setAllSessions] = useState<WordPressPDSession[]>([]);
-  const [upcomingSessions, setUpcomingSessions] = useState<WordPressPDSession[]>(FALLBACK_UPCOMING_SESSIONS);
-  const [pastSessions, setPastSessions] = useState<WordPressPDSession[]>(FALLBACK_PAST_SESSIONS);
+  // Instantly initialize from shared cache or default data for 0ms delay (no waiting 3-4s)
+  const [allSessions, setAllSessions] = useState<WordPressPDSession[]>(() => getCachedAllSessions());
+  const [upcomingSessions, setUpcomingSessions] = useState<WordPressPDSession[]>(() => getCachedUpcomingSessions());
+  const [pastSessions, setPastSessions] = useState<WordPressPDSession[]>(() => getCachedPastSessions());
   
   // Carousel Indices
   const [upcomingIndex, setUpcomingIndex] = useState(0);
@@ -652,58 +677,21 @@ export const BookPDSessionPage: React.FC = () => {
   const gravityFormMountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let isMounted = true;
     const originalTitle = document.title;
     document.title = 'Book Professional Development Session - Chelson Gordon';
     window.scrollTo({ top: 0, behavior: 'instant' });
 
-    // Fetch live session information from WordPress API (same as homepage PDAnnouncement)
-    let isMounted = true;
-    const fetchWPSessions = async () => {
-      try {
-        let response: Response;
-        try {
-          response = await fetch('/wp-json/cg/v1/pd-sessions');
-          if (!response.ok) throw new Error();
-        } catch {
-          response = await fetch('https://chelsongordon.com/wp-json/cg/v1/pd-sessions');
-        }
+    // Synchronize live session information from WordPress API in background (instant 0ms render from cache)
+    const unsubscribe = subscribeSessions((liveData) => {
+      setAllSessions(liveData);
+      setUpcomingSessions(filterUpcomingSessions(liveData));
+      setPastSessions(filterPastSessions(liveData));
+    });
 
-        if (response.ok) {
-          const data = await response.json();
-          if (isMounted && Array.isArray(data) && data.length > 0) {
-            setAllSessions(data);
-            const todayStr = getTodayDateString();
-
-            // Filter upcoming sessions (> current date)
-            const upcoming = data
-              .filter((s: WordPressPDSession) => !s.date || s.date >= todayStr)
-              .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-
-            // Filter past sessions (< current date)
-            const past = data
-              .filter((s: WordPressPDSession) => s.date && s.date < todayStr)
-              .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-            if (upcoming.length > 0) {
-              setUpcomingSessions(upcoming);
-            }
-
-            // If past sessions exist from API, complement with fallback past data if needed so carousel is rich
-            if (past.length > 0) {
-              const mergedPast = [
-                ...past,
-                ...FALLBACK_PAST_SESSIONS.filter(f => !past.some(p => p.id === f.id || p.date === f.date))
-              ];
-              setPastSessions(mergedPast);
-            }
-          }
-        }
-      } catch (err) {
-        console.warn('Using default sessions fallback:', err);
-      }
-    };
-
-    fetchWPSessions();
+    fetchLiveSessions().catch((err) => {
+      console.warn('Using default / cached sessions:', err);
+    });
 
     // Reusable and resilient Gravity Form #20 mounting helper
     let retryTimeouts: ReturnType<typeof setTimeout>[] = [];
@@ -804,6 +792,7 @@ export const BookPDSessionPage: React.FC = () => {
 
     return () => {
       isMounted = false;
+      unsubscribe();
       document.title = originalTitle;
       retryTimeouts.forEach(t => clearTimeout(t));
       if (mutationObserver) {
@@ -1378,15 +1367,27 @@ useEffect(() => {
 
                       {/* Topic Details */}
                       <div className="w-[84%] sm:w-[87%] flex-1 pl-2 sm:pl-3 pr-2 py-0.5 sm:py-1 -translate-x-[4px]">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-[10px] sm:text-[11px] font-semibold text-sky-200 flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-sky-300" />
-                            {formatDisplayDate(session.date)}
-                          </span>
-                          {session.time && (
-                            <span className="text-[10px] text-sky-200/80">• {session.time}</span>
-                          )}
-                        </div>
+                        {(() => {
+                          const parsed = parseSessionContent(session.description);
+                          const showPastDate = !parsed.hideDate && Boolean(session.date);
+                          const showPastTime = !parsed.hideTime && Boolean(session.time);
+                          if (!showPastDate && !showPastTime) return null;
+                          return (
+                            <div className="flex items-center gap-2 mb-0.5">
+                              {showPastDate && (
+                                <span className="text-[10px] sm:text-[11px] font-semibold text-sky-200 flex items-center gap-1">
+                                  <Calendar className="w-3 h-3 text-sky-300" />
+                                  {formatDisplayDate(session.date)}
+                                </span>
+                              )}
+                              {showPastTime && (
+                                <span className="text-[10px] text-sky-200/80">
+                                  {showPastDate ? '• ' : ''}{session.time}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                         {renderTopicTitle(decodedTitle)}
                       </div>
                     </div>
@@ -1460,15 +1461,27 @@ useEffect(() => {
 
                       {/* Topic Details */}
                       <div className="w-[84%] sm:w-[87%] flex-1 pl-2 sm:pl-3 pr-2 py-0.5 sm:py-1 -translate-x-[4px]">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-[10px] sm:text-[11px] font-semibold text-sky-200 flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-sky-300" />
-                            {formatDisplayDate(session.date)}
-                          </span>
-                          {session.time && (
-                            <span className="text-[10px] text-sky-200/80">• {session.time}</span>
-                          )}
-                        </div>
+                        {(() => {
+                          const parsed = parseSessionContent(session.description);
+                          const showPastDate = !parsed.hideDate && Boolean(session.date);
+                          const showPastTime = !parsed.hideTime && Boolean(session.time);
+                          if (!showPastDate && !showPastTime) return null;
+                          return (
+                            <div className="flex items-center gap-2 mb-0.5">
+                              {showPastDate && (
+                                <span className="text-[10px] sm:text-[11px] font-semibold text-sky-200 flex items-center gap-1">
+                                  <Calendar className="w-3 h-3 text-sky-300" />
+                                  {formatDisplayDate(session.date)}
+                                </span>
+                              )}
+                              {showPastTime && (
+                                <span className="text-[10px] text-sky-200/80">
+                                  {showPastDate ? '• ' : ''}{session.time}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                         {renderTopicTitle(decodedTitle)}
                       </div>
                     </div>
@@ -1557,40 +1570,79 @@ useEffect(() => {
                   {selectedSession.title}
                 </h3>
 
-                {/* 50/50 Date & Time Row */}
-                <div className="grid grid-cols-2 gap-3 py-3 border-y border-slate-100">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[#0072CE]/10 flex items-center justify-center text-[#0072CE]">
-                      <Calendar className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-[#042F61] block tracking-wider">Session Date</span>
-                      <span className="text-sm font-semibold text-slate-800">{selectedSession.date}</span>
-                    </div>
-                  </div>
+                {/* Subtitle / First line below title with WP formatting */}
+                {(() => {
+                  const parsedContent = parseSessionContent(selectedSession.description);
+                  return parsedContent.firstLineHtml ? (
+                    <div 
+                      className="mt-2 text-slate-600 font-sans text-sm sm:text-[15px] leading-relaxed [&>p]:mb-0 [&>p]:leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: parsedContent.firstLineHtml }}
+                    />
+                  ) : null;
+                })()}
 
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[#0072CE]/10 flex items-center justify-center text-[#0072CE]">
-                      <Clock className="w-4 h-4" />
+                {/* Metadata Row: 50/50 Date & Time Row (respects {hide_date} and {hide_time}) */}
+                {(() => {
+                  const parsedContent = parseSessionContent(selectedSession.description);
+                  // If both hide_date and hide_time are present in description, hide the whole row/section
+                  if (parsedContent.hideDate && parsedContent.hideTime) {
+                    return null;
+                  }
+
+                  const hasDate = Boolean(selectedSession.date);
+                  const hasTime = Boolean(selectedSession.time);
+                  const showDate = !parsedContent.hideDate && (hasDate || parsedContent.isTba);
+                  const showTime = !parsedContent.hideTime && (hasTime || parsedContent.isTba);
+
+                  if (!showDate && !showTime) return null;
+
+                  return (
+                    <div className={`grid ${showDate && showTime ? 'grid-cols-2' : 'grid-cols-1'} gap-3 py-3 border-y border-slate-100`}>
+                      {showDate && (
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-[#0072CE]/10 flex items-center justify-center text-[#0072CE]">
+                            <Calendar className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-[#042F61] block tracking-wider">Session Date</span>
+                            <span className="text-sm font-semibold text-slate-800">{selectedSession.date ? formatDisplayDate(selectedSession.date) : 'TBA'}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {showTime && (
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-[#0072CE]/10 flex items-center justify-center text-[#0072CE]">
+                            <Clock className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-[#042F61] block tracking-wider">Session Time</span>
+                            <span className="text-sm font-semibold text-slate-800">{selectedSession.time || 'TBA'}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-[#042F61] block tracking-wider">Session Time</span>
-                      <span className="text-sm font-semibold text-slate-800">{selectedSession.time}</span>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })()}
 
                 <div>
                   <h4 className="text-xs uppercase font-bold text-[#042F61] tracking-wider mb-2">Description</h4>
                   {(() => {
-                    const rawDesc = selectedSession.description ? selectedSession.description.replace(/<[^>]*>?/gm, '').trim() : '';
-                    const hasDesc = rawDesc.length > 0;
-
-                    if (hasDesc) {
+                    const parsedContent = parseSessionContent(selectedSession.description);
+                    if (parsedContent.hideDescription) {
                       return (
-                        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-                          {decodeHtmlEntities(selectedSession.description)}
+                        <p className="text-slate-500 font-sans text-sm leading-relaxed italic">
+                          Session details will be announced soon.
                         </p>
+                      );
+                    }
+
+                    if (parsedContent.remainingHtml && parsedContent.remainingHtml.trim().length > 0) {
+                      return (
+                        <div 
+                          className="text-slate-600 font-sans text-sm leading-relaxed max-w-none [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5"
+                          dangerouslySetInnerHTML={{ __html: parsedContent.remainingHtml }}
+                        />
                       );
                     }
 

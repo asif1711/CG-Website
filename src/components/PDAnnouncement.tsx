@@ -11,6 +11,11 @@ import {
   ChevronDown,
   createLucideIcon 
 } from 'lucide-react';
+import { 
+  getCachedAllSessions, 
+  fetchLiveSessions, 
+  subscribeSessions 
+} from '../services/pdSessionService';
 
 /**
  * CalendarArrowRight icon created via official lucide-react factory
@@ -295,6 +300,107 @@ const renderModalTitle = (title: string) => {
   );
 };
 
+/**
+ * Parse and organize session description content:
+ * - Checks for developer control tags: {TBA_for_now}, {hide_date}, {hide_time}, {hide_description}
+ * - Direct over-rule: presence of {hide_date} or {hide_time} directly hides date and time regardless of WP CPT state
+ * - Extracts first non-empty line / paragraph for display below the title (preserving WP HTML formatting like bold, italic, etc.)
+ * - Separates remaining description content for the "Description" body section
+ */
+export interface ParsedSessionContent {
+  isTba: boolean;
+  hideDate: boolean;
+  hideTime: boolean;
+  hideDescription: boolean;
+  firstLineHtml: string;
+  remainingHtml: string;
+}
+
+export const parseSessionContent = (rawDescription: string): ParsedSessionContent => {
+  if (!rawDescription) {
+    return {
+      isTba: false,
+      hideDate: false,
+      hideTime: false,
+      hideDescription: false,
+      firstLineHtml: '',
+      remainingHtml: ''
+    };
+  }
+
+  // Normalize HTML entities that might encode curly brackets (e.g. &#123; or &lbrace;)
+  const normalized = rawDescription
+    .replace(/&#123;/gi, '{')
+    .replace(/&#125;/gi, '}')
+    .replace(/&lbrace;/gi, '{')
+    .replace(/&rbrace;/gi, '}');
+
+  // Developer control tags condition:
+  // Direct over-rule: keywords overrule / override date and time set state in WordPress CPT
+  const isTba = /\{\s*TBA_for_now\s*\}/i.test(normalized);
+  const hideDate = /\{\s*hide_date\s*\}/i.test(normalized);
+  const hideTime = /\{\s*hide_time\s*\}/i.test(normalized);
+  const hideDescription = /\{\s*hide_description\s*\}/i.test(normalized);
+
+  // Clean all developer control tags from displayed HTML (including enclosing <p> or <span> wrappers if any)
+  const cleaned = normalized
+    .replace(/<\/?(?:p|div|span)[^>]*>\s*\{\s*(?:TBA_for_now|hide_date|hide_time|hide_description)\s*\}\s*<\/(?:p|div|span)>/gi, '')
+    .replace(/\{\s*(?:TBA_for_now|hide_date|hide_time|hide_description)\s*\}/gi, '')
+    .trim();
+
+  if (hideDescription || !cleaned) {
+    return {
+      isTba,
+      hideDate,
+      hideTime,
+      hideDescription,
+      firstLineHtml: '',
+      remainingHtml: ''
+    };
+  }
+
+  // Find first non-empty block (<p>, <div>, <h1>-<h6>, <li>)
+  const blockRegex = /<(?:p|div|h[1-6]|li)[^>]*>([\s\S]*?)<\/(?:p|div|h[1-6]|li)>/gi;
+  let firstLineHtml = '';
+  let remainingHtml = cleaned;
+
+  let match;
+  while ((match = blockRegex.exec(cleaned)) !== null) {
+    const textContent = match[1].replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim();
+    if (textContent.length > 0) {
+      firstLineHtml = match[0].trim();
+      const endIndex = match.index + match[0].length;
+      let after = cleaned.slice(endIndex).trim();
+      // Clean leading empty paragraphs / breaks from remaining content
+      after = after.replace(/^(?:\s*<(?:p|div)[^>]*>(?:\s|&nbsp;|<br\s*\/?>)*<\/(?:p|div)>\s*)+/gi, '').trim();
+      remainingHtml = after;
+      break;
+    }
+  }
+
+  // Fallback if no HTML block tags found (plain text or text separated by <br> or \n)
+  if (!firstLineHtml) {
+    const lines = cleaned.split(/(?:<br\s*\/?>|\r?\n)/i);
+    const firstNonEmptyIndex = lines.findIndex(l => l.replace(/<[^>]*>/g, '').trim().length > 0);
+    if (firstNonEmptyIndex !== -1) {
+      firstLineHtml = lines[firstNonEmptyIndex].trim();
+      remainingHtml = lines.slice(firstNonEmptyIndex + 1).join('<br />').trim();
+    } else {
+      firstLineHtml = '';
+      remainingHtml = cleaned;
+    }
+  }
+
+  return {
+    isTba,
+    hideDate,
+    hideTime,
+    hideDescription,
+    firstLineHtml,
+    remainingHtml
+  };
+};
+
 export const PDAnnouncement: React.FC = () => {
   const [activeId, setActiveId] = useState<string>(PD_POINTS[0].id);
   const [isScrolling, setIsScrolling] = useState(false);
@@ -308,58 +414,24 @@ export const PDAnnouncement: React.FC = () => {
     }
   };
 
-  // WordPress REST API State
-  const [sessions, setSessions] = useState<WordPressPDSession[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // WordPress REST API State (instantly initialized from cache/defaults for 0ms delay)
+  const [sessions, setSessions] = useState<WordPressPDSession[]>(() => getCachedAllSessions());
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [selectedSession, setSelectedSession] = useState<WordPressPDSession | null>(null);
 
-  // Fetch PD Sessions from WordPress CPT REST API endpoint
+  // Synchronize live PD Sessions in background without blocking initial render
   useEffect(() => {
-    let isMounted = true;
-    const fetchSessions = async () => {
-      try {
-        setIsLoading(true);
-        setFetchError(null);
-        
-        // Primary: fetch from relative endpoint /wp-json/cg/v1/pd-sessions (proxied by Vite)
-        let response: Response;
-        try {
-          response = await fetch('/wp-json/cg/v1/pd-sessions');
-          if (!response.ok) {
-            throw new Error(`Relative fetch failed with status: ${response.status}`);
-          }
-        } catch {
-          // Secondary fallback to direct WordPress origin
-          response = await fetch('https://chelsongordon.com/wp-json/cg/v1/pd-sessions');
-          if (!response.ok) {
-            throw new Error(`Direct fetch failed with status: ${response.status}`);
-          }
-        }
+    const unsubscribe = subscribeSessions((liveData) => {
+      setSessions(liveData);
+    });
 
-        const data = await response.json();
-        if (isMounted) {
-          if (Array.isArray(data)) {
-            setSessions(data);
-          } else {
-            setSessions([]);
-          }
-        }
-      } catch {
-        if (isMounted) {
-          setFetchError('Unable to load sessions at this time.');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchSessions();
+    fetchLiveSessions().catch(() => {
+      // Non-fatal, cached fallback remains active
+    });
 
     return () => {
-      isMounted = false;
+      unsubscribe();
     };
   }, []);
 
@@ -401,19 +473,16 @@ export const PDAnnouncement: React.FC = () => {
     };
   }, []);
 
-  // Logic: Use current date to show upcoming sessions in the scrollable section
+  // Filter for upcoming sessions only (on or after today, or flagged as TBA_for_now)
   const todayStr = getTodayDateString();
   const upcomingSessions = sessions.filter((session) => {
-    if (!session.date) return true;
-    return session.date >= todayStr;
+    const isTba = session.description && session.description.includes('{TBA_for_now}');
+    if (isTba) return true;
+    return !session.date || session.date >= todayStr;
   });
 
-  // If upcoming sessions exist, show them.
-  // Fallback to all retrieved sessions if none are strictly >= today (so initial test posts are accessible until full schedule is published)
-  const displayedSessions = upcomingSessions.length > 0 ? upcomingSessions : sessions;
-
   // Sort upcoming sessions ascending by date
-  const sortedSessions = [...displayedSessions].sort((a, b) => {
+  const sortedSessions = [...upcomingSessions].sort((a, b) => {
     if (!a.date) return 1;
     if (!b.date) return -1;
     return a.date.localeCompare(b.date);
@@ -912,47 +981,86 @@ export const PDAnnouncement: React.FC = () => {
                 {renderModalTitle(selectedSession.title)}
               </h3>
 
-              {/* Metadata Row: Session Date & Session Time (50-50 width split) */}
-              {(selectedSession.date || selectedSession.time) && (
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 my-4 py-3.5 border-y border-slate-100 items-center">
-                  <div className="flex items-center gap-2.5 text-xs sm:text-[13px] font-semibold text-slate-700 font-sans min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-[#0072CE]/10 flex items-center justify-center text-[#0072CE] shrink-0">
-                      <Calendar className="w-4 h-4 text-[#0072CE]" />
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-[10px] uppercase font-bold text-[#042F61] block tracking-wider leading-none truncate">Session Date</span>
-                      <span className="text-slate-800 font-medium truncate block">{selectedSession.date ? formatDisplayDate(selectedSession.date) : 'TBA'}</span>
-                    </div>
-                  </div>
+              {/* First line from description body displayed below the title with original WP formatting */}
+              {(() => {
+                const parsedContent = parseSessionContent(selectedSession.description);
+                return parsedContent.firstLineHtml ? (
+                  <div 
+                    className="mt-2 sm:mt-2.5 text-slate-600 font-sans text-sm sm:text-[15px] leading-relaxed [&>p]:mb-0 [&>p]:leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: parsedContent.firstLineHtml }}
+                  />
+                ) : null;
+              })()}
 
-                  <div className="flex items-center gap-2.5 text-xs sm:text-[13px] font-semibold text-slate-700 font-sans min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-[#0072CE]/10 flex items-center justify-center text-[#0072CE] shrink-0">
-                      <Clock className="w-4 h-4 text-[#0072CE]" />
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-[10px] uppercase font-bold text-[#042F61] block tracking-wider leading-none truncate">Session Time</span>
-                      <span className="text-slate-800 font-medium truncate block">{selectedSession.time || 'TBA'}</span>
-                    </div>
+              {/* Metadata Row: Session Date & Session Time */}
+              {(() => {
+                const parsedContent = parseSessionContent(selectedSession.description);
+                // If both hide_date and hide_time are present in description, hide the whole row/section
+                if (parsedContent.hideDate && parsedContent.hideTime) {
+                  return null;
+                }
+
+                const hasDate = Boolean(selectedSession.date);
+                const hasTime = Boolean(selectedSession.time);
+                const showDate = !parsedContent.hideDate && (hasDate || parsedContent.isTba);
+                const showTime = !parsedContent.hideTime && (hasTime || parsedContent.isTba);
+
+                if (!showDate && !showTime) return null;
+
+                return (
+                  <div className={`grid ${showDate && showTime ? 'grid-cols-2' : 'grid-cols-1'} gap-3 sm:gap-4 my-4 py-3.5 border-y border-slate-100 items-center`}>
+                    {showDate && (
+                      <div className="flex items-center gap-2.5 text-xs sm:text-[13px] font-semibold text-slate-700 font-sans min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#0072CE]/10 flex items-center justify-center text-[#0072CE] shrink-0">
+                          <Calendar className="w-4 h-4 text-[#0072CE]" />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-[10px] uppercase font-bold text-[#042F61] block tracking-wider leading-none truncate">Session Date</span>
+                          <span className="text-slate-800 font-medium truncate block">{selectedSession.date ? formatDisplayDate(selectedSession.date) : 'TBA'}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {showTime && (
+                      <div className="flex items-center gap-2.5 text-xs sm:text-[13px] font-semibold text-slate-700 font-sans min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#0072CE]/10 flex items-center justify-center text-[#0072CE] shrink-0">
+                          <Clock className="w-4 h-4 text-[#0072CE]" />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-[10px] uppercase font-bold text-[#042F61] block tracking-wider leading-none truncate">Session Time</span>
+                          <span className="text-slate-800 font-medium truncate block">{selectedSession.time || 'TBA'}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Session Description */}
-              <div className="mb-6">
-                <h4 className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-2 font-sans">
-                  Description
-                </h4>
-                {selectedSession.description && selectedSession.description.trim().length > 0 ? (
-                  <div 
-                    className="text-slate-600 font-sans text-sm leading-relaxed max-w-none [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5"
-                    dangerouslySetInnerHTML={{ __html: selectedSession.description }}
-                  />
-                ) : (
-                  <p className="text-slate-500 font-sans text-sm leading-relaxed italic">
-                    Detailed session materials, curriculum, and interactive exercises will be provided to participants upon registration.
-                  </p>
-                )}
-              </div>
+              {(() => {
+                const parsedContent = parseSessionContent(selectedSession.description);
+                return (
+                  <div className="mb-6">
+                    <h4 className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-2 font-sans">
+                      Description
+                    </h4>
+                    {parsedContent.hideDescription ? (
+                      <p className="text-slate-500 font-sans text-sm leading-relaxed italic">
+                        Session details will be announced soon.
+                      </p>
+                    ) : parsedContent.remainingHtml && parsedContent.remainingHtml.trim().length > 0 ? (
+                      <div 
+                        className="text-slate-600 font-sans text-sm leading-relaxed max-w-none [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5"
+                        dangerouslySetInnerHTML={{ __html: parsedContent.remainingHtml }}
+                      />
+                    ) : (
+                      <p className="text-slate-500 font-sans text-sm leading-relaxed italic">
+                        Detailed session materials, curriculum, and interactive exercises will be provided to participants upon registration.
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Join Link = mapped to gravity form mount point card on book session page */}
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
