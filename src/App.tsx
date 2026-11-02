@@ -1003,6 +1003,12 @@ const HearFromOurTeam = () => {
       role: "Junior Business Administrator",
       image: "https://storage.googleapis.com/chelsongordon/com.chelsongordon/images/sweta.webp",
       videoUrl: "https://youtu.be/A6t-lIdY9RM?si=1shdNeSx_2GzKIaD"
+    },
+    {
+      name: "Jaidan Krishna",
+      role: "Junior Business Administrator",
+      image: "https://i.ytimg.com/vi/nA8pocM9zBs/maxresdefault.jpg",
+      videoUrl: "https://youtu.be/nA8pocM9zBs?si=hEyMH8d68UEaY-xq"
     }
   ];
 
