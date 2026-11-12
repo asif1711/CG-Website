@@ -24,12 +24,11 @@ export default defineConfig({
     outDir: 'dist-courses',
     emptyOutDir: true,
     cssCodeSplit: false,
-    lib: {
-      entry: resolve(__dirname, 'src/courses-main.tsx'),
-      name: 'CgCoursesApp',
-      fileName: () => 'cg-courses.js',
-      formats: ['iife'],
-    },
+   lib: {
+  entry: resolve(__dirname, 'src/courses-main.tsx'),
+  formats: ['es'],
+  fileName: () => 'cg-courses.js',
+},
     rollupOptions: {
       output: {
         exports: 'named',
