@@ -125,7 +125,6 @@ export const FeaturedCourseCard: React.FC<FeaturedCourseCardProps> = ({
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-2">
             <motion.a
               href="https://chelsongordon.com/courses-by-us"
-              onClick={handleExploreClick}
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
               className="inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-[#0072CE] hover:bg-[#042F61] text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-[#0072CE]/20 transition-all duration-200 group cursor-pointer"
