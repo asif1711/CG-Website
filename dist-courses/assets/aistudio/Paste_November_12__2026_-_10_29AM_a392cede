@@ -1,0 +1,907 @@
+# AI STUDIO IMPLEMENTATION PROMPT
+## Chelson Gordon Consultancy — Course Development Section & Diploma Course Page
+
+### 1. PROJECT OBJECTIVE
+
+Implement two connected additions to the existing Chelson Gordon Consultancy website:
+
+**A. New dedicated course page**
+
+Create a complete course information page for:
+
+Diploma of Machine Learning and Artificial Intelligence Technology
+
+- National Course Code: 11480NAT
+- AQF Level: 5
+- Registration Status: Current
+- First advertised intake: January 2027
+- Delivery format: Face-to-face training (as advertised in the supplied promotional poster)
+
+**B. New homepage section**
+
+Add a dedicated section highlighting courses developed by Chelson Gordon Consultancy.
+
+The first featured course will be the Diploma of Machine Learning and Artificial Intelligence Technology.
+
+The section should communicate the company's involvement in developing industry-focused training qualifications, rather than presenting the business as simply another training marketplace.
+
+### IMPORTANT IMPLEMENTATION CONTEXT
+
+This project will eventually be integrated into an existing WordPress website.
+
+The React implementation will be embedded into WordPress pages, and its associated JavaScript and CSS assets will subsequently be updated through the existing WordPress integration workflow.
+
+Therefore, this implementation must be designed with WordPress compatibility in mind from the beginning.
+
+**Do not treat this as an independent website redesign or a standalone application that requires a separate website environment.**
+
+Build the components and page views so they can be integrated into the existing WordPress website with minimal additional work.
+
+Do not modify WordPress itself at this stage.
+
+---
+
+# 2. CRITICAL DESIGN INSTRUCTION — PRESERVE THE EXISTING WEBSITE THEME
+
+This is a strict requirement.
+
+**The website's existing and already-decided theme, styling, typography, colour palette and design language are final. Do not redesign, reinterpret or replace them.**
+
+Before implementing anything, inspect the existing project thoroughly.
+
+Identify the actual design system from the existing source code, including:
+
+- Primary and secondary brand colours.
+- Existing background colours.
+- Typography and imported font families.
+- Font weights and heading hierarchy.
+- Body text sizes and line heights.
+- Button designs and interaction states.
+- Border radiuses.
+- Card designs.
+- Section spacing.
+- Container widths.
+- Grid systems.
+- Navigation conventions.
+- Existing icon styles.
+- Shadows and borders.
+- Existing animations and transitions.
+- Responsive breakpoints.
+- Existing CSS variables and design tokens.
+
+Use the actual implementation as the source of truth.
+
+### Non-negotiable styling rules
+
+1. Reuse the existing fonts. Do not introduce new font families.
+2. Reuse the existing colour palette. Do not introduce a new colour scheme.
+3. Reuse existing button styles and CTA conventions.
+4. Follow existing heading sizes and typography hierarchy.
+5. Follow the existing spacing and container system.
+6. Reuse existing card styles wherever appropriate.
+7. Follow the existing border, radius and shadow treatments.
+8. Reuse existing animation patterns and libraries.
+9. Follow the existing responsive layout conventions.
+10. Maintain visual consistency with the rest of the Chelson Gordon website.
+
+Do not create a separate visual identity for the new course page.
+
+Do not independently choose a new theme because the page is about artificial intelligence.
+
+### Important distinction
+
+The page can have a more substantial editorial layout, stronger visual storytelling and specialised course-related imagery.
+
+However, these improvements must happen within the existing website's established design language.
+
+The result should look like a natural extension of the existing Chelson Gordon website, not a separately designed microsite.
+
+Before coding, inspect the homepage and at least two existing internal pages to understand how the approved design system is implemented.
+
+If a required component already exists, reuse it rather than creating a visually different replacement.
+
+---
+
+# 3. WORDPRESS INTEGRATION ARCHITECTURE — PLAN AHEAD
+
+The implementation will later be integrated into WordPress.
+
+Build with the following future workflow in mind:
+
+**Existing React application → Production build → JavaScript and CSS assets → WordPress page integration.**
+
+The new course page and homepage section should be independently mountable.
+
+### Required implementation structure
+
+The preferred architecture is:
+
+- A reusable course data source.
+- A reusable featured course component.
+- A dedicated course page component.
+- A homepage courses section component.
+- A shared styling layer.
+- Independent mount points or entry points for WordPress integration.
+
+Use the existing project architecture wherever possible.
+
+### WordPress compatibility requirements
+
+**A. Independent mount points**
+
+Prepare the two components so they can be mounted independently.
+
+Use the following proposed mount identifiers unless the existing project already has an established naming convention:
+
+Homepage:
+
+`#cg-courses-section`
+
+Course page:
+
+`#cg-diploma-ai-course`
+
+The components must not depend on each other being present on the same page.
+
+The homepage section must render without the course page.
+
+The course page must render without the homepage section.
+
+**B. CSS isolation**
+
+This is particularly important.
+
+WordPress themes, Elementor and other plugins may introduce CSS that conflicts with React components.
+
+Therefore:
+
+- Scope all new component styles under unique parent classes.
+- Do not introduce unnecessary global selectors.
+- Avoid modifying `body`, `html`, `h1`, `h2`, `p`, `a`, `button` or other global styles.
+- Avoid overriding existing WordPress theme styles.
+- Do not introduce broad CSS resets.
+- Do not assume WordPress and React share the same CSS environment.
+- Keep all component-specific styling inside the new feature's CSS namespace.
+
+Suggested namespaces:
+
+`.cg-courses-section`
+
+`.cg-diploma-ai-course`
+
+Use CSS variables only within the appropriate scoped namespace when possible.
+
+**C. JavaScript isolation**
+
+- Avoid unnecessary global variables.
+- Avoid modifying existing website JavaScript.
+- Avoid conflicting event listeners.
+- Avoid duplicate React root creation.
+- Check whether the target mount element exists before mounting.
+- Ensure the components initialise safely if the corresponding mount element is absent.
+- Avoid executing the same initialisation multiple times.
+- Ensure the components do not interfere with Elementor, Gravity Forms or existing WordPress scripts.
+
+**D. Build compatibility**
+
+Inspect the existing Vite configuration and build scripts.
+
+Preserve the existing application configuration.
+
+Do not introduce an additional build system.
+
+Prepare the implementation so that the homepage section and dedicated course page can be included in the future WordPress JavaScript/CSS integration.
+
+If the current project uses a single application bundle, determine whether the existing architecture supports independent mount points or whether separate entry points are more appropriate.
+
+Prefer the least disruptive approach.
+
+Do not duplicate dependencies or bundle unnecessary application features.
+
+**E. Future WordPress integration**
+
+Do not create or modify WordPress PHP snippets, plugins, Elementor widgets or WordPress pages at this stage.
+
+Instead, prepare the React implementation and provide:
+
+- Exact mount identifiers.
+- JavaScript build output.
+- CSS build output.
+- Required asset dependencies.
+- Mounting instructions.
+- Any required WordPress integration considerations.
+
+The goal is to make the subsequent WordPress integration straightforward.
+
+**Important:** The final implementation must remain compatible with the existing WordPress integration workflow, not introduce a new deployment architecture.
+
+---
+
+# 4. COURSE DATA — OFFICIAL INFORMATION
+
+Use the actual course information.
+
+Official course title:
+
+Diploma of Machine Learning and Artificial Intelligence Technology
+
+National course code:
+
+11480NAT
+
+AQF level:
+
+5
+
+Classification:
+
+Nationally accredited course
+
+Registration status:
+
+Current
+
+Recognition manager:
+
+Australian Skills Quality Authority (ASQA)
+
+Registration currency:
+
+23 October 2026 – 22 October 2031
+
+Field of education:
+
+Computer Science (0201)
+
+Official source:
+
+https://training.gov.au/Training/Details/11480NAT
+
+### Official course overview
+
+The course is designed to provide graduates with the skills and knowledge to implement, deploy, manage and support machine learning and artificial intelligence systems within organisational ICT environments.
+
+The course covers:
+
+- AI systems lifecycle.
+- Python programming and foundational statistics.
+- Machine learning model development and tuning.
+- Data engineering.
+- AI deployment and management.
+- Ethical and explainable AI.
+- Testing, validation and auditing.
+- Integrated AI solutions.
+- Data analysis and visualisation.
+- AI governance.
+- Decision support and forecasting.
+- Enterprise AI integration.
+- Machine learning operations.
+- Cloud-based AI deployment.
+- Generative AI.
+- Communicating AI insights.
+
+Do not replace the official course name with an abbreviated qualification title.
+
+---
+
+# 5. COMPLETE COURSE CURRICULUM — 19 UNITS
+
+The dedicated course page must display all 19 registered units.
+
+Group the units into two website presentation categories.
+
+These are organisational groupings only, not additional accredited modules.
+
+### Group A — ICT Foundation Units
+
+1. ICTNWK421 — Install, configure and test network security
+2. ICTPRG431 — Apply query language in relational databases
+3. ICTPRG433 — Test software developments
+4. ICTSAS432 — Identify and resolve client ICT problems
+
+### Group B — Specialised AI and Machine Learning Units
+
+5. NAT11480001 — Apply Python programming and foundational statistical techniques
+
+6. NAT11480002 — Implement artificial intelligence (AI) systems lifecycle
+
+7. NAT11480003 — Implement and tune machine learning models
+
+8. NAT11480004 — Deploy and manage artificial intelligence (AI) systems in operational environments
+
+9. NAT11480005 — Implement ethical and explainable artificial intelligence (AI) practices
+
+10. NAT11480006 — Implement data engineering techniques for artificial intelligence (AI) systems
+
+11. NAT11480007 — Test, validate and audit artificial intelligence (AI) systems
+
+12. NAT11480008 — Plan, develop and deploy an integrated artificial intelligence (AI) solution
+
+13. NAT11480009 — Analyse and visualise data for artificial intelligence (AI) applications
+
+14. NAT11480010 — Apply artificial intelligence (AI) governance policies in organisational contexts
+
+15. NAT11480011 — Develop artificial intelligence (AI) solutions for decision support and forecasting
+
+16. NAT11480012 — Integrate artificial intelligence systems with existing information and communications technology
+
+17. NAT11480013 — Implement machine learning operations pipelines and cloud-based artificial intelligence deployment
+
+18. NAT11480014 — Develop and apply generative artificial intelligence (AI) solutions in enterprise contexts
+
+19. NAT11480015 — Communicate artificial intelligence (AI) insights and support business decision-making
+
+Official source:
+
+https://training.gov.au/Training/Details/11480NAT
+
+### Curriculum component requirements
+
+- Display all 19 units.
+- Display official unit codes and titles.
+- Show the two presentation groups.
+- Include expandable/collapsible interactions.
+- Add Expand All / Collapse All if suitable.
+- Ensure mobile responsiveness.
+- Support keyboard navigation.
+- Do not invent individual unit descriptions, assessments, hours or durations.
+
+---
+
+# 6. DEDICATED COURSE PAGE
+
+Create the course page as a standalone React page component.
+
+Suggested WordPress page URL:
+
+`/courses/diploma-machine-learning-artificial-intelligence/`
+
+Do not assume the React application needs to control the WordPress website's routing.
+
+The final WordPress page will provide the page URL and the appropriate React mount element.
+
+Follow the existing routing architecture where applicable.
+
+### SECTION 01 — HERO
+
+Eyebrow:
+
+NATIONALLY ACCREDITED COURSE · 11480NAT
+
+Heading:
+
+Diploma of Machine Learning and Artificial Intelligence Technology
+
+Description:
+
+Develop the skills to implement, deploy and manage artificial intelligence and machine learning systems. Explore Python programming, predictive modelling, data engineering, generative AI and intelligent business solutions through a comprehensive, industry-focused course.
+
+Information highlights:
+
+- AQF Level 5
+- 19 Units of Competency
+- Face-to-Face Training
+- January 2027 Intake
+
+Primary CTA:
+
+Enquire About This Course
+
+Secondary CTA:
+
+Explore Course Curriculum
+
+Intake message:
+
+First Intake — January 2027
+
+Enrolments Opening Soon
+
+Use the promotional poster as the source for the advertised delivery format and intake.
+
+### HERO VISUAL
+
+Use professional photography showing:
+
+- A modern workstation.
+- Laptop displaying Python or machine learning code.
+- Professional technology workspace.
+- Dark and warm cinematic lighting.
+
+The image must fit the existing Chelson Gordon design theme.
+
+Do not introduce a new AI-themed visual identity.
+
+### SECTION 02 — COURSE OVERVIEW
+
+Heading:
+
+Building Practical Skills for the Future of AI
+
+Content:
+
+The Diploma of Machine Learning and Artificial Intelligence Technology is designed to develop practical capabilities in implementing, managing and supporting AI and machine learning systems within organisational ICT environments.
+
+The course covers the AI implementation lifecycle, from programming and data preparation to machine learning development, deployment, testing, governance and enterprise integration.
+
+Display:
+
+- Course code: 11480NAT
+- AQF Level: 5
+- Curriculum: 19 Units of Competency
+
+### SECTION 03 — WHAT YOU WILL LEARN
+
+Heading:
+
+Explore the Technologies Shaping Tomorrow
+
+Create six learning-area cards.
+
+**01 — Python Programming and Statistics**
+
+Develop Python programming capabilities and foundational statistical techniques used in AI and machine learning applications.
+
+**02 — Machine Learning Development**
+
+Implement, train, tune and evaluate machine learning models.
+
+**03 — Data Engineering and Analytics**
+
+Explore data engineering, data analysis and visualisation techniques for AI applications.
+
+**04 — AI Deployment and Integration**
+
+Deploy, manage and integrate AI systems into existing organisational ICT environments.
+
+**05 — Generative AI and Intelligent Solutions**
+
+Explore enterprise generative AI applications, decision-support systems and predictive forecasting solutions.
+
+**06 — Responsible AI and Governance**
+
+Understand ethical AI practices, explainability, governance, testing, validation and auditing.
+
+### SECTION 04 — COURSE CURRICULUM
+
+Heading:
+
+Explore the Course Curriculum
+
+Display all 19 units using the data in Section 5.
+
+Show:
+
+19 Units | 4 ICT Foundation Units | 15 Specialised AI Units
+
+Use an accessible accordion interface.
+
+Add a link to the official registration:
+
+https://training.gov.au/Training/Details/11480NAT
+
+### SECTION 05 — WHO IS THIS COURSE FOR?
+
+Heading:
+
+Who Is This Course Designed For?
+
+Create four audience cards.
+
+**Aspiring AI Professionals**
+
+Individuals looking to develop foundational and applied capabilities in artificial intelligence and machine learning.
+
+**IT and Software Professionals**
+
+People working in ICT, programming, systems administration or related technical environments.
+
+**Data and Analytics Professionals**
+
+Individuals interested in applying machine learning, data engineering and predictive analytics.
+
+**Technology Professionals**
+
+People looking to develop capabilities in AI deployment, enterprise integration and responsible AI practices.
+
+These are suggested audiences, not official entry eligibility criteria.
+
+### SECTION 06 — PRACTICAL CAPABILITIES
+
+Heading:
+
+Turn Technical Knowledge into Practical Capabilities
+
+Display:
+
+- Develop and evaluate machine learning models.
+- Implement Python-based AI workflows.
+- Apply data engineering techniques.
+- Deploy and manage AI systems.
+- Develop enterprise generative AI solutions.
+- Test and audit AI implementations.
+- Integrate AI into existing ICT systems.
+- Apply AI governance and responsible practices.
+
+### SECTION 07 — TRAINING AND INTAKE
+
+Heading:
+
+Take the Next Step into the Future of AI
+
+Display:
+
+First Intake: January 2027
+
+Delivery Format: Face-to-Face Training
+
+Enrolment Status: Enrolments Opening Soon
+
+Include an enquiry CTA.
+
+### SECTION 08 — ENQUIRY
+
+Heading:
+
+Interested in the Diploma of Machine Learning and Artificial Intelligence Technology?
+
+Description:
+
+Get in touch with Chelson Gordon Consultancy to express your interest and receive further information about the upcoming January 2027 intake.
+
+Use the contact information from the supplied poster:
+
+Phone: +61 499 998 590
+
+Email: n.malik@vconsultancy.com.au
+
+Website: https://chelson gordon.com/
+
+Implement functional click-to-call and click-to-email links.
+
+Inspect the existing project for an enquiry form integration before implementing anything new.
+
+Do not create a fake form submission experience.
+
+---
+
+# 7. HOMEPAGE — NEW COURSE DEVELOPMENT SECTION
+
+Add a new section to the existing homepage.
+
+Suggested positioning:
+
+After the existing company introduction/capabilities section and before the final CTA or footer.
+
+Do not change unrelated homepage content.
+
+### Section content
+
+Eyebrow:
+
+OUR COURSE DEVELOPMENT
+
+Heading:
+
+Our Accredited Courses
+
+Supporting heading:
+
+Developed with Industry. Designed for the Future.
+
+Description:
+
+We develop industry-focused training programs designed to address emerging technologies and evolving professional requirements. Our courses bring together technical knowledge and practical capabilities to help learners prepare for the opportunities of tomorrow.
+
+### Featured course
+
+Course title:
+
+Diploma of Machine Learning and Artificial Intelligence Technology
+
+Course code:
+
+11480NAT
+
+AQF Level:
+
+5
+
+Description:
+
+Develop practical capabilities in Python programming, machine learning, data engineering, generative AI and intelligent systems through a comprehensive course covering 19 units of competency.
+
+Highlights:
+
+- Nationally accredited course.
+- AQF Level 5.
+- 19 Units of Competency.
+- Face-to-face training.
+- January 2027 intake.
+
+Primary CTA:
+
+Explore Course
+
+Destination:
+
+`/courses/diploma-machine-learning-artificial-intelligence/`
+
+Secondary CTA:
+
+Enquire Now
+
+### Homepage visual design
+
+Follow the existing website's exact theme and styling.
+
+Create a premium corporate course showcase.
+
+Use:
+
+- A substantial course image.
+- Existing typography.
+- Existing card and button styling.
+- Clear course information hierarchy.
+- Existing spacing and layout conventions.
+
+Make the section reusable so additional courses can be added in the future.
+
+The homepage and dedicated course page must use the same central course data source.
+
+---
+
+# 8. COMPONENT AND DATA ARCHITECTURE
+
+Keep the implementation modular and maintainable.
+
+Suggested component responsibilities:
+
+- CoursesSection
+- FeaturedCourseCard
+- CourseHero
+- CourseOverview
+- LearningAreas
+- CourseCurriculum
+- CurriculumUnit
+- TargetAudience
+- PracticalCapabilities
+- CourseIntake
+- CourseEnquiry
+
+Adapt these to the existing project structure.
+
+### Centralised course data
+
+Store course information in one central location.
+
+The homepage and course page must not maintain separate hardcoded versions of the same information.
+
+Store:
+
+- Course title.
+- Course code.
+- AQF level.
+- Registration status.
+- Currency period.
+- Course overview.
+- Learning areas.
+- Unit codes.
+- Unit titles.
+- Intake information.
+- Contact details.
+- Official registration URL.
+
+Keep all information editable and reusable.
+
+Do not create an unnecessarily complicated CMS or backend for this implementation.
+
+---
+
+# 9. PERFORMANCE, ACCESSIBILITY AND SEO
+
+### Performance
+
+- Optimise images.
+- Use WebP or AVIF where appropriate.
+- Lazy-load below-the-fold images.
+- Avoid unnecessary dependencies.
+- Avoid layout shifts.
+- Keep animations lightweight.
+- Avoid duplicate CSS and JavaScript.
+- Preserve existing application performance.
+
+### Accessibility
+
+- Use semantic HTML.
+- Ensure proper colour contrast.
+- Implement keyboard-accessible accordions.
+- Provide visible focus states.
+- Use descriptive image alt text.
+- Support screen readers.
+- Respect reduced-motion preferences.
+
+### SEO
+
+Suggested title:
+
+Diploma of Machine Learning and Artificial Intelligence Technology | Chelson Gordon
+
+Suggested description:
+
+Explore the Diploma of Machine Learning and Artificial Intelligence Technology (11480NAT), covering Python programming, machine learning, data engineering, generative AI and AI systems.
+
+Use:
+
+- Semantic headings.
+- One primary H1.
+- Descriptive internal links.
+- Appropriate Open Graph metadata.
+- Canonical URL compatibility with the eventual WordPress page.
+
+Only add structured course data using verified properties.
+
+Do not fabricate course prices, offers, ratings, provider registration details or employment outcomes.
+
+---
+
+# 10. ACCREDITATION AND CONTENT COMPLIANCE
+
+Maintain accurate course information.
+
+The course is registered as 11480NAT.
+
+Its current registration period is 23 October 2026 – 22 October 2031.
+
+It is an AQF Level 5 diploma-level accredited course.
+
+However, course registration does not automatically establish that Chelson Gordon is authorised to deliver and assess the qualification.
+
+Do not invent:
+
+- RTO registration numbers.
+- Course copyright-holder details.
+- Provider authorisation.
+- Course fees.
+- Course duration.
+- Entry requirements.
+- Training locations.
+- Assessment arrangements.
+
+The supplied poster establishes the advertised January 2027 intake and face-to-face delivery format.
+
+Do not present unverified details as official facts.
+
+The website may feature the qualification in the company's course development portfolio, but ownership and delivery authorisation statements must be supported by official documentation.
+
+---
+
+# 11. WORDPRESS-READY BUILD AND DELIVERY
+
+This is a mandatory implementation requirement.
+
+The finished React implementation will later be integrated into WordPress.
+
+Before completing the task:
+
+1. Inspect the existing Vite configuration.
+2. Identify the current production build process.
+3. Identify the existing JavaScript and CSS output structure.
+4. Determine how the current React application is prepared for WordPress integration.
+5. Ensure the new components fit that architecture.
+6. Avoid introducing a separate deployment pipeline.
+
+Prepare the new implementation so that the future WordPress integration requires minimal changes.
+
+### Expected deliverables
+
+**A. React components**
+
+- Homepage course development section.
+- Dedicated diploma course page.
+- Reusable curriculum accordion.
+- Centralised course data.
+
+**B. WordPress-compatible assets**
+
+Produce the appropriate production JavaScript and CSS assets using the existing build configuration.
+
+If the current architecture supports a shared bundle with independent mount points, use it.
+
+If separate entry points are more appropriate, implement them consistently with the existing project.
+
+Do not generate unnecessary duplicate bundles.
+
+**C. Integration documentation**
+
+Provide:
+
+- Homepage mount ID.
+- Course page mount ID.
+- JavaScript asset location.
+- CSS asset location.
+- Build command.
+- Required dependencies.
+- Instructions for embedding each component into its respective WordPress page.
+- Any considerations for the existing WordPress loader.
+
+Do not implement WordPress PHP or modify the live WordPress website.
+
+The objective is to prepare the React implementation and assets for the subsequent WordPress integration.
+
+---
+
+# 12. FINAL VALIDATION
+
+Before completing the implementation, verify the following.
+
+### Homepage
+
+- New Our Accredited Courses section added.
+- Featured diploma displayed.
+- Correct course title and code.
+- Correct AQF level.
+- Correct January 2027 intake.
+- CTA points to the correct course page.
+- Existing homepage layout unaffected.
+
+### Course page
+
+- Dedicated course page component created.
+- All 19 units included.
+- Correct unit codes and titles.
+- Curriculum accordion works.
+- Six learning areas included.
+- Audience section included.
+- Practical capabilities included.
+- Intake information included.
+- Contact links functional.
+- Official registration link functional.
+
+### Design
+
+- Existing website theme preserved.
+- Existing fonts reused.
+- Existing colour palette reused.
+- Existing buttons and card styling reused.
+- No unrelated design changes.
+- Mobile and desktop layouts validated.
+
+### Technical
+
+- No broken imports.
+- No TypeScript errors.
+- No console errors.
+- No CSS leakage.
+- No duplicate React roots.
+- No conflicting global JavaScript.
+- No broken internal links.
+- Build completes successfully.
+- WordPress mount points initialise independently.
+
+### Final report
+
+After implementation, provide:
+
+1. Files created.
+2. Files modified.
+3. Components implemented.
+4. New page and route details.
+5. Homepage integration details.
+6. Curriculum implementation details.
+7. Build output locations.
+8. WordPress integration instructions.
+9. Validation results.
+10. Any information requiring official confirmation before public enrolment advertising.
+
+**FINAL INSTRUCTION**
+
+Preserve the existing Chelson Gordon design system without exception.
+
+Build the new page and homepage section as natural extensions of the approved website theme.
+
+Prioritise maintainability, WordPress compatibility, CSS isolation, performance and accurate course information.
+
+Do not redesign existing pages, introduce a new visual identity, or modify unrelated functionality.
+
+Deliver an integrated, production-conscious React implementation that is ready for the subsequent WordPress embedding and JavaScript/CSS asset update.

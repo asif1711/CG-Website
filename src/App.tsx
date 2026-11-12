@@ -44,6 +44,8 @@ import RPLConsultationPage from "./components/RPLConsultation/RPLConsultationPag
 import WorldMapGraphic from "./components/WorldMapGraphic";
 import Testimonials from "./components/Testimonials";
 import { PDAnnouncement } from "./components/PDAnnouncement";
+import { CoursesSection } from "./components/Courses/CoursesSection";
+import { DiplomaAICoursePage } from "./components/Courses/DiplomaAICoursePage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -1746,6 +1748,9 @@ export default function App() {
         '#meet-our-team'
       ].includes(window.location.hash);
       const isTeamPath = window.location.pathname.startsWith('/our-people') || window.location.pathname.startsWith('/our-teams');
+      const isCoursePath = 
+        window.location.pathname.startsWith('/courses') ||
+        window.location.hash.startsWith('#course');
       const isBookPdPath = 
         window.location.pathname.startsWith('/book-pd-session') || 
         window.location.hash === '#book-pd-session' || 
@@ -1756,7 +1761,7 @@ export default function App() {
         window.location.hash === '#rpl-consultation' || 
         window.location.hash.startsWith('#rpl-consultation');
       
-      if (isTeamHash || isTeamPath || ((isBookPdPath || isRplPath) && !window.location.hash.includes('booking-registration-section') && !window.location.hash.includes('wp-gravity-form-mount') && !window.location.hash.includes('rpl-consultation-gravity-form-mount'))) {
+      if (isTeamHash || isTeamPath || isCoursePath || ((isBookPdPath || isRplPath) && !window.location.hash.includes('booking-registration-section') && !window.location.hash.includes('wp-gravity-form-mount') && !window.location.hash.includes('rpl-consultation-gravity-form-mount'))) {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
     };
@@ -1791,21 +1796,30 @@ export default function App() {
   const isHrDashboardPage = 
     normalizedCurrentPath === '/hr-dashboard' ||
     currentHash === '#hr-dashboard';
-  const isRplConsultationPage = 
+  const isCourseDetailPage = 
     !isHrDashboardPage && !isTeamDetailPage && !isOrgChartPage && (
+      normalizedCurrentPath === '/courses/diploma-machine-learning-artificial-intelligence' ||
+      normalizedCurrentPath.startsWith('/courses/diploma') ||
+      currentHash === '#course-diploma-ai' ||
+      currentHash.startsWith('#course-diploma-ai') ||
+      currentHash === '#course-ai' ||
+      currentHash.startsWith('#course-ai')
+    );
+  const isRplConsultationPage = 
+    !isHrDashboardPage && !isTeamDetailPage && !isOrgChartPage && !isCourseDetailPage && (
       normalizedCurrentPath === '/rpl-consultation' || 
       currentHash === '#rpl-consultation' ||
       currentHash.startsWith('#rpl-consultation')
     );
   const isBookPdSessionPage = 
-    !isHrDashboardPage && !isTeamDetailPage && !isOrgChartPage && !isRplConsultationPage && (
+    !isHrDashboardPage && !isTeamDetailPage && !isOrgChartPage && !isCourseDetailPage && !isRplConsultationPage && (
       normalizedCurrentPath === '/book-pd-session' || 
       currentHash === '#book-pd-session' ||
       currentHash.startsWith('#book-pd-session') ||
       currentHash === '#booking-registration-section'
     );
   const isOurPeoplePage = 
-    !isTeamDetailPage && !isHrDashboardPage && !isBookPdSessionPage && !isRplConsultationPage && (
+    !isTeamDetailPage && !isHrDashboardPage && !isCourseDetailPage && !isBookPdSessionPage && !isRplConsultationPage && (
       normalizedCurrentPath === '/our-people' || 
       normalizedCurrentPath === '/our-teams' || 
       [
@@ -1815,14 +1829,14 @@ export default function App() {
       ].includes(currentHash)
     );
 
-  const isHomepage = !isHrDashboardPage && !isOrgChartPage && !isTeamDetailPage && !isBookPdSessionPage && !isOurPeoplePage && !isRplConsultationPage;
+  const isHomepage = !isHrDashboardPage && !isOrgChartPage && !isTeamDetailPage && !isBookPdSessionPage && !isOurPeoplePage && !isRplConsultationPage && !isCourseDetailPage;
 
   return (
     <div className="font-sans">
       {!isHrDashboardPage && (
         <Navbar 
-          forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage || isBookPdSessionPage || isRplConsultationPage} 
-          logoHref={(isBookPdSessionPage || isRplConsultationPage) ? "https://chelsongordon.com/" : undefined}
+          forceSolid={isOrgChartPage || isOurPeoplePage || isTeamDetailPage || isBookPdSessionPage || isRplConsultationPage || isCourseDetailPage} 
+          logoHref={(isBookPdSessionPage || isRplConsultationPage || isCourseDetailPage) ? "https://chelsongordon.com/" : undefined}
           isHomepage={isHomepage}
         />
       )}
@@ -1893,6 +1907,22 @@ export default function App() {
             >
               <BookPDSessionPage />
             </motion.div>
+          ) : isCourseDetailPage ? (
+            <motion.div
+              key="diploma-ai-course-page"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+            >
+              <DiplomaAICoursePage 
+                onNavigateHome={() => {
+                  window.history.pushState({}, '', '/');
+                  window.dispatchEvent(new Event('popstate'));
+                  window.scrollTo({ top: 0, behavior: 'instant' });
+                }}
+              />
+            </motion.div>
           ) : isOurPeoplePage ? (
             <motion.div
               key="our-people"
@@ -1916,6 +1946,13 @@ export default function App() {
               <Logos />
               <PDAnnouncement />
               <Capabilities />
+              <CoursesSection 
+                onNavigateToCourse={(slug) => {
+                  window.history.pushState(null, '', slug);
+                  window.dispatchEvent(new Event('popstate'));
+                  window.scrollTo({ top: 0, behavior: 'instant' });
+                }}
+              />
               <Portfolio />
               <Principles />
               <HearFromOurTeam />

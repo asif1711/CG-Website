@@ -144,6 +144,7 @@ const NAV_LINKS = [
   { name: 'About Us', href: 'https://chelsongordon.com/who-we-are/' },
   { name: 'Our Services', href: 'https://chelsongordon.com/our-services/' },
   { name: 'Our People', href: 'https://chelsongordon.com/our-team/' },
+  { name: 'Workplace Assessment', href: 'https://chelsongordon.com/workplace-assesment/' },
   { name: 'Careers', href: 'https://chelsongordon.com/careers/' },
 ];
 
@@ -178,13 +179,27 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid, logoHref, isHomepage
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          setIsScrolled(window.scrollY > 50);
+          setIsScrolled(window.scrollY > 20);
           ticking = false;
         });
         ticking = true;
       }
     };
+    
+    // Check initial scroll position immediately
+    setIsScrolled(window.scrollY > 20);
+
+    const handleLocationSync = () => {
+      setIsScrolled(false);
+      setMobileMenuOpen(false);
+      setTimeout(() => {
+        setIsScrolled(window.scrollY > 20);
+      }, 50);
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('popstate', handleLocationSync);
+    window.addEventListener('hashchange', handleLocationSync);
 
     // Initial language detection from cookie or localStorage
     const getCookie = (name: string) => {
@@ -327,7 +342,13 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid, logoHref, isHomepage
   };
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${activeScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+      activeScrolled 
+        ? (isScrolled 
+            ? 'bg-white/95 backdrop-blur-md shadow-md border-b border-slate-200/80' 
+            : 'bg-white shadow-none border-b border-slate-100') 
+        : 'bg-transparent shadow-none'
+    }`}>
       <TopAnnouncementBanner isScrolled={activeScrolled} isHomepage={isHomepage} />
       <div className="max-w-full mx-auto w-full px-4 md:px-8 lg:px-10 xl:px-12 2xl:px-[4%] h-[120px] lg:h-[100px] xl:h-[120px] 2xl:h-[140px] flex items-center justify-between gap-4">
         {/* Left: Logo */}
@@ -362,9 +383,9 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid, logoHref, isHomepage
         {/* Right Section: Nav + Buttons */}
         <div className="hidden lg:flex items-center justify-end ml-auto min-w-0 flex-shrink-0">
           {/* Single Row: Nav links + Action Buttons */}
-          <div className="flex items-center gap-[20px] min-[1600px]:gap-[30px] justify-end flex-shrink-0">
+          <div className="flex items-center gap-[14px] xl:gap-[20px] min-[1600px]:gap-[28px] justify-end flex-shrink-0">
             {/* Nav links */}
-            <div className="flex items-center gap-[30px] min-[1600px]:gap-[40px] mr-1 xl:mr-2 min-[1600px]:mr-2 flex-shrink-0">
+            <div className="flex items-center gap-[14px] xl:gap-[22px] min-[1600px]:gap-[32px] mr-1 xl:mr-2 flex-shrink-0">
               {NAV_LINKS.map((item) => {
                 const isInternal = item.href.startsWith('/') || item.href.startsWith('#');
                 const isCareers = item.name === 'Careers';
@@ -386,7 +407,7 @@ export const Navbar: React.FC<NavbarProps> = ({ forceSolid, logoHref, isHomepage
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }
                     }}
-                    className={`${isCareers ? 'hidden min-[1600px]:inline-block' : 'inline-block'} text-[10px] xl:text-xs font-bold uppercase tracking-widest transition-all hover:text-accent whitespace-nowrap ${activeScrolled ? 'text-primary' : 'text-white'}`}
+                    className={`${isCareers ? 'hidden min-[1600px]:inline-block' : 'inline-block'} text-[9px] xl:text-[10.5px] min-[1600px]:text-xs font-bold uppercase tracking-wider xl:tracking-widest transition-all hover:text-accent whitespace-nowrap ${activeScrolled ? 'text-primary' : 'text-white'}`}
                   >
                     {item.name}
                   </a>

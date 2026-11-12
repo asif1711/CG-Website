@@ -25,11 +25,13 @@ export const TopAnnouncementBanner: React.FC<TopAnnouncementBannerProps> = ({
     const hash = window.location.hash || '';
 
     const isNonHome = 
+      path.startsWith('/courses') ||
       path.startsWith('/book-pd-session') ||
       path.startsWith('/our-people') ||
       path.startsWith('/our-teams') ||
       path.startsWith('/team') ||
       path.startsWith('/hr-dashboard') ||
+      hash.startsWith('#course') ||
       hash.startsWith('#book-pd-session') ||
       hash === '#booking-registration-section' ||
       hash.startsWith('#our-people') ||
