@@ -19,14 +19,13 @@ export const FeaturedCourseCard: React.FC<FeaturedCourseCardProps> = ({
       e.preventDefault();
       onExplore();
     } else if (typeof window !== 'undefined') {
-      // In SPA environment: pushState and popstate event
+      // In SPA dev/preview environment: route internally to /courses-by-us
       if (
-        !window.location.hostname.includes('chelsongordon.com') ||
         window.location.origin.includes('ais-') ||
         window.location.origin.includes('localhost')
       ) {
         e.preventDefault();
-        window.history.pushState(null, '', course.slug);
+        window.history.pushState(null, '', '/courses-by-us');
         window.dispatchEvent(new Event('popstate'));
         window.scrollTo({ top: 0, behavior: 'instant' });
         document.documentElement.scrollTop = 0;
@@ -39,29 +38,8 @@ export const FeaturedCourseCard: React.FC<FeaturedCourseCardProps> = ({
     if (onEnquire) {
       e.preventDefault();
       onEnquire();
-    } else {
-      // If explore first, route to course page with #enquire anchor
-      if (typeof window !== 'undefined') {
-        if (
-          !window.location.hostname.includes('chelsongordon.com') ||
-          window.location.origin.includes('ais-') ||
-          window.location.origin.includes('localhost')
-        ) {
-          e.preventDefault();
-          window.history.pushState(null, '', `${course.slug}#enquire`);
-          window.dispatchEvent(new Event('popstate'));
-          window.scrollTo({ top: 0, behavior: 'instant' });
-          document.documentElement.scrollTop = 0;
-          document.body.scrollTop = 0;
-          setTimeout(() => {
-            const el = document.getElementById('enquiry') || document.getElementById('enquire');
-            if (el) {
-              el.scrollIntoView({ behavior: 'smooth' });
-            }
-          }, 120);
-        }
-      }
     }
+    // Otherwise allow direct navigation to https://chelsongordon.com/contact-us-page/
   };
 
   return (
@@ -158,7 +136,7 @@ export const FeaturedCourseCard: React.FC<FeaturedCourseCardProps> = ({
           {/* Action Button Row */}
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-2">
             <motion.a
-              href={course.slug}
+              href="https://chelsongordon.com/courses-by-us/"
               onClick={handleExploreClick}
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
@@ -169,7 +147,7 @@ export const FeaturedCourseCard: React.FC<FeaturedCourseCardProps> = ({
             </motion.a>
 
             <motion.a
-              href={`${course.slug}#enquire`}
+              href="https://chelsongordon.com/contact-us-page/"
               onClick={handleEnquireClick}
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}

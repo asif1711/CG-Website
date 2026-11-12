@@ -1749,6 +1749,7 @@ export default function App() {
       ].includes(window.location.hash);
       const isTeamPath = window.location.pathname.startsWith('/our-people') || window.location.pathname.startsWith('/our-teams');
       const isCoursePath = 
+        window.location.pathname.startsWith('/courses-by-us') ||
         window.location.pathname.startsWith('/courses') ||
         window.location.hash.startsWith('#course');
       const isBookPdPath = 
@@ -1798,8 +1799,11 @@ export default function App() {
     currentHash === '#hr-dashboard';
   const isCourseDetailPage = 
     !isHrDashboardPage && !isTeamDetailPage && !isOrgChartPage && (
+      normalizedCurrentPath === '/courses-by-us' ||
+      normalizedCurrentPath.startsWith('/courses-by-us') ||
       normalizedCurrentPath === '/courses/diploma-machine-learning-artificial-intelligence' ||
       normalizedCurrentPath.startsWith('/courses/diploma') ||
+      normalizedCurrentPath.startsWith('/courses') ||
       currentHash === '#course-diploma-ai' ||
       currentHash.startsWith('#course-diploma-ai') ||
       currentHash === '#course-ai' ||
